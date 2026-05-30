@@ -38,7 +38,7 @@ function LoginPage() {
   }
 
   return (
-    <AuthShell title="Sign in" subtitle="Access your NCAA Academy dashboard.">
+    <AuthShell title="Sign in" subtitle="Use your NCAA Arbiters account to access the Academy.">
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -54,8 +54,9 @@ function LoginPage() {
         <Button type="submit" className="w-full" disabled={submitting}>
           {submitting ? "Signing in…" : "Sign in"}
         </Button>
-        <p className="text-center text-sm text-muted-foreground">
-          New here? <Link to="/signup" className="text-primary font-medium hover:underline">Create an account</Link>
+        <p className="text-center text-xs text-muted-foreground">
+          Don't have an account? Contact the NCAA secretariat — Academy access
+          uses the same credentials as the main Arbiters dashboard.
         </p>
       </form>
     </AuthShell>

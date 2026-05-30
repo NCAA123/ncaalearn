@@ -193,7 +193,7 @@ function AdminDashboard() {
     queryKey: ["admin-dashboard"],
     queryFn: async () => {
       const [users, licenses, exams, certs] = await Promise.all([
-        supabase.from("academy_profiles").select("*", { count: "exact", head: true }),
+        supabase.from("arbiters" as any).select("*", { count: "exact", head: true }),
         supabase.from("academy_licenses").select("*", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("academy_exam_attempts").select("*", { count: "exact", head: true }).gte("started_at", new Date(Date.now() - 86_400_000).toISOString()),
         supabase.from("academy_certificates").select("*", { count: "exact", head: true }),
