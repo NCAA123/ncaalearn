@@ -1,0 +1,119 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import type { Session, User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+
+export type AcademyRole =
+  | "candidate"
+  | "national_arbiter"
+  | "fide_arbiter"
+  | "international_arbiter"
+  | "instructor"
+  | "academy_admin"
+  | "super_admin";
+
+export interface AcademyProfile {
+  id: string;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  arbiter_title: string | null;
+  zone: string | null;
+  state: string | null;
+  phone: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  fide_id: string | null;
+}
+
+export interface AuthState {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  user: User | null;
+  session: Session | null;
+  profile: AcademyProfile | null;
+  roles: AcademyRole[];
+  hasRole: (role: AcademyRole) => boolean;
+  hasAnyRole: (roles: AcademyRole[]) => boolean;
+  isStaff: boolean;
+  isAdmin: boolean;
+  isLicensedArbiter: boolean;
+  refresh: () => Promise<void>;
+  signOut: () => Promise<void>;
+}
+
+const STAFF: AcademyRole[] = ["instructor", "academy_admin", "super_admin"];
+const ADMIN: AcademyRole[] = ["academy_admin", "super_admin"];
+const ARBITER: AcademyRole[] = ["national_arbiter", "fide_arbiter", "international_arbiter"];
+
+const AuthContext = createContext<AuthState | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<AcademyProfile | null>(null);
+  const [roles, setRoles] = useState<AcademyRole[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadProfileAndRoles = async (uid: string) => {
+    const [{ data: p }, { data: r }] = await Promise.all([
+      supabase.from("academy_profiles").select("*").eq("id", uid).maybeSingle(),
+      supabase.from("academy_user_roles").select("role").eq("user_id", uid),
+    ]);
+    setProfile((p as AcademyProfile | null) ?? null);
+    setRoles(((r ?? []) as { role: AcademyRole }[]).map((row) => row.role));
+  };
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+      setUser(s?.user ?? null);
+      if (s?.user) {
+        // defer to avoid deadlock
+        setTimeout(() => loadProfileAndRoles(s.user.id), 0);
+      } else {
+        setProfile(null);
+        setRoles([]);
+      }
+    });
+
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setUser(data.session?.user ?? null);
+      if (data.session?.user) {
+        loadProfileAndRoles(data.session.user.id).finally(() => setIsLoading(false));
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const value: AuthState = {
+    isAuthenticated: !!user,
+    isLoading,
+    user,
+    session,
+    profile,
+    roles,
+    hasRole: (r) => roles.includes(r),
+    hasAnyRole: (rs) => rs.some((r) => roles.includes(r)),
+    isStaff: roles.some((r) => STAFF.includes(r)),
+    isAdmin: roles.some((r) => ADMIN.includes(r)),
+    isLicensedArbiter: roles.some((r) => ARBITER.includes(r)),
+    refresh: async () => {
+      if (user) await loadProfileAndRoles(user.id);
+    },
+    signOut: async () => {
+      await supabase.auth.signOut();
+    },
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthState {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+}
