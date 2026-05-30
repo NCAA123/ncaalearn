@@ -55,12 +55,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const loadProfileAndRoles = async (uid: string) => {
-    const [{ data: p }, { data: r }] = await Promise.all([
-      supabase.from("academy_profiles").select("*").eq("id", uid).maybeSingle(),
+    // Source of truth for identity is the existing NCAA `arbiters` table
+    // (shared with the main dashboard). Academy only overlays its own roles.
+    const [{ data: a }, { data: r }] = await Promise.all([
+      supabase
+        .from("arbiters" as any)
+        .select("id,email,first_name,last_name,title,fide_id,zone,state,phone,bio,avatar_url,role")
+        .eq("id", uid)
+        .maybeSingle(),
       supabase.from("academy_user_roles").select("role").eq("user_id", uid),
     ]);
-    setProfile((p as AcademyProfile | null) ?? null);
-    setRoles(((r ?? []) as { role: AcademyRole }[]).map((row) => row.role));
+
+    const arbiter = a as
+      | (Record<string, string | null> & { title?: string | null; role?: string | null })
+      | null;
+
+    setProfile(
+      arbiter
+        ? {
+            id: arbiter.id as string,
+            email: arbiter.email ?? null,
+            first_name: arbiter.first_name ?? null,
+            last_name: arbiter.last_name ?? null,
+            arbiter_title: (arbiter.title as string | null) ?? null,
+            zone: arbiter.zone ?? null,
+            state: arbiter.state ?? null,
+            phone: arbiter.phone ?? null,
+            bio: arbiter.bio ?? null,
+            avatar_url: arbiter.avatar_url ?? null,
+            fide_id: arbiter.fide_id ?? null,
+          }
+        : null,
+    );
+
+    // Combine academy-specific roles with implicit roles derived from the
+    // arbiter's main-dashboard title / role so existing users don't start fresh.
+    const academyRoles = ((r ?? []) as { role: AcademyRole }[]).map((row) => row.role);
+    const derived: AcademyRole[] = [];
+    const title = (arbiter?.title ?? "").toUpperCase();
+    if (title === "NA") derived.push("national_arbiter");
+    else if (title === "FA") derived.push("fide_arbiter");
+    else if (title === "IA") derived.push("international_arbiter");
+    const mainRole = (arbiter?.role ?? "").toLowerCase();
+    if (mainRole === "admin" || mainRole === "superadmin") derived.push("academy_admin");
+    if (mainRole === "superadmin") derived.push("super_admin");
+
+    const merged = Array.from(new Set([...academyRoles, ...derived]));
+    setRoles(merged.length ? merged : ["candidate"]);
   };
 
   useEffect(() => {

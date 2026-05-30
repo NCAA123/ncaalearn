@@ -52,13 +52,15 @@ function ProfilePage() {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
+    // Write through to the shared NCAA `arbiters` profile (same record
+    // edited from the main dashboard) so data stays in sync.
     const { error } = await supabase
-      .from("academy_profiles")
+      .from("arbiters" as any)
       .update({
         first_name: form.first_name,
         last_name: form.last_name,
         phone: form.phone,
-        arbiter_title: form.arbiter_title || null,
+        title: form.arbiter_title || null,
         zone: form.zone,
         state: form.state,
         fide_id: form.fide_id,
@@ -79,7 +81,7 @@ function ProfilePage() {
     if (upErr) return toast.error(upErr.message);
     const { data } = supabase.storage.from("avatars").getPublicUrl(path);
     const url = `${data.publicUrl}?t=${Date.now()}`;
-    const { error } = await supabase.from("academy_profiles").update({ avatar_url: url }).eq("id", user.id);
+    const { error } = await supabase.from("arbiters" as any).update({ avatar_url: url }).eq("id", user.id);
     if (error) return toast.error(error.message);
     setForm((f) => ({ ...f, avatar_url: url }));
     toast.success("Avatar updated");
