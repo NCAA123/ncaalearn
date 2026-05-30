@@ -963,6 +963,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "arbiters_profiles_id_fkey"
+            columns: ["profiles_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "arbiters_zone_id_fkey"
             columns: ["zone_id"]
             isOneToOne: false
@@ -1066,6 +1073,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "audit_logs_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       auth_logs: {
@@ -1143,6 +1157,13 @@ export type Database = {
             referencedRelation: "arbiters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "awards_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       bookmarks: {
@@ -1208,6 +1229,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "arbiters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "broadcasts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1449,6 +1477,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "chat_messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "chat_messages_reply_to_fkey"
             columns: ["reply_to"]
             isOneToOne: false
@@ -1481,6 +1516,13 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1557,6 +1599,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "chat_rooms_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "chat_rooms_direct_message_with_fkey"
             columns: ["direct_message_with"]
             isOneToOne: false
@@ -1575,6 +1624,13 @@ export type Database = {
             columns: ["direct_message_with"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_rooms_direct_message_with_fkey"
+            columns: ["direct_message_with"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1628,10 +1684,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "chats_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "chats_last_sender_id_fkey"
             columns: ["last_sender_id"]
             isOneToOne: false
             referencedRelation: "arbiters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_last_sender_id_fkey"
+            columns: ["last_sender_id"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1697,6 +1767,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "committees_chair_account_id_fkey"
+            columns: ["chair_account_id"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "committees_chairman_id_fkey"
             columns: ["chairman_id"]
             isOneToOne: false
@@ -1718,6 +1795,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "committees_chairman_id_fkey"
+            columns: ["chairman_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "committees_secretary_id_fkey"
             columns: ["secretary_id"]
             isOneToOne: false
@@ -1736,6 +1820,13 @@ export type Database = {
             columns: ["secretary_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "committees_secretary_id_fkey"
+            columns: ["secretary_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1869,6 +1960,13 @@ export type Database = {
             columns: ["arbiter_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disciplinary_cases_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2088,6 +2186,13 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2481,6 +2586,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "group_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       login_codes: {
@@ -2587,6 +2699,13 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "arbiters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2797,6 +2916,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "notifications_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "notifications_recipient_id_fkey"
             columns: ["recipient_id"]
             isOneToOne: false
@@ -2818,6 +2944,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "notifications_sender_id_fkey"
             columns: ["sender_id"]
             isOneToOne: false
@@ -2836,6 +2969,13 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2882,6 +3022,13 @@ export type Database = {
             referencedRelation: "arbiters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "obituaries_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       panels_2022_2023: {
@@ -2917,6 +3064,13 @@ export type Database = {
             referencedRelation: "arbiters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "panels_2022_2023_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       panels_2024_2025: {
@@ -2950,6 +3104,13 @@ export type Database = {
             columns: ["arbiter_id"]
             isOneToOne: false
             referencedRelation: "arbiters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "panels_2024_2025_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
             referencedColumns: ["id"]
           },
         ]
@@ -3011,6 +3172,13 @@ export type Database = {
             columns: ["arbiter_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_due_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -3131,6 +3299,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payments_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payments_arbiter_id_fkey"
             columns: ["arbiter_id"]
             isOneToOne: false
@@ -3149,6 +3324,13 @@ export type Database = {
             columns: ["arbiter_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -3184,6 +3366,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -3467,6 +3656,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "resources_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       tournament_assignments: {
@@ -3553,6 +3749,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "tournament_assignments_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tournament_assignments_assigned_by_fkey"
             columns: ["assigned_by"]
             isOneToOne: false
@@ -3571,6 +3774,13 @@ export type Database = {
             columns: ["assigned_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_assignments_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -3658,6 +3868,13 @@ export type Database = {
             columns: ["evaluator_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_evaluations_evaluator_id_fkey"
+            columns: ["evaluator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -3802,6 +4019,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "tournaments_chief_arbiter_id_fkey"
+            columns: ["chief_arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tournaments_organizer_id_fkey"
             columns: ["organizer_id"]
             isOneToOne: false
@@ -3820,6 +4044,13 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournaments_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -3873,6 +4104,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unread_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -4105,6 +4343,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "zonal_representatives_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "zonal_representatives_zone_id_fkey"
             columns: ["zone_id"]
             isOneToOne: false
@@ -4172,6 +4417,80 @@ export type Database = {
         }
         Relationships: []
       }
+      arbiters_public: {
+        Row: {
+          arbiter_category: string | null
+          arbiter_id: string | null
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          fide_id: string | null
+          first_name: string | null
+          id: string | null
+          is_active: boolean | null
+          last_name: string | null
+          licensed_status: string | null
+          rating: number | null
+          role: string | null
+          state: string | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          zone: string | null
+          zone_id: string | null
+        }
+        Insert: {
+          arbiter_category?: string | null
+          arbiter_id?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          fide_id?: string | null
+          first_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_name?: string | null
+          licensed_status?: string | null
+          rating?: number | null
+          role?: string | null
+          state?: string | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          zone?: string | null
+          zone_id?: string | null
+        }
+        Update: {
+          arbiter_category?: string | null
+          arbiter_id?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          fide_id?: string | null
+          first_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_name?: string | null
+          licensed_status?: string | null
+          rating?: number | null
+          role?: string | null
+          state?: string | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          zone?: string | null
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "arbiters_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assignment_details: {
         Row: {
           accommodation_provided: boolean | null
@@ -4224,6 +4543,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "tournament_assignments_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tournament_assignments_assigned_by_fkey"
             columns: ["assigned_by"]
             isOneToOne: false
@@ -4242,6 +4568,13 @@ export type Database = {
             columns: ["assigned_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_assignments_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -4290,6 +4623,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "committees_chair_account_id_fkey"
+            columns: ["chair_account_id"]
+            isOneToOne: false
+            referencedRelation: "arbiters_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "committees_chairman_id_fkey"
             columns: ["chairman_id"]
             isOneToOne: false
@@ -4311,6 +4651,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "committees_chairman_id_fkey"
+            columns: ["chairman_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "committees_secretary_id_fkey"
             columns: ["secretary_id"]
             isOneToOne: false
@@ -4329,6 +4676,13 @@ export type Database = {
             columns: ["secretary_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "committees_secretary_id_fkey"
+            columns: ["secretary_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -4385,6 +4739,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payments_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payments_arbiter_id_fkey"
             columns: ["arbiter_id"]
             isOneToOne: false
@@ -4403,6 +4764,13 @@ export type Database = {
             columns: ["arbiter_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_arbiter_id_fkey"
+            columns: ["arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -4441,6 +4809,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payments_tournament_id_fkey"
             columns: ["tournament_id"]
             isOneToOne: false
@@ -4455,6 +4830,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profiles_public: {
+        Row: {
+          arbiter_level: Database["public"]["Enums"]["arbiter_level"] | null
+          avatar_url: string | null
+          first_name: string | null
+          id: string | null
+          is_active: boolean | null
+          last_name: string | null
+          zone: Database["public"]["Enums"]["zone_type"] | null
+        }
+        Insert: {
+          arbiter_level?: Database["public"]["Enums"]["arbiter_level"] | null
+          avatar_url?: string | null
+          first_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_name?: string | null
+          zone?: Database["public"]["Enums"]["zone_type"] | null
+        }
+        Update: {
+          arbiter_level?: Database["public"]["Enums"]["arbiter_level"] | null
+          avatar_url?: string | null
+          first_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_name?: string | null
+          zone?: Database["public"]["Enums"]["zone_type"] | null
+        }
+        Relationships: []
       }
       tournament_statistics: {
         Row: {
@@ -4526,6 +4931,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "tournaments_chief_arbiter_id_fkey"
+            columns: ["chief_arbiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tournaments_organizer_id_fkey"
             columns: ["organizer_id"]
             isOneToOne: false
@@ -4544,6 +4956,13 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournaments_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -4672,6 +5091,7 @@ export type Database = {
         Args: { p_room_id: string; p_user_id: string }
         Returns: undefined
       }
+      is_main_admin: { Args: { _uid: string }; Returns: boolean }
       mark_all_notifications_read: {
         Args: { user_id: string }
         Returns: undefined
