@@ -49,7 +49,9 @@ function SeminarsPage() {
 
   const regMap = useMemo(() => {
     const m = new Map<string, string>();
-    (regs ?? []).forEach((r: any) => m.set(r.seminar_id, r.status));
+    (regs ?? []).forEach((r: any) => {
+      if (r.status !== "cancelled") m.set(r.seminar_id, r.status);
+    });
     return m;
   }, [regs]);
 

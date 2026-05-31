@@ -134,7 +134,7 @@ function SeminarDetailPage() {
             {seminar.description && <p className="text-sm text-muted-foreground mt-2 whitespace-pre-wrap">{seminar.description}</p>}
           </div>
           <div className="flex flex-col gap-2 min-w-[220px]">
-            {registration ? (
+            {registration && registration.status !== "cancelled" ? (
               <>
                 <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-sm flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-primary" />
