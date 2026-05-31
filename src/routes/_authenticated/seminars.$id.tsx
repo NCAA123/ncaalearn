@@ -59,10 +59,18 @@ function SeminarDetailPage() {
     mutationFn: async () => {
       if (!user || !seminar) throw new Error("Not ready");
       const status = capacityFull ? "waitlisted" : "registered";
-      const { error } = await supabase
-        .from("academy_seminar_registrations")
-        .insert({ user_id: user.id, seminar_id: seminar.id, status });
-      if (error) throw error;
+      if (registration) {
+        const { error } = await supabase
+          .from("academy_seminar_registrations")
+          .update({ status })
+          .eq("id", registration.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("academy_seminar_registrations")
+          .insert({ user_id: user.id, seminar_id: seminar.id, status });
+        if (error) throw error;
+      }
       return status;
     },
     onSuccess: (status) => {
