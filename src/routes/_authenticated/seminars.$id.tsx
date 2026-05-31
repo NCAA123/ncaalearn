@@ -79,7 +79,7 @@ function SeminarDetailPage() {
       if (!registration) return;
       const { error } = await supabase
         .from("academy_seminar_registrations")
-        .delete()
+        .update({ status: "cancelled" })
         .eq("id", registration.id);
       if (error) throw error;
     },
