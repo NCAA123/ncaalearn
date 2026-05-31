@@ -27,6 +27,7 @@ import { Route as AuthenticatedCpdRouteImport } from './routes/_authenticated/cp
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
 import { Route as AuthenticatedCertificatesRouteImport } from './routes/_authenticated/certificates'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedSeminarsIdRouteImport } from './routes/_authenticated/seminars.$id'
 import { Route as AuthenticatedCoursesSlugRouteImport } from './routes/_authenticated/courses.$slug'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
@@ -124,6 +125,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSeminarsIdRoute = AuthenticatedSeminarsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedSeminarsRoute,
+} as any)
 const AuthenticatedCoursesSlugRoute =
   AuthenticatedCoursesSlugRouteImport.update({
     id: '/$slug',
@@ -171,11 +177,12 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/resources': typeof AuthenticatedResourcesRoute
-  '/seminars': typeof AuthenticatedSeminarsRoute
+  '/seminars': typeof AuthenticatedSeminarsRouteWithChildren
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRouteWithChildren
+  '/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/courses/$slug/lessons/$lessonId': typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
 }
 export interface FileRoutesByTo {
@@ -195,11 +202,12 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/resources': typeof AuthenticatedResourcesRoute
-  '/seminars': typeof AuthenticatedSeminarsRoute
+  '/seminars': typeof AuthenticatedSeminarsRouteWithChildren
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRouteWithChildren
+  '/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/courses/$slug/lessons/$lessonId': typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
 }
 export interface FileRoutesById {
@@ -221,11 +229,12 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/resources': typeof AuthenticatedResourcesRoute
-  '/_authenticated/seminars': typeof AuthenticatedSeminarsRoute
+  '/_authenticated/seminars': typeof AuthenticatedSeminarsRouteWithChildren
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/courses/$slug': typeof AuthenticatedCoursesSlugRouteWithChildren
+  '/_authenticated/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/_authenticated/courses/$slug/lessons/$lessonId': typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
 }
 export interface FileRouteTypes {
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/courses/$slug'
+    | '/seminars/$id'
     | '/courses/$slug/lessons/$lessonId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/courses/$slug'
+    | '/seminars/$id'
     | '/courses/$slug/lessons/$lessonId'
   id:
     | '__root__'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/courses/$slug'
+    | '/_authenticated/seminars/$id'
     | '/_authenticated/courses/$slug/lessons/$lessonId'
   fileRoutesById: FileRoutesById
 }
@@ -441,6 +453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/seminars/$id': {
+      id: '/_authenticated/seminars/$id'
+      path: '/$id'
+      fullPath: '/seminars/$id'
+      preLoaderRoute: typeof AuthenticatedSeminarsIdRouteImport
+      parentRoute: typeof AuthenticatedSeminarsRoute
+    }
     '/_authenticated/courses/$slug': {
       id: '/_authenticated/courses/$slug'
       path: '/$slug'
@@ -520,6 +539,19 @@ const AuthenticatedCoursesRouteChildren: AuthenticatedCoursesRouteChildren = {
 const AuthenticatedCoursesRouteWithChildren =
   AuthenticatedCoursesRoute._addFileChildren(AuthenticatedCoursesRouteChildren)
 
+interface AuthenticatedSeminarsRouteChildren {
+  AuthenticatedSeminarsIdRoute: typeof AuthenticatedSeminarsIdRoute
+}
+
+const AuthenticatedSeminarsRouteChildren: AuthenticatedSeminarsRouteChildren = {
+  AuthenticatedSeminarsIdRoute: AuthenticatedSeminarsIdRoute,
+}
+
+const AuthenticatedSeminarsRouteWithChildren =
+  AuthenticatedSeminarsRoute._addFileChildren(
+    AuthenticatedSeminarsRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedCertificatesRoute: typeof AuthenticatedCertificatesRoute
@@ -532,7 +564,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedResourcesRoute: typeof AuthenticatedResourcesRoute
-  AuthenticatedSeminarsRoute: typeof AuthenticatedSeminarsRoute
+  AuthenticatedSeminarsRoute: typeof AuthenticatedSeminarsRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -547,7 +579,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedResourcesRoute: AuthenticatedResourcesRoute,
-  AuthenticatedSeminarsRoute: AuthenticatedSeminarsRoute,
+  AuthenticatedSeminarsRoute: AuthenticatedSeminarsRouteWithChildren,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
