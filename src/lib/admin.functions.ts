@@ -164,9 +164,9 @@ export const createCourse = createServerFn({ method: "POST" })
     (d: {
       title: string;
       slug: string;
-      summary?: string;
+      description?: string;
       level?: string;
-      published?: boolean;
+      is_published?: boolean;
     }) =>
       z
         .object({
@@ -176,9 +176,9 @@ export const createCourse = createServerFn({ method: "POST" })
             .min(1)
             .max(120)
             .regex(/^[a-z0-9-]+$/, "lowercase letters, numbers, hyphens"),
-          summary: z.string().max(2000).optional(),
-          level: z.enum(["beginner", "intermediate", "advanced"]).optional(),
-          published: z.boolean().optional(),
+          description: z.string().max(2000).optional(),
+          level: z.string().max(50).optional(),
+          is_published: z.boolean().optional(),
         })
         .parse(d),
   )
@@ -187,9 +187,10 @@ export const createCourse = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.from("academy_courses").insert({
       title: data.title,
       slug: data.slug,
-      summary: data.summary ?? null,
-      level: data.level ?? "beginner",
-      published: data.published ?? false,
+      description: data.description ?? null,
+      level: data.level ?? "candidate",
+      is_published: data.is_published ?? false,
+      created_by: context.userId,
     } as never);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -197,14 +198,14 @@ export const createCourse = createServerFn({ method: "POST" })
 
 export const setCoursePublished = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string; published: boolean }) =>
-    z.object({ id: z.string().uuid(), published: z.boolean() }).parse(d),
+  .inputValidator((d: { id: string; is_published: boolean }) =>
+    z.object({ id: z.string().uuid(), is_published: z.boolean() }).parse(d),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     const { error } = await supabaseAdmin
       .from("academy_courses")
-      .update({ published: data.published } as never)
+      .update({ is_published: data.is_published } as never)
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -228,16 +229,18 @@ export const createExam = createServerFn({ method: "POST" })
       title: string;
       description?: string;
       duration_minutes: number;
-      passing_score: number;
-      published?: boolean;
+      pass_score: number;
+      level?: string;
+      is_published?: boolean;
     }) =>
       z
         .object({
           title: z.string().min(1).max(200),
           description: z.string().max(2000).optional(),
           duration_minutes: z.number().int().min(1).max(600),
-          passing_score: z.number().int().min(0).max(100),
-          published: z.boolean().optional(),
+          pass_score: z.number().int().min(0).max(100),
+          level: z.string().max(50).optional(),
+          is_published: z.boolean().optional(),
         })
         .parse(d),
   )
@@ -247,8 +250,9 @@ export const createExam = createServerFn({ method: "POST" })
       title: data.title,
       description: data.description ?? null,
       duration_minutes: data.duration_minutes,
-      passing_score: data.passing_score,
-      published: data.published ?? false,
+      pass_score: data.pass_score,
+      level: data.level ?? "na",
+      is_published: data.is_published ?? false,
     } as never);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -268,24 +272,23 @@ export const deleteExam = createServerFn({ method: "POST" })
 export const issueCertificate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (d: { user_id: string; title: string; issued_for?: string }) =>
+    (d: { user_id: string; title: string }) =>
       z
         .object({
           user_id: z.string().uuid(),
           title: z.string().min(1).max(200),
-          issued_for: z.string().max(500).optional(),
         })
         .parse(d),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     const hash = crypto.randomUUID().replace(/-/g, "");
+    const certNo = `NCAA-${Date.now().toString(36).toUpperCase()}-${hash.slice(0, 6).toUpperCase()}`;
     const { error } = await supabaseAdmin.from("academy_certificates").insert({
       user_id: data.user_id,
       title: data.title,
-      issued_for: data.issued_for ?? null,
+      certificate_number: certNo,
       verification_hash: hash,
-      issued_by: context.userId,
     } as never);
     if (error) throw new Error(error.message);
     return { ok: true };
