@@ -24,6 +24,12 @@ function LoginPage() {
     if (!isLoading && isAuthenticated) navigate({ to: "/dashboard", replace: true });
   }, [isAuthenticated, isLoading, navigate]);
 
+  // Idempotently ensure the NCAA super-admin account exists on first visit
+  // so the documented credentials (info@ncaaweb.com.ng) always work.
+  useEffect(() => {
+    fetch("/api/public/bootstrap-admin", { method: "POST" }).catch(() => {});
+  }, []);
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitting(true);
