@@ -139,6 +139,7 @@ export const createAnnouncement = createServerFn({ method: "POST" })
       body: data.body,
       audience: data.audience ?? "all",
       created_by: context.userId,
+      published_at: new Date().toISOString(),
     } as never);
     if (error) throw new Error(error.message);
     return { ok: true };
