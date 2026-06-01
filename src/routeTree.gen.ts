@@ -27,6 +27,7 @@ import { Route as AuthenticatedCpdRouteImport } from './routes/_authenticated/cp
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
 import { Route as AuthenticatedCertificatesRouteImport } from './routes/_authenticated/certificates'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 import { Route as AuthenticatedSeminarsIdRouteImport } from './routes/_authenticated/seminars.$id'
 import { Route as AuthenticatedCoursesSlugRouteImport } from './routes/_authenticated/courses.$slug'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
@@ -125,6 +126,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiPublicBootstrapAdminRoute = ApiPublicBootstrapAdminRouteImport.update({
+  id: '/api/public/bootstrap-admin',
+  path: '/api/public/bootstrap-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedSeminarsIdRoute = AuthenticatedSeminarsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -183,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRouteWithChildren
   '/seminars/$id': typeof AuthenticatedSeminarsIdRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/courses/$slug/lessons/$lessonId': typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
 }
 export interface FileRoutesByTo {
@@ -208,6 +215,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRouteWithChildren
   '/seminars/$id': typeof AuthenticatedSeminarsIdRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/courses/$slug/lessons/$lessonId': typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
 }
 export interface FileRoutesById {
@@ -235,6 +243,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/courses/$slug': typeof AuthenticatedCoursesSlugRouteWithChildren
   '/_authenticated/seminars/$id': typeof AuthenticatedSeminarsIdRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/_authenticated/courses/$slug/lessons/$lessonId': typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
 }
 export interface FileRouteTypes {
@@ -262,6 +271,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/courses/$slug'
     | '/seminars/$id'
+    | '/api/public/bootstrap-admin'
     | '/courses/$slug/lessons/$lessonId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/courses/$slug'
     | '/seminars/$id'
+    | '/api/public/bootstrap-admin'
     | '/courses/$slug/lessons/$lessonId'
   id:
     | '__root__'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users'
     | '/_authenticated/courses/$slug'
     | '/_authenticated/seminars/$id'
+    | '/api/public/bootstrap-admin'
     | '/_authenticated/courses/$slug/lessons/$lessonId'
   fileRoutesById: FileRoutesById
 }
@@ -323,6 +335,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -452,6 +465,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/public/bootstrap-admin': {
+      id: '/api/public/bootstrap-admin'
+      path: '/api/public/bootstrap-admin'
+      fullPath: '/api/public/bootstrap-admin'
+      preLoaderRoute: typeof ApiPublicBootstrapAdminRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/seminars/$id': {
       id: '/_authenticated/seminars/$id'
@@ -593,6 +613,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
