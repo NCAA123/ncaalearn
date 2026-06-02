@@ -58,7 +58,12 @@ function AdminSeminars() {
       <PageHeader
         title="Seminars"
         description="Schedule and manage live arbiter seminars."
-        action={<NewSeminarDialog onCreated={() => qc.invalidateQueries({ queryKey: ["admin-seminars"] })} />}
+        action={
+          <NewSeminarDialog
+            trigger={<Button>New seminar</Button>}
+            onCreated={() => qc.invalidateQueries({ queryKey: ["admin-seminars"] })}
+          />
+        }
       />
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
