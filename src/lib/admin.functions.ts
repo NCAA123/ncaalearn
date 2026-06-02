@@ -269,6 +269,65 @@ export const deleteExam = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ── Seminars ─────────────────────────────────────────────────────────
+export const setSeminarPublished = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string; is_published: boolean }) =>
+    z.object({ id: z.string().uuid(), is_published: z.boolean() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("academy_seminars")
+      .update({ is_published: data.is_published } as never)
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteSeminar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { error } = await supabaseAdmin.from("academy_seminars").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ── Certificates (list + revoke) ─────────────────────────────────────
+export const listCertificates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const { data, error } = await supabaseAdmin
+      .from("academy_certificates")
+      .select("id,title,certificate_number,user_id,issued_at")
+      .order("issued_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    const ids = Array.from(new Set((data ?? []).map((c) => c.user_id)));
+    const { data: profiles } = await supabaseAdmin
+      .from("academy_profiles")
+      .select("id,first_name,last_name,email")
+      .in("id", ids);
+    const map = new Map((profiles ?? []).map((p) => [p.id, p]));
+    return (data ?? []).map((c) => ({ ...c, profile: map.get(c.user_id) ?? null }));
+  });
+
+export const revokeCertificate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("academy_certificates")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 // ── Certificates ─────────────────────────────────────────────────────
 export const issueCertificate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
