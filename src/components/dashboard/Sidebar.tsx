@@ -26,6 +26,10 @@ export function Sidebar() {
   const staff: Item[] = [
     { to: "/admin", label: "Admin Overview", icon: BarChart3 },
     { to: "/admin/users", label: "Users", icon: Users },
+    { to: "/admin/courses", label: "Courses", icon: BookOpen },
+    { to: "/admin/seminars", label: "Seminars", icon: GraduationCap },
+    { to: "/admin/exams", label: "Exams", icon: FileQuestion },
+    { to: "/admin/certificates", label: "Certificates", icon: Award },
     { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
   ];
   if (isAdmin) staff.push({ to: "/admin/settings", label: "Settings", icon: Settings });
