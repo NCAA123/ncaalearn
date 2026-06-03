@@ -225,7 +225,8 @@ export const getAttemptRuntime = createServerFn({ method: "GET" })
       .from("academy_exam_answers")
       .select("question_id,answer")
       .eq("attempt_id", data.attemptId);
-    const answerMap: Record<string, unknown> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const answerMap: Record<string, any> = {};
     (answers ?? []).forEach((a) => {
       answerMap[(a as { question_id: string }).question_id] = (a as { answer: unknown }).answer;
     });
