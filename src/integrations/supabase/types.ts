@@ -375,6 +375,8 @@ export type Database = {
           module_id: string
           order_index: number
           pdf_url: string | null
+          pgn: string | null
+          quiz: Json | null
           title: string
           video_url: string | null
         }
@@ -387,6 +389,8 @@ export type Database = {
           module_id: string
           order_index?: number
           pdf_url?: string | null
+          pgn?: string | null
+          quiz?: Json | null
           title: string
           video_url?: string | null
         }
@@ -399,6 +403,8 @@ export type Database = {
           module_id?: string
           order_index?: number
           pdf_url?: string | null
+          pgn?: string | null
+          quiz?: Json | null
           title?: string
           video_url?: string | null
         }

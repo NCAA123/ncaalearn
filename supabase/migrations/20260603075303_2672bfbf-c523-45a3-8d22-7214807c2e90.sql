@@ -1,0 +1,1 @@
+ALTER TABLE public.academy_lessons ADD COLUMN IF NOT EXISTS pgn text, ADD COLUMN IF NOT EXISTS quiz jsonb;
