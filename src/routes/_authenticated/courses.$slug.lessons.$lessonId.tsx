@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/page-header";
 import { ArrowLeft, ArrowRight, CheckCircle2, ListTree } from "lucide-react";
 import { toast } from "sonner";
+import { ChessViewer } from "@/components/learning/ChessViewer";
+import { LessonQuiz, type QuizSpec } from "@/components/learning/LessonQuiz";
 
 export const Route = createFileRoute("/_authenticated/courses/$slug/lessons/$lessonId")({
   head: () => ({ meta: [{ title: "Lesson — NCAA Academy" }] }),
@@ -193,7 +195,12 @@ function LessonViewer() {
           {lesson.title}
         </h1>
 
-        <LessonContent lesson={lesson} />
+        <LessonContent
+          lesson={lesson}
+          onQuizPassed={() => {
+            if (!progress?.completed) completeMut.mutate();
+          }}
+        />
 
         <div className="mt-8 flex flex-wrap items-center gap-3 justify-between border-t border-border pt-5">
           <Button
@@ -265,7 +272,13 @@ function LessonViewer() {
   );
 }
 
-function LessonContent({ lesson }: { lesson: any }) {
+function LessonContent({
+  lesson,
+  onQuizPassed,
+}: {
+  lesson: any;
+  onQuizPassed?: () => void;
+}) {
   const type = (lesson.content_type ?? "text") as string;
 
   if (type === "video" && lesson.video_url) {
@@ -292,6 +305,33 @@ function LessonContent({ lesson }: { lesson: any }) {
     return (
       <div className="h-[75vh] rounded-xl border border-border overflow-hidden bg-muted">
         <iframe src={lesson.pdf_url} title={lesson.title} className="w-full h-full" />
+      </div>
+    );
+  }
+
+  if (type === "chess" && lesson.pgn) {
+    return (
+      <div className="space-y-4">
+        {lesson.body ? (
+          <article className="prose prose-sm max-w-none text-foreground">
+            <div className="whitespace-pre-wrap leading-relaxed">{lesson.body}</div>
+          </article>
+        ) : null}
+        <ChessViewer pgn={lesson.pgn as string} />
+      </div>
+    );
+  }
+
+  if (type === "quiz" && lesson.quiz) {
+    const spec = lesson.quiz as QuizSpec;
+    return (
+      <div className="space-y-4">
+        {lesson.body ? (
+          <article className="prose prose-sm max-w-none text-foreground">
+            <div className="whitespace-pre-wrap leading-relaxed">{lesson.body}</div>
+          </article>
+        ) : null}
+        <LessonQuiz quiz={spec} onPassed={() => onQuizPassed?.()} />
       </div>
     );
   }
