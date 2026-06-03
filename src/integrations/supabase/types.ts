@@ -257,6 +257,8 @@ export type Database = {
           status: string
           submitted_at: string | null
           user_id: string
+          violation_count: number
+          violations: Json
         }
         Insert: {
           exam_id: string
@@ -267,6 +269,8 @@ export type Database = {
           status?: string
           submitted_at?: string | null
           user_id: string
+          violation_count?: number
+          violations?: Json
         }
         Update: {
           exam_id?: string
@@ -277,6 +281,8 @@ export type Database = {
           status?: string
           submitted_at?: string | null
           user_id?: string
+          violation_count?: number
+          violations?: Json
         }
         Relationships: [
           {

@@ -29,6 +29,7 @@ export function Sidebar() {
     { to: "/admin/courses", label: "Courses", icon: BookOpen },
     { to: "/admin/seminars", label: "Seminars", icon: GraduationCap },
     { to: "/admin/exams", label: "Exams", icon: FileQuestion },
+    { to: "/admin/questions", label: "Question Bank", icon: ListChecks },
     { to: "/admin/certificates", label: "Certificates", icon: Award },
     { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
   ];
