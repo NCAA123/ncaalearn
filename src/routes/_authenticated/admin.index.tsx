@@ -7,7 +7,7 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { getAdminStats } from "@/lib/admin.functions";
 import { useAuth } from "@/lib/auth-context";
 
-export const Route = createFileRoute("/_authenticated/admin")({
+export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: "Admin — NCAA Academy" }] }),
   component: AdminOverview,
 });
