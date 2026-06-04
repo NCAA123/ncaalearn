@@ -83,7 +83,7 @@ export const getAttemptResult = createServerFn({ method: "GET" })
         .order("created_at", { ascending: true }),
       supabaseAdmin
         .from("academy_exam_answers")
-        .select("question_id,answer,is_correct,points_awarded")
+        .select("id,question_id,answer,is_correct,points_awarded")
         .eq("attempt_id", data.attemptId),
     ]);
     return { attempt, exam, questions: questions ?? [], answers: answers ?? [] };
