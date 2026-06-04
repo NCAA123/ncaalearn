@@ -7,7 +7,21 @@ import { supabase } from './client'
 export const attachSupabaseAuth = createMiddleware({ type: 'function' }).client(
   async ({ next }) => {
     const { data } = await supabase.auth.getSession()
-    const token = data.session?.access_token
+    let session = data.session
+    const expiresAt = session?.expires_at ?? 0
+    // Refresh proactively if the access token has expired or is within 30s of expiry,
+    // otherwise the server middleware rejects it with "Invalid token".
+    if (session && expiresAt * 1000 - Date.now() < 30_000) {
+      const { data: refreshed } = await supabase.auth.refreshSession()
+      if (refreshed.session) {
+        session = refreshed.session
+      } else {
+        // Refresh token is dead — sign out so the user is sent back to /login.
+        await supabase.auth.signOut()
+        session = null
+      }
+    }
+    const token = session?.access_token
     return next({
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })

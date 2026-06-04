@@ -49,7 +49,12 @@ export function Sidebar() {
         </Link>
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-6">
-        <SidebarSection title="Learning" items={learner} pathname={location.pathname} />
+        {/* Admins see only the admin console; arbiter/learner menus would be confusing
+            (and the user explicitly asked for them to be hidden). Non-admin staff
+            (instructors) still see both so they can teach AND moderate. */}
+        {!isAdmin && (
+          <SidebarSection title="Learning" items={learner} pathname={location.pathname} />
+        )}
         {isStaff && <SidebarSection title="Administration" items={staff} pathname={location.pathname} />}
       </nav>
       <div className="p-3 border-t border-sidebar-border">
