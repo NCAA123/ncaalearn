@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VerifyHashRouteImport } from './routes/verify.$hash'
 import { Route as AuthenticatedSeminarsRouteImport } from './routes/_authenticated/seminars'
 import { Route as AuthenticatedResourcesRouteImport } from './routes/_authenticated/resources'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -70,6 +71,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyHashRoute = VerifyHashRouteImport.update({
+  id: '/verify/$hash',
+  path: '/verify/$hash',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedSeminarsRoute = AuthenticatedSeminarsRouteImport.update({
@@ -238,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/resources': typeof AuthenticatedResourcesRoute
   '/seminars': typeof AuthenticatedSeminarsRouteWithChildren
+  '/verify/$hash': typeof VerifyHashRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/courses': typeof AuthenticatedAdminCoursesRoute
@@ -272,6 +279,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/resources': typeof AuthenticatedResourcesRoute
   '/seminars': typeof AuthenticatedSeminarsRouteWithChildren
+  '/verify/$hash': typeof VerifyHashRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/courses': typeof AuthenticatedAdminCoursesRoute
@@ -308,6 +316,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/resources': typeof AuthenticatedResourcesRoute
   '/_authenticated/seminars': typeof AuthenticatedSeminarsRouteWithChildren
+  '/verify/$hash': typeof VerifyHashRoute
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/_authenticated/admin/courses': typeof AuthenticatedAdminCoursesRoute
@@ -344,6 +353,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/resources'
     | '/seminars'
+    | '/verify/$hash'
     | '/admin/announcements'
     | '/admin/certificates'
     | '/admin/courses'
@@ -378,6 +388,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/resources'
     | '/seminars'
+    | '/verify/$hash'
     | '/admin/announcements'
     | '/admin/certificates'
     | '/admin/courses'
@@ -413,6 +424,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/resources'
     | '/_authenticated/seminars'
+    | '/verify/$hash'
     | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/certificates'
     | '/_authenticated/admin/courses'
@@ -438,6 +450,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  VerifyHashRoute: typeof VerifyHashRoute
   ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
 }
 
@@ -483,6 +496,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify/$hash': {
+      id: '/verify/$hash'
+      path: '/verify/$hash'
+      fullPath: '/verify/$hash'
+      preLoaderRoute: typeof VerifyHashRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/seminars': {
@@ -812,6 +832,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  VerifyHashRoute: VerifyHashRoute,
   ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
 }
 export const routeTree = rootRouteImport
