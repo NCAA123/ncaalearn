@@ -6,7 +6,7 @@ import { PageHeader, EmptyState } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { listMyCertificates } from "@/lib/cert.functions";
 
-export const Route = createFileRoute("/_authenticated/certificates")({
+export const Route = createFileRoute("/_authenticated/certificates/")({
   head: () => ({ meta: [{ title: "My Certificates — NCAA Academy" }] }),
   component: MyCertificates,
 });

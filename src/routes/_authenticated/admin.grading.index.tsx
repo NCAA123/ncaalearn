@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { listGradingQueue } from "@/lib/cert.functions";
 import { useAuth } from "@/lib/auth-context";
 
-export const Route = createFileRoute("/_authenticated/admin/grading")({
+export const Route = createFileRoute("/_authenticated/admin/grading/")({
   head: () => ({ meta: [{ title: "Grading Queue — Admin" }] }),
   component: GradingQueue,
 });
