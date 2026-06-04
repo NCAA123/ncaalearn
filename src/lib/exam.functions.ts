@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { maybeIssueCertificate } from "./cert.functions";
 
 // ── Helpers ──────────────────────────────────────────────────────────
 async function assertAdmin(userId: string) {
@@ -415,5 +416,21 @@ export const submitAttempt = createServerFn({ method: "POST" })
       } as never)
       .eq("id", data.attemptId);
     if (error) throw new Error(error.message);
+    if (passed && !needsManual) {
+      const ex = exam as { pass_score: number } | null;
+      const { data: examFull } = await supabaseAdmin
+        .from("academy_exams")
+        .select("title")
+        .eq("id", examId)
+        .single();
+      if (examFull) {
+        await maybeIssueCertificate(
+          context.userId,
+          examId,
+          (examFull as { title: string }).title,
+        );
+      }
+      void ex;
+    }
     return { scorePct, passed, status, needsManual };
   });
