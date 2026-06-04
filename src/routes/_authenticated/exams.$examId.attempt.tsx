@@ -174,7 +174,19 @@ function AttemptRuntime() {
         {result.needsManual ? (
           <p className="text-sm text-muted-foreground mb-6">Essay questions still need to be reviewed. You will be notified when grading completes.</p>
         ) : null}
-        <Button onClick={() => navigate({ to: "/exams/$examId", params: { examId } })}>Back to exam</Button>
+        <div className="flex justify-center gap-2">
+          <Button
+            onClick={() =>
+              navigate({
+                to: "/exams/$examId/result/$attemptId",
+                params: { examId, attemptId },
+              })
+            }
+          >
+            View detailed results
+          </Button>
+          <Button variant="outline" onClick={() => navigate({ to: "/exams/$examId", params: { examId } })}>Back to exam</Button>
+        </div>
       </div>
     );
   }
