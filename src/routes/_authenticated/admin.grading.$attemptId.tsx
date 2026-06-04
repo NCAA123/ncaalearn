@@ -47,7 +47,7 @@ function GradeAttempt() {
   const exam = data.exam as { title: string };
   const answersByQ = new Map(
     data.answers.map((a) => [(a as { question_id: string }).question_id, a as {
-      question_id: string; answer: unknown; points_awarded: number | null;
+      id: string; question_id: string; answer: unknown; points_awarded: number | null;
     }]),
   );
   const essays = data.questions.filter((q) => (q as { question_type: string }).question_type === "essay");
@@ -77,22 +77,12 @@ function GradeAttempt() {
               maxPoints={row.points}
               currentPoints={ans?.points_awarded ?? 0}
               answerText={(ans?.answer as string) ?? ""}
-              answerId={(ans as { question_id: string; answer: unknown; points_awarded: number | null } | undefined) ? undefined : undefined}
               onSave={async (pts) => {
-                if (!ans) {
+                if (!ans || !ans.id) {
                   toast.error("No answer submitted for this question");
                   return;
                 }
-                // need answer row id — refetch via second select
-                const rec = (data.answers.find(
-                  (a) => (a as { question_id: string }).question_id === row.id,
-                ) as { id?: string }) ?? null;
-                if (!rec || !rec.id) {
-                  // getAttemptResult only returns question_id; pull id by re-fetching
-                  toast.error("Missing answer id — reload page");
-                  return;
-                }
-                await gradeFn({ data: { answerId: rec.id, pointsAwarded: pts } });
+                await gradeFn({ data: { answerId: ans.id, pointsAwarded: pts } });
                 toast.success("Saved");
                 refetch();
               }}
@@ -108,7 +98,7 @@ function EssayCard({
   index, question, maxPoints, currentPoints, answerText, onSave,
 }: {
   index: number; question: string; maxPoints: number; currentPoints: number;
-  answerText: string; answerId?: string; onSave: (pts: number) => Promise<void>;
+  answerText: string; onSave: (pts: number) => Promise<void>;
 }) {
   const [pts, setPts] = useState(String(currentPoints));
   const [saving, setSaving] = useState(false);
