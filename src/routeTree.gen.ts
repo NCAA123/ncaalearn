@@ -21,6 +21,7 @@ import { Route as AuthenticatedResourcesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedMyLearningRouteImport } from './routes/_authenticated/my-learning'
+import { Route as AuthenticatedLicenseRouteImport } from './routes/_authenticated/license'
 import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCpdRouteImport } from './routes/_authenticated/cpd'
@@ -104,6 +105,11 @@ const AuthenticatedNotificationsRoute =
 const AuthenticatedMyLearningRoute = AuthenticatedMyLearningRouteImport.update({
   id: '/my-learning',
   path: '/my-learning',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedLicenseRoute = AuthenticatedLicenseRouteImport.update({
+  id: '/license',
+  path: '/license',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedExamsRoute = AuthenticatedExamsRouteImport.update({
@@ -252,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/cpd': typeof AuthenticatedCpdRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exams': typeof AuthenticatedExamsRouteWithChildren
+  '/license': typeof AuthenticatedLicenseRoute
   '/my-learning': typeof AuthenticatedMyLearningRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -289,6 +296,7 @@ export interface FileRoutesByTo {
   '/cpd': typeof AuthenticatedCpdRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exams': typeof AuthenticatedExamsRouteWithChildren
+  '/license': typeof AuthenticatedLicenseRoute
   '/my-learning': typeof AuthenticatedMyLearningRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -328,6 +336,7 @@ export interface FileRoutesById {
   '/_authenticated/cpd': typeof AuthenticatedCpdRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exams': typeof AuthenticatedExamsRouteWithChildren
+  '/_authenticated/license': typeof AuthenticatedLicenseRoute
   '/_authenticated/my-learning': typeof AuthenticatedMyLearningRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -367,6 +376,7 @@ export interface FileRouteTypes {
     | '/cpd'
     | '/dashboard'
     | '/exams'
+    | '/license'
     | '/my-learning'
     | '/notifications'
     | '/profile'
@@ -404,6 +414,7 @@ export interface FileRouteTypes {
     | '/cpd'
     | '/dashboard'
     | '/exams'
+    | '/license'
     | '/my-learning'
     | '/notifications'
     | '/profile'
@@ -442,6 +453,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cpd'
     | '/_authenticated/dashboard'
     | '/_authenticated/exams'
+    | '/_authenticated/license'
     | '/_authenticated/my-learning'
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
@@ -565,6 +577,13 @@ declare module '@tanstack/react-router' {
       path: '/my-learning'
       fullPath: '/my-learning'
       preLoaderRoute: typeof AuthenticatedMyLearningRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/license': {
+      id: '/_authenticated/license'
+      path: '/license'
+      fullPath: '/license'
+      preLoaderRoute: typeof AuthenticatedLicenseRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/exams': {
@@ -810,6 +829,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCpdRoute: typeof AuthenticatedCpdRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExamsRoute: typeof AuthenticatedExamsRouteWithChildren
+  AuthenticatedLicenseRoute: typeof AuthenticatedLicenseRoute
   AuthenticatedMyLearningRoute: typeof AuthenticatedMyLearningRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -835,6 +855,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCpdRoute: AuthenticatedCpdRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExamsRoute: AuthenticatedExamsRouteWithChildren,
+  AuthenticatedLicenseRoute: AuthenticatedLicenseRoute,
   AuthenticatedMyLearningRoute: AuthenticatedMyLearningRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
