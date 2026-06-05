@@ -1,4 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Bell, LogOut, Menu, Search, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,10 +13,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/lib/auth-context";
+import { listMyNotifications } from "@/lib/license.functions";
 
 export function Topbar() {
-  const { profile, user, signOut, roles } = useAuth();
+  const { profile, user, signOut, roles, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const fetchNotifs = useServerFn(listMyNotifications);
+  const { data: notifs } = useQuery({
+    queryKey: ["my-notifications", "topbar"],
+    queryFn: () => fetchNotifs(),
+    enabled: isAuthenticated,
+    refetchInterval: 60_000,
+  });
+  const unread = (notifs ?? []).filter((n) => !n.read).length;
   const name = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || user?.email || "User";
   const initials = (profile?.first_name?.[0] ?? "") + (profile?.last_name?.[0] ?? "");
   const primaryRole = roles[0]?.replaceAll("_", " ") ?? "candidate";
@@ -27,8 +38,15 @@ export function Topbar() {
         <span>Search courses, exams, seminars…</span>
       </div>
       <div className="flex-1 md:hidden" />
-      <Button variant="ghost" size="icon" asChild>
-        <Link to="/notifications"><Bell className="h-5 w-5" /></Link>
+      <Button variant="ghost" size="icon" asChild className="relative">
+        <Link to="/notifications">
+          <Bell className="h-5 w-5" />
+          {unread > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-semibold flex items-center justify-center">
+              {unread > 9 ? "9+" : unread}
+            </span>
+          )}
+        </Link>
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
