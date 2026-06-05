@@ -196,7 +196,7 @@ export const reviewCpd = createServerFn({ method: "POST" })
       await supabaseAdmin.from("academy_notifications").insert({
         user_id: rec.user_id,
         title: `CPD ${data.status}`,
-        body: rec.description.slice(0, 200),
+        body: (rec.description ?? "").slice(0, 200),
         link: "/cpd",
       } as never);
     }
