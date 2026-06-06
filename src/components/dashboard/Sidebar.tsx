@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck } from "lucide-react";
+import { Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +34,9 @@ export function Sidebar() {
     { to: "/admin/certificates", label: "Certificates", icon: Award },
     { to: "/admin/licenses", label: "Licenses", icon: IdCard },
     { to: "/admin/cpd", label: "CPD Review", icon: BadgeCheck },
+    { to: "/admin/resources", label: "Resources", icon: FolderOpen },
     { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
+    { to: "/admin/reports", label: "Reports", icon: TrendingUp },
   ];
   if (isAdmin) staff.push({ to: "/admin/settings", label: "Settings", icon: Settings });
 
