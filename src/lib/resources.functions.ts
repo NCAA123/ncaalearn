@@ -43,7 +43,6 @@ export const createResourceSignedUrl = createServerFn({ method: "POST" })
       .createSignedUrl(path, 60 * 10);
     if (sErr || !signed) throw new Error(sErr?.message ?? "Failed to sign url");
     // bump download count (best-effort)
-    await supabaseAdmin.rpc("noop").catch(() => null);
     await supabaseAdmin
       .from("academy_resources")
       .update({ download_count: ((row as never as { download_count?: number }).download_count ?? 0) + 1 } as never)
