@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const TITLE_ORDER = ["NA", "FA", "IA"] as const;
@@ -9,11 +10,11 @@ const NEXT: Record<Title, Title | null> = { NA: "FA", FA: "IA", IA: null };
 
 type ReadinessCriterion = { label: string; ok: boolean; detail?: string };
 
-async function isAdmin(supabase: ReturnType<typeof getSb>, userId: string) {
-  const { data } = await supabase.rpc("academy_is_admin", { _user_id: userId });
+async function isAdmin(supabase: SupabaseClient, userId: string) {
+  const { data } = await (supabase as unknown as { rpc: (n: string, a: unknown) => Promise<{ data: boolean | null }> }).rpc("academy_is_admin", { _user_id: userId });
   return !!data;
 }
-function getSb(): never { throw new Error("marker only"); }
+
 
 export const getMyPromotionStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -123,7 +124,7 @@ export const listPromotionApplications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    if (!(await isAdmin(supabase, userId))) throw new Error("Admin required");
+    if (!(await isAdmin(supabase as unknown as SupabaseClient, userId))) throw new Error("Admin required");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("academy_promotion_applications" as never)
@@ -155,7 +156,7 @@ export const reviewPromotion = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    if (!(await isAdmin(supabase, userId))) throw new Error("Admin required");
+    if (!(await isAdmin(supabase as unknown as SupabaseClient, userId))) throw new Error("Admin required");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin
       .from("academy_promotion_applications" as never)
@@ -217,7 +218,7 @@ export const evaluateMyBadges = createServerFn({ method: "POST" })
       await Promise.all([
         supabase.from("academy_badges" as never).select("id,code"),
         supabase.from("academy_user_badges" as never).select("badge_id").eq("user_id", userId),
-        supabase.from("academy_enrollments").select("status").eq("user_id", userId).eq("status", "completed"),
+        supabase.from("academy_enrollments").select("completed_at").eq("user_id", userId).not("completed_at", "is", null),
         supabase.from("academy_exam_attempts").select("id").eq("user_id", userId).eq("passed", true),
         supabase.from("academy_licenses").select("status").eq("user_id", userId).eq("status", "active"),
         supabase.from("academy_cpd_records").select("points").eq("user_id", userId).eq("status", "approved"),
