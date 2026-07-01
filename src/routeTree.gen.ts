@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifyHashRouteImport } from './routes/verify.$hash'
 import { Route as AuthenticatedSeminarsRouteImport } from './routes/_authenticated/seminars'
 import { Route as AuthenticatedResourcesRouteImport } from './routes/_authenticated/resources'
+import { Route as AuthenticatedRegistryRouteImport } from './routes/_authenticated/registry'
 import { Route as AuthenticatedPromotionsRouteImport } from './routes/_authenticated/promotions'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
@@ -94,6 +95,11 @@ const AuthenticatedSeminarsRoute = AuthenticatedSeminarsRouteImport.update({
 const AuthenticatedResourcesRoute = AuthenticatedResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedRegistryRoute = AuthenticatedRegistryRouteImport.update({
+  id: '/registry',
+  path: '/registry',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedPromotionsRoute = AuthenticatedPromotionsRouteImport.update({
@@ -296,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/promotions': typeof AuthenticatedPromotionsRoute
+  '/registry': typeof AuthenticatedRegistryRoute
   '/resources': typeof AuthenticatedResourcesRoute
   '/seminars': typeof AuthenticatedSeminarsRouteWithChildren
   '/verify/$hash': typeof VerifyHashRoute
@@ -339,6 +346,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/promotions': typeof AuthenticatedPromotionsRoute
+  '/registry': typeof AuthenticatedRegistryRoute
   '/resources': typeof AuthenticatedResourcesRoute
   '/seminars': typeof AuthenticatedSeminarsRouteWithChildren
   '/verify/$hash': typeof VerifyHashRoute
@@ -384,6 +392,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/promotions': typeof AuthenticatedPromotionsRoute
+  '/_authenticated/registry': typeof AuthenticatedRegistryRoute
   '/_authenticated/resources': typeof AuthenticatedResourcesRoute
   '/_authenticated/seminars': typeof AuthenticatedSeminarsRouteWithChildren
   '/verify/$hash': typeof VerifyHashRoute
@@ -429,6 +438,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/promotions'
+    | '/registry'
     | '/resources'
     | '/seminars'
     | '/verify/$hash'
@@ -472,6 +482,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/promotions'
+    | '/registry'
     | '/resources'
     | '/seminars'
     | '/verify/$hash'
@@ -516,6 +527,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
     | '/_authenticated/promotions'
+    | '/_authenticated/registry'
     | '/_authenticated/resources'
     | '/_authenticated/seminars'
     | '/verify/$hash'
@@ -619,6 +631,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof AuthenticatedResourcesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/registry': {
+      id: '/_authenticated/registry'
+      path: '/registry'
+      fullPath: '/registry'
+      preLoaderRoute: typeof AuthenticatedRegistryRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/promotions': {
@@ -932,6 +951,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedPromotionsRoute: typeof AuthenticatedPromotionsRoute
+  AuthenticatedRegistryRoute: typeof AuthenticatedRegistryRoute
   AuthenticatedResourcesRoute: typeof AuthenticatedResourcesRoute
   AuthenticatedSeminarsRoute: typeof AuthenticatedSeminarsRouteWithChildren
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
@@ -963,6 +983,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedPromotionsRoute: AuthenticatedPromotionsRoute,
+  AuthenticatedRegistryRoute: AuthenticatedRegistryRoute,
   AuthenticatedResourcesRoute: AuthenticatedResourcesRoute,
   AuthenticatedSeminarsRoute: AuthenticatedSeminarsRouteWithChildren,
   AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
