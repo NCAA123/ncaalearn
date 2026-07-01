@@ -47,6 +47,33 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_badges: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       academy_certificates: {
         Row: {
           certificate_number: string
@@ -567,6 +594,45 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_promotion_applications: {
+        Row: {
+          decision_notes: string | null
+          from_title: string
+          id: string
+          notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          to_title: string
+          user_id: string
+        }
+        Insert: {
+          decision_notes?: string | null
+          from_title: string
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          to_title: string
+          user_id: string
+        }
+        Update: {
+          decision_notes?: string | null
+          from_title?: string
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          to_title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       academy_questions: {
         Row: {
           approved: boolean
@@ -738,6 +804,35 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      academy_user_badges: {
+        Row: {
+          awarded_at: string
+          badge_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          badge_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          badge_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "academy_badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       academy_user_roles: {
         Row: {
@@ -4659,6 +4754,23 @@ export type Database = {
           total_earnings: number | null
           total_evaluations: number | null
           zone: Database["public"]["Enums"]["zone_type"] | null
+        }
+        Relationships: []
+      }
+      arbiter_registry_public: {
+        Row: {
+          avatar_url: string | null
+          expires_at: string | null
+          fide_id: string | null
+          first_name: string | null
+          issued_at: string | null
+          last_name: string | null
+          license_id: string | null
+          license_number: string | null
+          state: string | null
+          status: string | null
+          title: string | null
+          zone: string | null
         }
         Relationships: []
       }
