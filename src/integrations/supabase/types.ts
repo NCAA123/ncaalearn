@@ -1843,6 +1843,239 @@ export type Database = {
           },
         ]
       }
+      complaint_emails: {
+        Row: {
+          complaint_id: string
+          email_type: string
+          id: string
+          recipient_email: string
+          sent_at: string | null
+          status: string | null
+          subject: string | null
+        }
+        Insert: {
+          complaint_id: string
+          email_type: string
+          id?: string
+          recipient_email: string
+          sent_at?: string | null
+          status?: string | null
+          subject?: string | null
+        }
+        Update: {
+          complaint_id?: string
+          email_type?: string
+          id?: string
+          recipient_email?: string
+          sent_at?: string | null
+          status?: string | null
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaint_emails_complaint_id_fkey"
+            columns: ["complaint_id"]
+            isOneToOne: false
+            referencedRelation: "complaints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      complaint_files: {
+        Row: {
+          blob_url: string
+          complaint_id: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          uploaded_at: string | null
+        }
+        Insert: {
+          blob_url: string
+          complaint_id: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          uploaded_at?: string | null
+        }
+        Update: {
+          blob_url?: string
+          complaint_id?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaint_files_complaint_id_fkey"
+            columns: ["complaint_id"]
+            isOneToOne: false
+            referencedRelation: "complaints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      complaint_people: {
+        Row: {
+          complaint_id: string
+          created_at: string | null
+          id: string
+          name: string
+          role: string
+        }
+        Insert: {
+          complaint_id: string
+          created_at?: string | null
+          id?: string
+          name: string
+          role: string
+        }
+        Update: {
+          complaint_id?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaint_people_complaint_id_fkey"
+            columns: ["complaint_id"]
+            isOneToOne: false
+            referencedRelation: "complaints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      complaint_updates: {
+        Row: {
+          complaint_id: string
+          created_at: string | null
+          id: string
+          internal_note: string | null
+          new_status: string
+          old_status: string | null
+          public_note: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          complaint_id: string
+          created_at?: string | null
+          id?: string
+          internal_note?: string | null
+          new_status: string
+          old_status?: string | null
+          public_note?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          complaint_id?: string
+          created_at?: string | null
+          id?: string
+          internal_note?: string | null
+          new_status?: string
+          old_status?: string | null
+          public_note?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaint_updates_complaint_id_fkey"
+            columns: ["complaint_id"]
+            isOneToOne: false
+            referencedRelation: "complaints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "complaint_updates_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      complaints: {
+        Row: {
+          assigned_at: string | null
+          assigned_to: string | null
+          category: string
+          created_at: string | null
+          description: string
+          id: string
+          incident_date: string | null
+          is_anonymous: boolean | null
+          priority: string | null
+          reference_number: string
+          reporter_email: string | null
+          reporter_fide_id: string | null
+          reporter_name: string | null
+          reporter_phone: string | null
+          reporter_role: string | null
+          status: string | null
+          tournament_location: string | null
+          tournament_name: string
+          tournament_state: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_to?: string | null
+          category: string
+          created_at?: string | null
+          description: string
+          id?: string
+          incident_date?: string | null
+          is_anonymous?: boolean | null
+          priority?: string | null
+          reference_number: string
+          reporter_email?: string | null
+          reporter_fide_id?: string | null
+          reporter_name?: string | null
+          reporter_phone?: string | null
+          reporter_role?: string | null
+          status?: string | null
+          tournament_location?: string | null
+          tournament_name: string
+          tournament_state?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_to?: string | null
+          category?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          incident_date?: string | null
+          is_anonymous?: boolean | null
+          priority?: string | null
+          reference_number?: string
+          reporter_email?: string | null
+          reporter_fide_id?: string | null
+          reporter_name?: string | null
+          reporter_phone?: string | null
+          reporter_role?: string | null
+          status?: string | null
+          tournament_location?: string | null
+          tournament_name?: string
+          tournament_state?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaints_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           created_at: string | null
