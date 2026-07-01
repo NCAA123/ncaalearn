@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp } from "lucide-react";
+import { Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp, Trophy, BookMarked } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
@@ -16,12 +16,16 @@ export function Sidebar() {
     { to: "/seminars", label: "Seminars", icon: GraduationCap },
     { to: "/exams", label: "Examinations", icon: FileQuestion },
     { to: "/certificates", label: "Certificates", icon: Award },
+    { to: "/badges", label: "Badges", icon: Trophy },
+    { to: "/registry", label: "Arbiter Registry", icon: BookMarked },
     { to: "/resources", label: "Resource Library", icon: FolderOpen },
   ];
   if (isLicensedArbiter) {
     learner.splice(5, 0, { to: "/license", label: "My License", icon: IdCard });
     learner.splice(6, 0, { to: "/cpd", label: "CPD Tracker", icon: ListChecks });
   }
+  // Anyone can view their progression path (candidates see how to become NA).
+  learner.push({ to: "/promotions", label: "Promotions", icon: TrendingUp });
 
   const staff: Item[] = [
     { to: "/admin", label: "Admin Overview", icon: BarChart3 },
@@ -34,6 +38,7 @@ export function Sidebar() {
     { to: "/admin/certificates", label: "Certificates", icon: Award },
     { to: "/admin/licenses", label: "Licenses", icon: IdCard },
     { to: "/admin/cpd", label: "CPD Review", icon: BadgeCheck },
+    { to: "/admin/promotions", label: "Promotions", icon: TrendingUp },
     { to: "/admin/resources", label: "Resources", icon: FolderOpen },
     { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
     { to: "/admin/reports", label: "Reports", icon: TrendingUp },

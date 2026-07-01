@@ -42,6 +42,7 @@ import { Route as AuthenticatedAdminSeminarsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminResourcesRouteImport } from './routes/_authenticated/admin.resources'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
 import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin.questions'
+import { Route as AuthenticatedAdminPromotionsRouteImport } from './routes/_authenticated/admin.promotions'
 import { Route as AuthenticatedAdminLicensesRouteImport } from './routes/_authenticated/admin.licenses'
 import { Route as AuthenticatedAdminExamsRouteImport } from './routes/_authenticated/admin.exams'
 import { Route as AuthenticatedAdminCpdRouteImport } from './routes/_authenticated/admin.cpd'
@@ -228,6 +229,12 @@ const AuthenticatedAdminQuestionsRoute =
     path: '/admin/questions',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAdminPromotionsRoute =
+  AuthenticatedAdminPromotionsRouteImport.update({
+    id: '/admin/promotions',
+    path: '/admin/promotions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminLicensesRoute =
   AuthenticatedAdminLicensesRouteImport.update({
     id: '/admin/licenses',
@@ -319,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/admin/cpd': typeof AuthenticatedAdminCpdRoute
   '/admin/exams': typeof AuthenticatedAdminExamsRoute
   '/admin/licenses': typeof AuthenticatedAdminLicensesRoute
+  '/admin/promotions': typeof AuthenticatedAdminPromotionsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/resources': typeof AuthenticatedAdminResourcesRoute
@@ -364,6 +372,7 @@ export interface FileRoutesByTo {
   '/admin/cpd': typeof AuthenticatedAdminCpdRoute
   '/admin/exams': typeof AuthenticatedAdminExamsRoute
   '/admin/licenses': typeof AuthenticatedAdminLicensesRoute
+  '/admin/promotions': typeof AuthenticatedAdminPromotionsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/resources': typeof AuthenticatedAdminResourcesRoute
@@ -411,6 +420,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/cpd': typeof AuthenticatedAdminCpdRoute
   '/_authenticated/admin/exams': typeof AuthenticatedAdminExamsRoute
   '/_authenticated/admin/licenses': typeof AuthenticatedAdminLicensesRoute
+  '/_authenticated/admin/promotions': typeof AuthenticatedAdminPromotionsRoute
   '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/resources': typeof AuthenticatedAdminResourcesRoute
@@ -458,6 +468,7 @@ export interface FileRouteTypes {
     | '/admin/cpd'
     | '/admin/exams'
     | '/admin/licenses'
+    | '/admin/promotions'
     | '/admin/questions'
     | '/admin/reports'
     | '/admin/resources'
@@ -503,6 +514,7 @@ export interface FileRouteTypes {
     | '/admin/cpd'
     | '/admin/exams'
     | '/admin/licenses'
+    | '/admin/promotions'
     | '/admin/questions'
     | '/admin/reports'
     | '/admin/resources'
@@ -549,6 +561,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/cpd'
     | '/_authenticated/admin/exams'
     | '/_authenticated/admin/licenses'
+    | '/_authenticated/admin/promotions'
     | '/_authenticated/admin/questions'
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/resources'
@@ -813,6 +826,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminQuestionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin/promotions': {
+      id: '/_authenticated/admin/promotions'
+      path: '/admin/promotions'
+      fullPath: '/admin/promotions'
+      preLoaderRoute: typeof AuthenticatedAdminPromotionsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin/licenses': {
       id: '/_authenticated/admin/licenses'
       path: '/admin/licenses'
@@ -980,6 +1000,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminCpdRoute: typeof AuthenticatedAdminCpdRoute
   AuthenticatedAdminExamsRoute: typeof AuthenticatedAdminExamsRoute
   AuthenticatedAdminLicensesRoute: typeof AuthenticatedAdminLicensesRoute
+  AuthenticatedAdminPromotionsRoute: typeof AuthenticatedAdminPromotionsRoute
   AuthenticatedAdminQuestionsRoute: typeof AuthenticatedAdminQuestionsRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminResourcesRoute: typeof AuthenticatedAdminResourcesRoute
@@ -1013,6 +1034,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminCpdRoute: AuthenticatedAdminCpdRoute,
   AuthenticatedAdminExamsRoute: AuthenticatedAdminExamsRoute,
   AuthenticatedAdminLicensesRoute: AuthenticatedAdminLicensesRoute,
+  AuthenticatedAdminPromotionsRoute: AuthenticatedAdminPromotionsRoute,
   AuthenticatedAdminQuestionsRoute: AuthenticatedAdminQuestionsRoute,
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminResourcesRoute: AuthenticatedAdminResourcesRoute,
