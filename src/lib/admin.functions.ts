@@ -123,26 +123,86 @@ export const deleteUser = createServerFn({ method: "POST" })
 // ── Announcements ────────────────────────────────────────────────────
 export const createAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { title: string; body: string; audience?: string }) =>
+  .inputValidator((d: { title: string; body: string; audience?: string; priority?: string }) =>
     z
       .object({
         title: z.string().min(1).max(200),
         body: z.string().min(1).max(5000),
-        audience: z.string().max(50).optional(),
+        audience: z.enum(["all", "candidates", "arbiters", "instructors", "staff"]).optional(),
+        priority: z.enum(["info", "warning", "critical"]).optional(),
       })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin.from("academy_announcements").insert({
-      title: data.title,
-      body: data.body,
-      audience: data.audience ?? "all",
-      created_by: context.userId,
-      published_at: new Date().toISOString(),
-    } as never);
+    const audience = data.audience ?? "all";
+    const priority = data.priority ?? "info";
+    const { data: inserted, error } = await supabaseAdmin
+      .from("academy_announcements")
+      .insert({
+        title: data.title,
+        body: data.body,
+        audience,
+        priority,
+        created_by: context.userId,
+        published_at: new Date().toISOString(),
+      } as never)
+      .select("id")
+      .single();
     if (error) throw new Error(error.message);
-    return { ok: true };
+
+    // Fan out to per-user notifications so the bell + realtime picks it up.
+    const userIds = await resolveAudienceUserIds(audience);
+    if (userIds.length > 0) {
+      const rows = userIds.map((user_id) => ({
+        user_id,
+        title: `📣 ${data.title}`,
+        body: data.body.slice(0, 500),
+        link: "/notifications",
+      }));
+      // Insert in chunks to avoid oversized payloads.
+      const chunkSize = 500;
+      for (let i = 0; i < rows.length; i += chunkSize) {
+        await supabaseAdmin.from("academy_notifications").insert(rows.slice(i, i + chunkSize) as never);
+      }
+    }
+    return { ok: true, id: (inserted as { id: string } | null)?.id, delivered: userIds.length };
+  });
+
+async function resolveAudienceUserIds(audience: string): Promise<string[]> {
+  if (audience === "all") {
+    const { data } = await supabaseAdmin.from("academy_profiles").select("user_id");
+    return (data ?? []).map((r) => (r as { user_id: string }).user_id).filter(Boolean);
+  }
+  const rolesByAudience: Record<string, string[]> = {
+    candidates: ["candidate"],
+    arbiters: ["national_arbiter", "fide_arbiter", "international_arbiter"],
+    instructors: ["instructor"],
+    staff: ["instructor", "academy_admin", "super_admin"],
+  };
+  const roles = rolesByAudience[audience];
+  if (!roles) return [];
+  const { data } = await supabaseAdmin
+    .from("academy_user_roles")
+    .select("user_id")
+    .in("role", roles as never);
+  const ids = new Set<string>();
+  (data ?? []).forEach((r) => ids.add((r as { user_id: string }).user_id));
+  return [...ids];
+}
+
+// ── Active announcements (auth users) ────────────────────────────────
+export const listActiveAnnouncements = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("academy_announcements")
+      .select("id,title,body,audience,priority,published_at,created_at")
+      .not("published_at", "is", null)
+      .order("published_at", { ascending: false })
+      .limit(5);
+    if (error) throw new Error(error.message);
+    return data ?? [];
   });
 
 export const deleteAnnouncement = createServerFn({ method: "POST" })
