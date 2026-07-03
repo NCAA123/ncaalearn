@@ -171,8 +171,8 @@ export const createAnnouncement = createServerFn({ method: "POST" })
 
 async function resolveAudienceUserIds(audience: string): Promise<string[]> {
   if (audience === "all") {
-    const { data } = await supabaseAdmin.from("academy_profiles").select("user_id");
-    return (data ?? []).map((r) => (r as { user_id: string }).user_id).filter(Boolean);
+    const { data } = await supabaseAdmin.from("academy_profiles").select("id");
+    return (data ?? []).map((r) => (r as { id: string }).id).filter(Boolean);
   }
   const rolesByAudience: Record<string, string[]> = {
     candidates: ["candidate"],
