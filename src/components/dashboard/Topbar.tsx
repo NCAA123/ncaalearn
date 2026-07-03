@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect } from "react";
 import { Bell, LogOut, Menu, Search, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,10 +15,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/lib/auth-context";
 import { listMyNotifications } from "@/lib/license.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Topbar() {
   const { profile, user, signOut, roles, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const fetchNotifs = useServerFn(listMyNotifications);
   const { data: notifs } = useQuery({
     queryKey: ["my-notifications", "topbar"],
@@ -25,6 +28,33 @@ export function Topbar() {
     enabled: isAuthenticated,
     refetchInterval: 60_000,
   });
+
+  // Realtime: when the DB inserts a new notification for this user, refresh
+  // the bell and the /notifications list without waiting on the poll.
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel(`notif:${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "academy_notifications",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          qc.invalidateQueries({ queryKey: ["my-notifications"] });
+          qc.invalidateQueries({ queryKey: ["my-notifications", "topbar"] });
+          qc.invalidateQueries({ queryKey: ["active-announcements"] });
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, qc]);
+
   const unread = (notifs ?? []).filter((n) => !n.read).length;
   const name = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || user?.email || "User";
   const initials = (profile?.first_name?.[0] ?? "") + (profile?.last_name?.[0] ?? "");
