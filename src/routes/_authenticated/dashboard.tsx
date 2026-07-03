@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, GraduationCap, FileQuestion, Award, IdCard, ListChecks, TrendingUp, Users, Bell, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { AnnouncementBanner } from "@/components/dashboard/AnnouncementBanner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — NCAA Academy" }] }),
@@ -17,10 +18,12 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 function DashboardPage() {
   const { isAdmin, isStaff, isLicensedArbiter, profile, roles } = useAuth();
-  if (isAdmin) return <AdminDashboard />;
-  if (isStaff) return <InstructorDashboard />;
-  if (isLicensedArbiter) return <ArbiterDashboard />;
-  return <CandidateDashboard />;
+  return (
+    <>
+      <AnnouncementBanner />
+      {isAdmin ? <AdminDashboard /> : isStaff ? <InstructorDashboard /> : isLicensedArbiter ? <ArbiterDashboard /> : <CandidateDashboard />}
+    </>
+  );
 }
 
 /* ---------------- Candidate ---------------- */
