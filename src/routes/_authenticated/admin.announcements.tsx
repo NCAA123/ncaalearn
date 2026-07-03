@@ -23,7 +23,8 @@ function AnnouncementsPage() {
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [audience, setAudience] = useState("all");
+  const [audience, setAudience] = useState<"all" | "candidates" | "arbiters" | "instructors" | "staff">("all");
+  const [priority, setPriority] = useState<"info" | "warning" | "critical">("info");
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-announcements"],
@@ -40,11 +41,12 @@ function AnnouncementsPage() {
 
   const createFn = useServerFn(createAnnouncement);
   const createMut = useMutation({
-    mutationFn: (v: { title: string; body: string; audience: string }) => createFn({ data: v }),
-    onSuccess: () => {
+    mutationFn: (v: { title: string; body: string; audience: string; priority: string }) => createFn({ data: v }),
+    onSuccess: (r) => {
       qc.invalidateQueries({ queryKey: ["admin-announcements"] });
-      setTitle(""); setBody(""); setAudience("all");
-      toast.success("Announcement published");
+      setTitle(""); setBody(""); setAudience("all"); setPriority("info");
+      const delivered = (r as { delivered?: number } | undefined)?.delivered ?? 0;
+      toast.success(delivered > 0 ? `Published and delivered to ${delivered} users` : "Announcement published");
     },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -65,7 +67,7 @@ function AnnouncementsPage() {
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
             if (!title.trim() || !body.trim()) return;
-            createMut.mutate({ title, body, audience });
+            createMut.mutate({ title, body, audience, priority });
           }}
           className="rounded-xl border border-border bg-card p-5 space-y-4 h-fit"
         >
@@ -80,13 +82,25 @@ function AnnouncementsPage() {
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Audience</label>
-            <Select value={audience} onValueChange={setAudience}>
+            <Select value={audience} onValueChange={(v) => setAudience(v as typeof audience)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Everyone</SelectItem>
                 <SelectItem value="candidates">Candidates</SelectItem>
                 <SelectItem value="arbiters">Licensed arbiters</SelectItem>
                 <SelectItem value="instructors">Instructors</SelectItem>
+                <SelectItem value="staff">All staff</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Priority</label>
+            <Select value={priority} onValueChange={(v) => setPriority(v as typeof priority)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="info">Info</SelectItem>
+                <SelectItem value="warning">Warning</SelectItem>
+                <SelectItem value="critical">Critical</SelectItem>
               </SelectContent>
             </Select>
           </div>
