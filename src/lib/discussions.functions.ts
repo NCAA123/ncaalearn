@@ -27,12 +27,14 @@ export const listDiscussions = createServerFn({ method: "GET" })
     if (userIds.length > 0) {
       const { data: profs } = await supabase
         .from("academy_profiles")
-        .select("id, full_name, avatar_url")
+        .select("id, first_name, last_name, avatar_url")
         .in("id", userIds);
       for (const p of profs ?? []) {
+        const full =
+          [p.first_name, p.last_name].filter(Boolean).join(" ").trim() || null;
         profiles[p.id as string] = {
-          full_name: (p as any).full_name ?? null,
-          avatar_url: (p as any).avatar_url ?? null,
+          full_name: full,
+          avatar_url: p.avatar_url ?? null,
         };
       }
     }
