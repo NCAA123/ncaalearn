@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Clock, CheckCircle2, PlayCircle, FileText, Film, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { CourseDiscussion } from "@/components/course/CourseDiscussion";
 
 export const Route = createFileRoute("/_authenticated/courses/$slug")({
   head: () => ({ meta: [{ title: "Course — NCAA Academy" }] }),
@@ -261,6 +262,8 @@ function CourseDetailPage() {
           ))}
         </div>
       )}
+
+      {course?.id && <CourseDiscussion courseId={course.id} />}
     </>
   );
 }
