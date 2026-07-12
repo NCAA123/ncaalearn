@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp, Trophy, BookMarked } from "lucide-react";
+import { Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp, Trophy, BookMarked, Search } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ export function Sidebar() {
 
   const learner: Item[] = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/search", label: "Search", icon: Search },
     { to: "/courses", label: "Courses", icon: BookOpen },
     { to: "/my-learning", label: "My Learning", icon: PlayCircle },
     { to: "/seminars", label: "Seminars", icon: GraduationCap },
