@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -13,6 +13,7 @@ import { MessageSquare, Reply, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { formatDistanceToNow } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 
 type DiscussionRow = {
   id: string;
@@ -37,6 +38,28 @@ export function CourseDiscussion({ courseId }: { courseId: string }) {
     queryKey: ["course-discussion", courseId],
     queryFn: () => list({ data: { courseId } }) as Promise<DiscussionRow[]>,
   });
+
+  // Realtime: any insert/delete on this course's thread → refresh
+  useEffect(() => {
+    const channel = supabase
+      .channel(`discussions:${courseId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "academy_discussions",
+          filter: `course_id=eq.${courseId}`,
+        },
+        () => {
+          qc.invalidateQueries({ queryKey: ["course-discussion", courseId] });
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [courseId, qc]);
 
   const invalidate = () =>
     qc.invalidateQueries({ queryKey: ["course-discussion", courseId] });
