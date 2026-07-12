@@ -110,7 +110,8 @@ function AdminCourses() {
                 <div className="flex items-center gap-3">
                   <Badge variant={c.is_published ? "default" : "secondary"}>{c.is_published ? "Published" : "Draft"}</Badge>
                   <Switch checked={c.is_published} onCheckedChange={(v) => pubMut.mutate({ id: c.id, is_published: !!v })} />
-                  {c.slug && <Link to="/courses/$slug" params={{ slug: c.slug }} className="text-xs text-primary hover:underline">View</Link>}
+                  <Link to="/admin/courses/$id" params={{ id: c.id }} className="text-xs text-primary hover:underline">Edit</Link>
+                  {c.slug && <Link to="/courses/$slug" params={{ slug: c.slug }} className="text-xs text-muted-foreground hover:underline">View</Link>}
                   <Button variant="ghost" size="icon" onClick={() => { if (confirm(`Delete "${c.title}"?`)) delMut.mutate(c.id); }}>
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
