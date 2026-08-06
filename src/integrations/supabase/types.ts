@@ -47,6 +47,42 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          ip_address: unknown
+          metadata: Json | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       academy_badges: {
         Row: {
           code: string
@@ -149,6 +185,45 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_cpd_activities: {
+        Row: {
+          category: string | null
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          max_per_year: number | null
+          name: string
+          points: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_per_year?: number | null
+          name: string
+          points?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_per_year?: number | null
+          name?: string
+          points?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       academy_cpd_records: {
         Row: {
           activity_date: string
@@ -191,6 +266,36 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      academy_cpd_requirements: {
+        Row: {
+          annual_points_required: number
+          created_at: string
+          cycle_years: number
+          id: string
+          notes: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          annual_points_required?: number
+          created_at?: string
+          cycle_years?: number
+          id?: string
+          notes?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          annual_points_required?: number
+          created_at?: string
+          cycle_years?: number
+          id?: string
+          notes?: string | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -366,6 +471,44 @@ export type Database = {
           },
         ]
       }
+      academy_exam_violations: {
+        Row: {
+          attempt_id: string
+          id: string
+          metadata: Json | null
+          occurred_at: string
+          severity: string
+          user_id: string
+          violation_type: string
+        }
+        Insert: {
+          attempt_id: string
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string
+          severity?: string
+          user_id: string
+          violation_type: string
+        }
+        Update: {
+          attempt_id?: string
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string
+          severity?: string
+          user_id?: string
+          violation_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_exam_violations_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "academy_exam_attempts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       academy_exams: {
         Row: {
           available_from: string | null
@@ -529,6 +672,80 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_mentorship_interactions: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          interaction_date: string
+          interaction_type: string
+          logged_by: string
+          mentorship_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          interaction_date?: string
+          interaction_type: string
+          logged_by: string
+          mentorship_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          interaction_date?: string
+          interaction_type?: string
+          logged_by?: string
+          mentorship_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_mentorship_interactions_mentorship_id_fkey"
+            columns: ["mentorship_id"]
+            isOneToOne: false
+            referencedRelation: "academy_mentorships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_mentorships: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          goals: string | null
+          id: string
+          mentee_id: string
+          mentor_id: string
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          goals?: string | null
+          id?: string
+          mentee_id: string
+          mentor_id: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          goals?: string | null
+          id?: string
+          mentee_id?: string
+          mentor_id?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       academy_modules: {
         Row: {
           course_id: string
@@ -560,6 +777,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      academy_norms: {
+        Row: {
+          created_at: string
+          evidence_path: string | null
+          federation: string | null
+          id: string
+          notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          role: string | null
+          status: string
+          submitted_at: string
+          tournament_date: string
+          tournament_name: string
+          toward_title: string
+          updated_at: string
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          evidence_path?: string | null
+          federation?: string | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role?: string | null
+          status?: string
+          submitted_at?: string
+          tournament_date: string
+          tournament_name: string
+          toward_title: string
+          updated_at?: string
+          user_id: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          evidence_path?: string | null
+          federation?: string | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role?: string | null
+          status?: string
+          submitted_at?: string
+          tournament_date?: string
+          tournament_name?: string
+          toward_title?: string
+          updated_at?: string
+          user_id?: string
+          weight?: number
+        }
+        Relationships: []
       }
       academy_notifications: {
         Row: {
@@ -678,6 +952,74 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_promotion_requirements: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          threshold: number
+          to_title: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          threshold?: number
+          to_title: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          threshold?: number
+          to_title?: string
+        }
+        Relationships: []
+      }
+      academy_question_options: {
+        Row: {
+          content: string
+          created_at: string
+          feedback: string | null
+          id: string
+          is_correct: boolean
+          option_order: number
+          question_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          is_correct?: boolean
+          option_order: number
+          question_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          is_correct?: boolean
+          option_order?: number
+          question_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_question_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "academy_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       academy_questions: {
         Row: {
           approved: boolean
@@ -767,6 +1109,95 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_scenario_steps: {
+        Row: {
+          choices: Json
+          context: Json | null
+          created_at: string
+          id: string
+          points: number
+          prompt: string
+          scenario_id: string
+          step_order: number
+        }
+        Insert: {
+          choices: Json
+          context?: Json | null
+          created_at?: string
+          id?: string
+          points?: number
+          prompt: string
+          scenario_id: string
+          step_order: number
+        }
+        Update: {
+          choices?: Json
+          context?: Json | null
+          created_at?: string
+          id?: string
+          points?: number
+          prompt?: string
+          scenario_id?: string
+          step_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_scenario_steps_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "academy_scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_scenarios: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          difficulty: string
+          estimated_minutes: number
+          id: string
+          is_published: boolean
+          passing_score: number
+          slug: string
+          thumbnail_path: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string
+          estimated_minutes?: number
+          id?: string
+          is_published?: boolean
+          passing_score?: number
+          slug: string
+          thumbnail_path?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string
+          estimated_minutes?: number
+          id?: string
+          is_published?: boolean
+          passing_score?: number
+          slug?: string
+          thumbnail_path?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       academy_seminar_registrations: {
         Row: {
           id: string
@@ -849,6 +1280,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      academy_simulation_attempts: {
+        Row: {
+          answers: Json
+          completed_at: string | null
+          created_at: string
+          id: string
+          max_score: number | null
+          passed: boolean | null
+          scenario_id: string
+          score: number | null
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          max_score?: number | null
+          passed?: boolean | null
+          scenario_id: string
+          score?: number | null
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          max_score?: number | null
+          passed?: boolean | null
+          scenario_id?: string
+          score?: number | null
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_simulation_attempts_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "academy_scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       academy_user_badges: {
         Row: {
