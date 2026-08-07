@@ -95,6 +95,7 @@ export function Topbar() {
           <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild><Link to="/profile"><UserIcon className="h-4 w-4 mr-2" />Profile</Link></DropdownMenuItem>
+          <DropdownMenuItem asChild><Link to="/security"><ShieldCheck className="h-4 w-4 mr-2" />Security</Link></DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={async () => { await signOut(); navigate({ to: "/login", replace: true }); }}>
             <LogOut className="h-4 w-4 mr-2" />Sign out
