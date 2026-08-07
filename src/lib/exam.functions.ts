@@ -315,7 +315,17 @@ export const recordViolation = createServerFn({ method: "POST" })
       } as never)
       .eq("id", data.attemptId);
     if (error) throw new Error(error.message);
-    return { count: next.length };
+    const count = next.length;
+    const devtools = next.some((v) => (v as { kind?: string }).kind === "devtools");
+    const tabSwitches = next.filter((v) => (v as { kind?: string }).kind === "tab_hidden").length;
+    return {
+      count,
+      // 3 → warn the candidate, 10 → flag for admin review,
+      // 20 (or DevTools + 5 tab switches) → auto-submit and flag.
+      warn: count >= 3,
+      flagged: count >= 10,
+      autoSubmit: count >= 20 || (devtools && tabSwitches >= 5),
+    };
   });
 
 function answersEqual(correct: unknown, given: unknown, type: string): boolean {

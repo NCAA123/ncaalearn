@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
-import { Bell, LogOut, Menu, Search, User as UserIcon } from "lucide-react";
+import { Bell, LogOut, Menu, Search, ShieldCheck, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -95,6 +95,7 @@ export function Topbar() {
           <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild><Link to="/profile"><UserIcon className="h-4 w-4 mr-2" />Profile</Link></DropdownMenuItem>
+          <DropdownMenuItem asChild><Link to="/security"><ShieldCheck className="h-4 w-4 mr-2" />Security</Link></DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={async () => { await signOut(); navigate({ to: "/login", replace: true }); }}>
             <LogOut className="h-4 w-4 mr-2" />Sign out

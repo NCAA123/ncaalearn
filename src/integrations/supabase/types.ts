@@ -672,6 +672,42 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_login_history: {
+        Row: {
+          created_at: string
+          device: string | null
+          id: string
+          ip_address: string | null
+          location: string | null
+          reason: string | null
+          suspicious: boolean
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device?: string | null
+          id?: string
+          ip_address?: string | null
+          location?: string | null
+          reason?: string | null
+          suspicious?: boolean
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device?: string | null
+          id?: string
+          ip_address?: string | null
+          location?: string | null
+          reason?: string | null
+          suspicious?: boolean
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       academy_mentorship_interactions: {
         Row: {
           content: string | null
@@ -862,6 +898,30 @@ export type Database = {
           read?: boolean
           title?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      academy_permissions: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          key: string
+          system_only: boolean
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          key: string
+          system_only?: boolean
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          key?: string
+          system_only?: boolean
         }
         Relationships: []
       }
@@ -1109,6 +1169,32 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_role_permissions: {
+        Row: {
+          created_at: string
+          permission_key: string
+          role: Database["public"]["Enums"]["academy_app_role"]
+        }
+        Insert: {
+          created_at?: string
+          permission_key: string
+          role: Database["public"]["Enums"]["academy_app_role"]
+        }
+        Update: {
+          created_at?: string
+          permission_key?: string
+          role?: Database["public"]["Enums"]["academy_app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_role_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "academy_permissions"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
       academy_scenario_steps: {
         Row: {
           choices: Json
@@ -1328,6 +1414,36 @@ export type Database = {
           },
         ]
       }
+      academy_two_factor: {
+        Row: {
+          backup_codes: string[]
+          created_at: string
+          enabled: boolean
+          enabled_at: string | null
+          factor_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[]
+          created_at?: string
+          enabled?: boolean
+          enabled_at?: string | null
+          factor_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[]
+          created_at?: string
+          enabled?: boolean
+          enabled_at?: string | null
+          factor_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       academy_user_badges: {
         Row: {
           awarded_at: string
@@ -1354,6 +1470,50 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "academy_badges"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_user_permissions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          granted: boolean
+          granted_by: string | null
+          id: string
+          permission_key: string
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          granted?: boolean
+          granted_by?: string | null
+          id?: string
+          permission_key: string
+          reason?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          granted?: boolean
+          granted_by?: string | null
+          id?: string
+          permission_key?: string
+          reason?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_user_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "academy_permissions"
+            referencedColumns: ["key"]
           },
         ]
       }
@@ -5849,6 +6009,20 @@ export type Database = {
       }
     }
     Functions: {
+      academy_effective_permissions: {
+        Args: { _user_id: string }
+        Returns: {
+          permission_key: string
+        }[]
+      }
+      academy_has_active_license: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
+      academy_has_permission: {
+        Args: { _permission: string; _user_id: string }
+        Returns: boolean
+      }
       academy_has_role: {
         Args: {
           _role: Database["public"]["Enums"]["academy_app_role"]
@@ -5857,6 +6031,10 @@ export type Database = {
         Returns: boolean
       }
       academy_is_admin: { Args: { _user_id: string }; Returns: boolean }
+      academy_is_enrolled: {
+        Args: { _course_id: string; _user_id: string }
+        Returns: boolean
+      }
       academy_is_staff: { Args: { _user_id: string }; Returns: boolean }
       calculate_arbiter_rating: {
         Args: { arbiter_uuid: string }

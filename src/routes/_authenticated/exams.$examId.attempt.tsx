@@ -59,12 +59,25 @@ function AttemptRuntime() {
 
   // ── Anti-cheating ───────────────────────────────────────────────
   const violateFn = useServerFn(recordViolation);
-  const violateMut = useMutation({ mutationFn: violateFn });
+  const autoSubmitRef = useRef(false);
+  const violateMut = useMutation({
+    mutationFn: violateFn,
+    onSuccess: (res) => {
+      if (res.autoSubmit && !autoSubmitRef.current) {
+        autoSubmitRef.current = true;
+        toast.error("Too many integrity violations — your exam is being submitted.");
+        submitRef.current?.();
+      } else if (res.flagged) {
+        toast.error(`${res.count} violations logged. This attempt is flagged for review.`);
+      } else if (res.warn) {
+        toast.warning(`${res.count} violations logged. Further violations may end your exam.`);
+      }
+    },
+  });
   const violate = useCallback(
     (kind: string, detail?: string) => {
       if (result || attempt?.status !== "in_progress") return;
       violateMut.mutate({ data: { attemptId, kind, detail } });
-      toast.warning(`Violation logged: ${kind}`);
     },
     [attemptId, attempt?.status, result, violateMut],
   );
@@ -77,6 +90,41 @@ function AttemptRuntime() {
     const onPaste = (e: ClipboardEvent) => { e.preventDefault(); violate("paste"); };
     const onCtx = (e: MouseEvent) => e.preventDefault();
     const onFs = () => { if (!document.fullscreenElement) violate("exit_fullscreen"); };
+    const onKey = (e: KeyboardEvent) => {
+      const k = e.key.toLowerCase();
+      if (e.key === "F12" || ((e.ctrlKey || e.metaKey) && ["c", "v", "p", "s", "u"].includes(k))) {
+        e.preventDefault();
+        violate("shortcut", e.key);
+      }
+    };
+    let devtoolsSeen = false;
+    const devtoolsTimer = setInterval(() => {
+      const open =
+        window.outerWidth - window.innerWidth > 200 ||
+        window.outerHeight - window.innerHeight > 220;
+      if (open && !devtoolsSeen) { devtoolsSeen = true; violate("devtools"); }
+      if (!open) devtoolsSeen = false;
+    }, 3000);
+
+    // Idle tracking: 2 minutes → warning, 5 minutes → auto-submit.
+    let lastActive = Date.now();
+    let warned = false;
+    const bump = () => { lastActive = Date.now(); warned = false; };
+    const idleTimer = setInterval(() => {
+      const idleMs = Date.now() - lastActive;
+      if (idleMs > 5 * 60_000 && !autoSubmitRef.current) {
+        autoSubmitRef.current = true;
+        toast.error("Inactive for 5 minutes — submitting your exam.");
+        submitRef.current?.();
+      } else if (idleMs > 2 * 60_000 && !warned) {
+        warned = true;
+        toast.warning("You have been inactive for 2 minutes.");
+      }
+    }, 15_000);
+    ["mousemove", "keydown", "click", "scroll"].forEach((ev) =>
+      window.addEventListener(ev, bump, { passive: true }),
+    );
+    document.addEventListener("keydown", onKey);
     document.addEventListener("visibilitychange", onVis);
     window.addEventListener("blur", onBlur);
     document.addEventListener("copy", onCopy);
@@ -84,6 +132,12 @@ function AttemptRuntime() {
     document.addEventListener("contextmenu", onCtx);
     document.addEventListener("fullscreenchange", onFs);
     return () => {
+      clearInterval(devtoolsTimer);
+      clearInterval(idleTimer);
+      ["mousemove", "keydown", "click", "scroll"].forEach((ev) =>
+        window.removeEventListener(ev, bump),
+      );
+      document.removeEventListener("keydown", onKey);
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("blur", onBlur);
       document.removeEventListener("copy", onCopy);
@@ -97,6 +151,8 @@ function AttemptRuntime() {
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
   };
+
+  const submitRef = useRef<(() => void) | null>(null);
 
   // ── Timer ──────────────────────────────────────────────────────
   const deadlineMs = useMemo(() => {
@@ -138,6 +194,7 @@ function AttemptRuntime() {
     },
     onError: (e) => toast.error((e as Error).message),
   });
+  submitRef.current = () => submitMut.mutate();
 
   // Auto-submit when timer reaches zero
   const autoSubmittedRef = useRef(false);
