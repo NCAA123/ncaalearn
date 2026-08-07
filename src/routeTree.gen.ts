@@ -17,6 +17,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifyHashRouteImport } from './routes/verify.$hash'
 import { Route as AuthenticatedSeminarsRouteImport } from './routes/_authenticated/seminars'
+import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedResourcesRouteImport } from './routes/_authenticated/resources'
 import { Route as AuthenticatedRegistryRouteImport } from './routes/_authenticated/registry'
@@ -95,6 +96,11 @@ const VerifyHashRoute = VerifyHashRouteImport.update({
 const AuthenticatedSeminarsRoute = AuthenticatedSeminarsRouteImport.update({
   id: '/seminars',
   path: '/seminars',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
@@ -339,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/registry': typeof AuthenticatedRegistryRoute
   '/resources': typeof AuthenticatedResourcesRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/security': typeof AuthenticatedSecurityRoute
   '/seminars': typeof AuthenticatedSeminarsRouteWithChildren
   '/verify/$hash': typeof VerifyHashRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
@@ -388,6 +395,7 @@ export interface FileRoutesByTo {
   '/registry': typeof AuthenticatedRegistryRoute
   '/resources': typeof AuthenticatedResourcesRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/security': typeof AuthenticatedSecurityRoute
   '/seminars': typeof AuthenticatedSeminarsRouteWithChildren
   '/verify/$hash': typeof VerifyHashRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
@@ -439,6 +447,7 @@ export interface FileRoutesById {
   '/_authenticated/registry': typeof AuthenticatedRegistryRoute
   '/_authenticated/resources': typeof AuthenticatedResourcesRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/seminars': typeof AuthenticatedSeminarsRouteWithChildren
   '/verify/$hash': typeof VerifyHashRoute
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
@@ -490,6 +499,7 @@ export interface FileRouteTypes {
     | '/registry'
     | '/resources'
     | '/search'
+    | '/security'
     | '/seminars'
     | '/verify/$hash'
     | '/admin/announcements'
@@ -539,6 +549,7 @@ export interface FileRouteTypes {
     | '/registry'
     | '/resources'
     | '/search'
+    | '/security'
     | '/seminars'
     | '/verify/$hash'
     | '/admin/announcements'
@@ -589,6 +600,7 @@ export interface FileRouteTypes {
     | '/_authenticated/registry'
     | '/_authenticated/resources'
     | '/_authenticated/search'
+    | '/_authenticated/security'
     | '/_authenticated/seminars'
     | '/verify/$hash'
     | '/_authenticated/admin/announcements'
@@ -687,6 +699,13 @@ declare module '@tanstack/react-router' {
       path: '/seminars'
       fullPath: '/seminars'
       preLoaderRoute: typeof AuthenticatedSeminarsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/security': {
+      id: '/_authenticated/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof AuthenticatedSecurityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/search': {
@@ -1067,6 +1086,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRegistryRoute: typeof AuthenticatedRegistryRoute
   AuthenticatedResourcesRoute: typeof AuthenticatedResourcesRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
+  AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedSeminarsRoute: typeof AuthenticatedSeminarsRouteWithChildren
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
   AuthenticatedAdminCertificatesRoute: typeof AuthenticatedAdminCertificatesRoute
@@ -1103,6 +1123,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedRegistryRoute: AuthenticatedRegistryRoute,
   AuthenticatedResourcesRoute: AuthenticatedResourcesRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
+  AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedSeminarsRoute: AuthenticatedSeminarsRouteWithChildren,
   AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
   AuthenticatedAdminCertificatesRoute: AuthenticatedAdminCertificatesRoute,

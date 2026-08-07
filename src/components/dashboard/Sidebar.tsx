@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp, Trophy, BookMarked, Search } from "lucide-react";
+import { ShieldCheck, Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp, Trophy, BookMarked, Search } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +44,10 @@ export function Sidebar() {
     { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
     { to: "/admin/reports", label: "Reports", icon: TrendingUp },
   ];
-  if (isAdmin) staff.push({ to: "/admin/settings", label: "Settings", icon: Settings });
+  if (isAdmin) {
+    staff.push({ to: "/admin/permissions", label: "Roles & Permissions", icon: ShieldCheck });
+    staff.push({ to: "/admin/settings", label: "Settings", icon: Settings });
+  }
 
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">

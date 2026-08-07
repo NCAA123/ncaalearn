@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { useServerFn } from "@tanstack/react-start";
+import { recordLogin } from "@/lib/permissions.functions";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in — NCAA Academy" }] }),
@@ -19,6 +21,10 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // Second factor step (only shown when the account has TOTP enrolled)
+  const [mfa, setMfa] = useState<{ factorId: string } | null>(null);
+  const [totp, setTotp] = useState("");
+  const record = useServerFn(recordLogin);
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) navigate({ to: "/dashboard", replace: true });
@@ -30,17 +36,93 @@ function LoginPage() {
     fetch("/api/public/bootstrap-admin", { method: "POST" }).catch(() => {});
   }, []);
 
+  async function finishLogin() {
+    const res = await record().catch(() => null);
+    if (res?.suspicious) {
+      toast.warning(`Unusual sign-in detected: ${res.reason}. Check your account security.`);
+    }
+    toast.success("Welcome back");
+    navigate({ to: "/dashboard", replace: true });
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setSubmitting(false);
+      toast.error(error.message);
+      return;
+    }
+
+    // If the account has 2FA enrolled, Supabase requires stepping up to aal2.
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.nextLevel === "aal2" && aal.nextLevel !== aal.currentLevel) {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const factor = factors?.totp?.[0];
+      setSubmitting(false);
+      if (factor) {
+        setMfa({ factorId: factor.id });
+        return;
+      }
+    }
+
+    setSubmitting(false);
+    await finishLogin();
+  }
+
+  async function onVerifyTotp(e: FormEvent) {
+    e.preventDefault();
+    if (!mfa) return;
+    setSubmitting(true);
+    const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: mfa.factorId });
+    if (chErr) {
+      setSubmitting(false);
+      toast.error(chErr.message);
+      return;
+    }
+    const { error } = await supabase.auth.mfa.verify({
+      factorId: mfa.factorId,
+      challengeId: ch.id,
+      code: totp,
+    });
     setSubmitting(false);
     if (error) {
       toast.error(error.message);
       return;
     }
-    toast.success("Welcome back");
-    navigate({ to: "/dashboard", replace: true });
+    await finishLogin();
+  }
+
+  if (mfa) {
+    return (
+      <AuthShell
+        title="Two-factor verification"
+        subtitle="Enter the 6-digit code from your authenticator app."
+      >
+        <form onSubmit={onVerifyTotp} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="totp">Authentication code</Label>
+            <Input
+              id="totp"
+              inputMode="numeric"
+              maxLength={6}
+              required
+              autoFocus
+              value={totp}
+              onChange={(e) => setTotp(e.target.value.replace(/\D/g, ""))}
+              className="font-mono tracking-[0.4em] text-center"
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={submitting || totp.length !== 6}>
+            {submitting ? "Verifying…" : "Verify"}
+          </Button>
+          <Button type="button" variant="ghost" className="w-full" onClick={() => setMfa(null)}>
+            Back
+          </Button>
+        </form>
+      </AuthShell>
+    );
   }
 
   return (
