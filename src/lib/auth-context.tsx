@@ -37,6 +37,9 @@ export interface AuthState {
   isStaff: boolean;
   isAdmin: boolean;
   isLicensedArbiter: boolean;
+  permissions: string[];
+  can: (permission: string) => boolean;
+  canAny: (permissions: string[]) => boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -52,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<AcademyProfile | null>(null);
   const [roles, setRoles] = useState<AcademyRole[]>([]);
+  const [permissions, setPermissions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadProfileAndRoles = async (uid: string) => {
@@ -65,6 +69,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle(),
       supabase.from("academy_user_roles").select("role").eq("user_id", uid),
     ]);
+
+    // Effective permissions are computed server-side (role permissions +
+    // per-user overrides + admin/super-admin short-circuits).
+    supabase
+      .rpc("academy_effective_permissions" as never, { _user_id: uid } as never)
+      .then(({ data }) =>
+        setPermissions(
+          ((data ?? []) as { permission_key: string }[]).map((r) => r.permission_key),
+        ),
+      );
 
     const arbiter = a as
       | (Record<string, string | null> & { title?: string | null; role?: string | null })
@@ -114,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
         setRoles([]);
+        setPermissions([]);
       }
     });
 
@@ -142,6 +157,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isStaff: roles.some((r) => STAFF.includes(r)),
     isAdmin: roles.some((r) => ADMIN.includes(r)),
     isLicensedArbiter: roles.some((r) => ARBITER.includes(r)),
+    permissions,
+    can: (p) => permissions.includes(p),
+    canAny: (ps) => ps.some((p) => permissions.includes(p)),
     refresh: async () => {
       if (user) await loadProfileAndRoles(user.id);
     },
