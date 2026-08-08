@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeader, getRequestIP } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -17,6 +18,144 @@ async function assertAdmin(userId: string) {
 }
 
 const QuestionType = z.enum(["mcq", "multi", "tf", "essay"]);
+
+// ── Session pinning / throttling helpers ─────────────────────────────
+function clientFingerprint() {
+  let ip: string | null = null;
+  try {
+    ip = getRequestIP({ xForwardedFor: true }) ?? null;
+  } catch {
+    ip = null;
+  }
+  if (!ip) {
+    try {
+      ip = getRequestHeader("cf-connecting-ip") ?? getRequestHeader("x-real-ip") ?? null;
+    } catch {
+      ip = null;
+    }
+  }
+  let ua: string | null = null;
+  try {
+    ua = getRequestHeader("user-agent") ?? null;
+  } catch {
+    ua = null;
+  }
+  return { ip, ua: ua ? ua.slice(0, 400) : null };
+}
+
+type PinnedAttempt = {
+  id: string;
+  user_id: string;
+  status: string;
+  ip_address: string | null;
+  user_agent: string | null;
+  last_action_at: string | null;
+  ip_change_count: number | null;
+  violations?: unknown[] | null;
+};
+
+async function appendViolation(
+  attemptId: string,
+  userId: string,
+  kind: string,
+  detail: string | null,
+  severity: "low" | "medium" | "high",
+) {
+  const { data: row } = await supabaseAdmin
+    .from("academy_exam_attempts")
+    .select("violations")
+    .eq("id", attemptId)
+    .maybeSingle();
+  const prev = ((row as { violations: unknown[] } | null)?.violations ?? []) as unknown[];
+  const next = [...prev, { kind, detail, at: new Date().toISOString(), source: "server" }];
+  await supabaseAdmin
+    .from("academy_exam_attempts")
+    .update({ violations: next as never, violation_count: next.length } as never)
+    .eq("id", attemptId);
+  await supabaseAdmin.from("academy_exam_violations").insert({
+    attempt_id: attemptId,
+    user_id: userId,
+    violation_type: kind,
+    severity,
+    metadata: { detail } as never,
+  } as never);
+  return next.length;
+}
+
+/**
+ * Loads an attempt, verifies ownership, enforces IP/user-agent pinning and a
+ * 1-request-per-second write throttle. Returns the attempt row.
+ */
+async function guardAttemptWrite(
+  attemptId: string,
+  userId: string,
+  opts: { throttle?: boolean; requireInProgress?: boolean } = {},
+) {
+  const { data } = await supabaseAdmin
+    .from("academy_exam_attempts")
+    .select("id,user_id,status,ip_address,user_agent,last_action_at,ip_change_count,violations")
+    .eq("id", attemptId)
+    .maybeSingle();
+  const attempt = data as PinnedAttempt | null;
+  if (!attempt || attempt.user_id !== userId) throw new Error("Attempt not found");
+  if (opts.requireInProgress !== false && attempt.status !== "in_progress") {
+    throw new Error("Attempt is not in progress");
+  }
+
+  const now = Date.now();
+
+  // 1 request per second per attempt.
+  if (opts.throttle) {
+    const last = attempt.last_action_at ? new Date(attempt.last_action_at).getTime() : 0;
+    if (now - last < 1000) {
+      throw new Error("Too many requests — please slow down.");
+    }
+  }
+
+  const { ip, ua } = clientFingerprint();
+  const patch: Record<string, unknown> = { last_action_at: new Date(now).toISOString() };
+
+  if (!attempt.ip_address && ip) patch['ip_address'] = ip;
+  if (!attempt.user_agent && ua) patch['user_agent'] = ua;
+
+  let ipChanged = false;
+  if (attempt.ip_address && ip && attempt.ip_address !== ip) {
+    ipChanged = true;
+    patch['ip_change_count'] = (attempt.ip_change_count ?? 0) + 1;
+  }
+  const uaChanged = Boolean(attempt.user_agent && ua && attempt.user_agent !== ua);
+
+  await supabaseAdmin
+    .from("academy_exam_attempts")
+    .update(patch as never)
+    .eq("id", attemptId);
+
+  if (ipChanged) {
+    await appendViolation(
+      attemptId,
+      userId,
+      "ip_change",
+      `${attempt.ip_address} → ${ip}`,
+      "high",
+    );
+  }
+  if (uaChanged) {
+    await appendViolation(attemptId, userId, "device_change", "User agent changed", "high");
+  }
+
+  // Three or more network hops during a single exam is treated as session
+  // hijacking: the attempt is terminated and flagged for review.
+  const changes = (patch['ip_change_count'] as number | undefined) ?? attempt.ip_change_count ?? 0;
+  if (changes >= 3) {
+    await supabaseAdmin
+      .from("academy_exam_attempts")
+      .update({ status: "flagged" } as never)
+      .eq("id", attemptId);
+    throw new Error("Exam session terminated: the network address changed too many times.");
+  }
+
+  return attempt;
+}
 
 // ── Question bank (admin) ────────────────────────────────────────────
 export const listQuestions = createServerFn({ method: "GET" })
@@ -189,6 +328,9 @@ export const startAttempt = createServerFn({ method: "POST" })
         user_id: context.userId,
         status: "in_progress",
         started_at: new Date().toISOString(),
+        ip_address: clientFingerprint().ip,
+        user_agent: clientFingerprint().ua,
+        last_action_at: new Date().toISOString(),
       } as never)
       .select("id")
       .single();
