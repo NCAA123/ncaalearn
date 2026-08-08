@@ -388,18 +388,8 @@ export const saveAnswer = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    // Verify ownership + in-progress
-    const { data: attempt } = await supabaseAdmin
-      .from("academy_exam_attempts")
-      .select("id,user_id,status")
-      .eq("id", data.attemptId)
-      .maybeSingle();
-    if (!attempt || (attempt as { user_id: string }).user_id !== context.userId) {
-      throw new Error("Attempt not found");
-    }
-    if ((attempt as { status: string }).status !== "in_progress") {
-      throw new Error("Attempt is not in progress");
-    }
+    // Verify ownership, pin to the originating IP/device, throttle to 1 req/s
+    await guardAttemptWrite(data.attemptId, context.userId, { throttle: true });
     // Upsert by (attempt_id, question_id)
     const { data: existing } = await supabaseAdmin
       .from("academy_exam_answers")
