@@ -426,14 +426,13 @@ export const recordViolation = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await guardAttemptWrite(data.attemptId, context.userId, { requireInProgress: false });
     const { data: attempt } = await supabaseAdmin
       .from("academy_exam_attempts")
       .select("id,user_id,violations,violation_count")
       .eq("id", data.attemptId)
       .maybeSingle();
-    if (!attempt || (attempt as { user_id: string }).user_id !== context.userId) {
-      throw new Error("Attempt not found");
-    }
+    if (!attempt) throw new Error("Attempt not found");
     const prev = ((attempt as { violations: unknown[] }).violations ?? []) as unknown[];
     const next = [
       ...prev,
@@ -479,6 +478,7 @@ export const submitAttempt = createServerFn({ method: "POST" })
     z.object({ attemptId: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data, context }) => {
+    await guardAttemptWrite(data.attemptId, context.userId, { requireInProgress: false });
     const { data: attempt } = await supabaseAdmin
       .from("academy_exam_attempts")
       .select("id,user_id,exam_id,status")
