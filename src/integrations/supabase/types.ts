@@ -428,11 +428,15 @@ export type Database = {
         Row: {
           exam_id: string
           id: string
+          ip_address: string | null
+          ip_change_count: number
+          last_action_at: string | null
           passed: boolean | null
           score: number | null
           started_at: string
           status: string
           submitted_at: string | null
+          user_agent: string | null
           user_id: string
           violation_count: number
           violations: Json
@@ -440,11 +444,15 @@ export type Database = {
         Insert: {
           exam_id: string
           id?: string
+          ip_address?: string | null
+          ip_change_count?: number
+          last_action_at?: string | null
           passed?: boolean | null
           score?: number | null
           started_at?: string
           status?: string
           submitted_at?: string | null
+          user_agent?: string | null
           user_id: string
           violation_count?: number
           violations?: Json
@@ -452,11 +460,15 @@ export type Database = {
         Update: {
           exam_id?: string
           id?: string
+          ip_address?: string | null
+          ip_change_count?: number
+          last_action_at?: string | null
           passed?: boolean | null
           score?: number | null
           started_at?: string
           status?: string
           submitted_at?: string | null
+          user_agent?: string | null
           user_id?: string
           violation_count?: number
           violations?: Json
