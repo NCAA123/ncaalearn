@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   getAttemptRuntime,
   recordViolation,
@@ -169,20 +170,55 @@ function AttemptRuntime() {
 
   // ── Save answers (debounced per question) ──────────────────────
   const saveFn = useServerFn(saveAnswer);
-  const saveMut = useMutation({ mutationFn: saveFn });
-  const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  // The server throttles attempt writes to 1 request/second, so answers are
+  // queued and flushed sequentially with >1s spacing (latest value per question wins).
+  const pending = useRef<Map<string, unknown>>(new Map());
+  const flushing = useRef(false);
+  const flushQueue = useCallback(async () => {
+    if (flushing.current) return;
+    flushing.current = true;
+    try {
+      while (pending.current.size > 0) {
+        const [qid, value] = pending.current.entries().next().value as [string, unknown];
+        pending.current.delete(qid);
+        try {
+          await saveFn({ data: { attemptId, questionId: qid, answer: value as never } });
+        } catch {
+          // Re-queue once; the loop's pacing resolves transient throttling.
+          if (!pending.current.has(qid)) pending.current.set(qid, value);
+        }
+        await new Promise((r) => setTimeout(r, 1100));
+      }
+    } finally {
+      flushing.current = false;
+    }
+  }, [attemptId, saveFn]);
   const setAnswer = (qid: string, value: unknown) => {
     setAnswers((a) => ({ ...a, [qid]: value }));
-    if (debounceTimers.current[qid]) clearTimeout(debounceTimers.current[qid]);
-    debounceTimers.current[qid] = setTimeout(() => {
-      saveMut.mutate({ data: { attemptId, questionId: qid, answer: value as never } });
-    }, 600);
+    pending.current.set(qid, value);
+    void flushQueue();
   };
+
+  // ── Session token rotation ─────────────────────────────────────
+  // Rotate the access token every 10 minutes during the exam so a token
+  // captured mid-attempt has a short useful lifetime.
+  useEffect(() => {
+    if (!data || result) return;
+    const t = setInterval(() => {
+      void supabase.auth.refreshSession();
+    }, 10 * 60_000);
+    return () => clearInterval(t);
+  }, [data, result]);
 
   // ── Submit ─────────────────────────────────────────────────────
   const submitFn = useServerFn(submitAttempt);
   const submitMut = useMutation({
-    mutationFn: () => submitFn({ data: { attemptId } }),
+    mutationFn: async () => {
+      // Flush any queued answers, then rotate the token before the final write.
+      await flushQueue();
+      await supabase.auth.refreshSession().catch(() => null);
+      return submitFn({ data: { attemptId } });
+    },
     onSuccess: (res) => {
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
       if ("alreadyDone" in res) {
