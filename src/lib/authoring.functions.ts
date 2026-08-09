@@ -175,7 +175,7 @@ const settingsInput = z.object({
   slug: z.string().min(1).max(120).regex(/^[a-z0-9-]+$/),
   short_description: z.string().max(200).nullable().optional(),
   description: z.string().max(20000).nullable().optional(),
-  level: z.string().max(60).nullable().optional(),
+  level: z.string().max(60).default("candidate"),
   topics: z.array(z.string().max(60)).max(20).default([]),
   tags: z.array(z.string().max(40)).max(30).default([]),
   learning_outcomes: z.array(z.string().max(200)).max(20).default([]),
