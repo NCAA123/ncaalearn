@@ -143,47 +143,129 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_course_bookmarks: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_course_bookmarks_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "academy_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       academy_courses: {
         Row: {
+          certificate_eligible: boolean
           cover_url: string | null
+          cpd_points: number
           created_at: string
           created_by: string | null
           description: string | null
           duration_minutes: number | null
           id: string
+          is_mandatory: boolean
           is_published: boolean
+          learning_outcomes: string[]
           level: string
+          mandatory_roles: string[]
+          parent_course_id: string | null
+          pass_mark: number
+          prerequisites: string[]
+          preview_video_url: string | null
+          publish_at: string | null
+          short_description: string | null
           slug: string | null
+          tags: string[]
+          target_audience: string[]
           title: string
+          topics: string[]
           updated_at: string
+          version: number
         }
         Insert: {
+          certificate_eligible?: boolean
           cover_url?: string | null
+          cpd_points?: number
           created_at?: string
           created_by?: string | null
           description?: string | null
           duration_minutes?: number | null
           id?: string
+          is_mandatory?: boolean
           is_published?: boolean
+          learning_outcomes?: string[]
           level?: string
+          mandatory_roles?: string[]
+          parent_course_id?: string | null
+          pass_mark?: number
+          prerequisites?: string[]
+          preview_video_url?: string | null
+          publish_at?: string | null
+          short_description?: string | null
           slug?: string | null
+          tags?: string[]
+          target_audience?: string[]
           title: string
+          topics?: string[]
           updated_at?: string
+          version?: number
         }
         Update: {
+          certificate_eligible?: boolean
           cover_url?: string | null
+          cpd_points?: number
           created_at?: string
           created_by?: string | null
           description?: string | null
           duration_minutes?: number | null
           id?: string
+          is_mandatory?: boolean
           is_published?: boolean
+          learning_outcomes?: string[]
           level?: string
+          mandatory_roles?: string[]
+          parent_course_id?: string | null
+          pass_mark?: number
+          prerequisites?: string[]
+          preview_video_url?: string | null
+          publish_at?: string | null
+          short_description?: string | null
           slug?: string | null
+          tags?: string[]
+          target_audience?: string[]
           title?: string
+          topics?: string[]
           updated_at?: string
+          version?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "academy_courses_parent_course_id_fkey"
+            columns: ["parent_course_id"]
+            isOneToOne: false
+            referencedRelation: "academy_courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       academy_cpd_activities: {
         Row: {
@@ -350,6 +432,7 @@ export type Database = {
           course_id: string
           enrolled_at: string
           id: string
+          last_accessed_at: string | null
           progress_pct: number
           user_id: string
         }
@@ -358,6 +441,7 @@ export type Database = {
           course_id: string
           enrolled_at?: string
           id?: string
+          last_accessed_at?: string | null
           progress_pct?: number
           user_id: string
         }
@@ -366,6 +450,7 @@ export type Database = {
           course_id?: string
           enrolled_at?: string
           id?: string
+          last_accessed_at?: string | null
           progress_pct?: number
           user_id?: string
         }
@@ -563,6 +648,44 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_lesson_notes: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          lesson_id: string
+          timestamp_seconds: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          timestamp_seconds?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          timestamp_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_lesson_notes_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "academy_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       academy_lesson_progress: {
         Row: {
           completed: boolean
@@ -571,6 +694,7 @@ export type Database = {
           seconds_spent: number
           updated_at: string
           user_id: string
+          video_position_seconds: number
         }
         Insert: {
           completed?: boolean
@@ -579,6 +703,7 @@ export type Database = {
           seconds_spent?: number
           updated_at?: string
           user_id: string
+          video_position_seconds?: number
         }
         Update: {
           completed?: boolean
@@ -587,6 +712,7 @@ export type Database = {
           seconds_spent?: number
           updated_at?: string
           user_id?: string
+          video_position_seconds?: number
         }
         Relationships: [
           {
