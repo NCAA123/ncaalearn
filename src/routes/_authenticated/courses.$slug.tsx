@@ -169,7 +169,7 @@ function CourseDetailPage() {
                     nextLessonId &&
                     navigate({
                       to: "/courses/$slug/lessons/$lessonId",
-                      params: { slug: course.slug, lessonId: nextLessonId },
+                      params: { slug: course.slug ?? slug, lessonId: nextLessonId },
                     })
                   }
                 >
@@ -226,7 +226,7 @@ function CourseDetailPage() {
                         {enrollment ? (
                           <Link
                             to="/courses/$slug/lessons/$lessonId"
-                            params={{ slug: course.slug, lessonId: l.id }}
+                            params={{ slug: course.slug ?? slug, lessonId: l.id }}
                             className="flex items-center gap-3 px-5 py-3 hover:bg-muted/40 transition"
                           >
                             <Icon className="h-4 w-4 text-muted-foreground shrink-0" />

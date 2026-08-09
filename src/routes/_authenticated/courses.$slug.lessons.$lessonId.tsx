@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { ArrowLeft, ArrowRight, CheckCircle2, ListTree } from "lucide-react";
 import { toast } from "sonner";
 import { ChessViewer } from "@/components/learning/ChessViewer";
 import { LessonQuiz, type QuizSpec } from "@/components/learning/LessonQuiz";
+import { VideoPlayer } from "@/components/learning/VideoPlayer";
+import { LessonNotes } from "@/components/learning/LessonNotes";
 
 export const Route = createFileRoute("/_authenticated/courses/$slug/lessons/$lessonId")({
   head: () => ({ meta: [{ title: "Lesson — NCAA Academy" }] }),
@@ -21,6 +23,7 @@ function LessonViewer() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [noteTimestamp, setNoteTimestamp] = useState<number | null>(null);
 
   const { data: course } = useQuery({
     queryKey: ["course", slug],
@@ -54,6 +57,22 @@ function LessonViewer() {
     },
   });
 
+  const { data: courseProgress } = useQuery({
+    queryKey: ["lesson-progress", user?.id, course?.id],
+    enabled: !!user && !!course?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("academy_lesson_progress")
+        .select("lesson_id,completed")
+        .eq("user_id", user!.id);
+      return data ?? [];
+    },
+  });
+  const doneSet = useMemo(
+    () => new Set((courseProgress ?? []).filter((p: any) => p.completed).map((p: any) => p.lesson_id)),
+    [courseProgress],
+  );
+
   const { data: lesson, isLoading: lessonLoading } = useQuery({
     queryKey: ["lesson", lessonId],
     queryFn: async () => {
@@ -81,11 +100,12 @@ function LessonViewer() {
   });
 
   const ordered = useMemo(() => {
-    if (!outline) return [] as { id: string; title: string; moduleTitle: string }[];
+    if (!outline) return [] as { id: string; title: string; moduleTitle: string; moduleId: string }[];
     const modMap = new Map(outline.modules.map((m: any) => [m.id, m.title]));
     return outline.lessons.map((l: any) => ({
       id: l.id as string,
       title: l.title as string,
+      moduleId: l.module_id as string,
       moduleTitle: (modMap.get(l.module_id) as string) ?? "",
     }));
   }, [outline]);
@@ -93,6 +113,10 @@ function LessonViewer() {
   const idx = ordered.findIndex((l) => l.id === lessonId);
   const prev = idx > 0 ? ordered[idx - 1] : null;
   const next = idx >= 0 && idx < ordered.length - 1 ? ordered[idx + 1] : null;
+  const coursePct =
+    ordered.length > 0
+      ? Math.round((ordered.filter((l) => doneSet.has(l.id)).length / ordered.length) * 100)
+      : 0;
 
   const completeMut = useMutation({
     mutationFn: async () => {
@@ -134,6 +158,16 @@ function LessonViewer() {
     },
     onError: (e: any) => toast.error(e.message ?? "Could not save progress"),
   });
+
+  // Mark the course as recently accessed
+  useEffect(() => {
+    if (!user || !course?.id) return;
+    void supabase
+      .from("academy_enrollments")
+      .update({ last_accessed_at: new Date().toISOString() })
+      .eq("user_id", user.id)
+      .eq("course_id", course.id);
+  }, [user, course?.id]);
 
   // Track open time
   useEffect(() => {
@@ -190,16 +224,44 @@ function LessonViewer() {
           {lesson.duration_minutes ? (
             <span className="text-xs text-muted-foreground">{lesson.duration_minutes} min</span>
           ) : null}
+          <span className="ml-auto text-xs text-muted-foreground">{coursePct}% of course complete</span>
         </div>
+        <nav className="text-xs text-muted-foreground mb-2">
+          {course?.title ?? "Course"} <span className="opacity-50">/</span>{" "}
+          {ordered[idx]?.moduleTitle ?? ""} <span className="opacity-50">/</span> {lesson.title}
+        </nav>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-5">
           {lesson.title}
         </h1>
 
         <LessonContent
           lesson={lesson}
+          resumeAt={progress?.video_position_seconds ?? 0}
+          onVideoPosition={(sec) => {
+            if (!user) return;
+            void supabase.from("academy_lesson_progress").upsert(
+              {
+                user_id: user.id,
+                lesson_id: lessonId,
+                video_position_seconds: sec,
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: "user_id,lesson_id" },
+            );
+          }}
+          onVideoAlmostDone={() => {
+            if (!progress?.completed) completeMut.mutate();
+          }}
+          onTakeNote={(sec) => setNoteTimestamp(sec)}
           onQuizPassed={() => {
             if (!progress?.completed) completeMut.mutate();
           }}
+        />
+
+        <LessonNotes
+          lessonId={lessonId}
+          pendingTimestamp={noteTimestamp}
+          onConsumeTimestamp={() => setNoteTimestamp(null)}
         />
 
         <div className="mt-8 flex flex-wrap items-center gap-3 justify-between border-t border-border pt-5">
@@ -248,25 +310,40 @@ function LessonViewer() {
           <ListTree className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium">{course?.title ?? "Course"}</span>
         </div>
-        <ul className="max-h-[60vh] overflow-y-auto">
-          {ordered.map((l, i) => (
-            <li key={l.id}>
-              <Link
-                to="/courses/$slug/lessons/$lessonId"
-                params={{ slug, lessonId: l.id }}
-                className={
-                  "flex items-start gap-2 px-4 py-2.5 text-xs border-b border-border last:border-0 transition " +
-                  (l.id === lessonId
-                    ? "bg-primary/10 text-foreground"
-                    : "text-muted-foreground hover:bg-muted/40 hover:text-foreground")
-                }
-              >
-                <span className="font-mono opacity-60 mt-0.5">{i + 1}.</span>
-                <span className="line-clamp-2">{l.title}</span>
-              </Link>
-            </li>
+        <div className="max-h-[60vh] overflow-y-auto">
+          {(outline?.modules ?? []).map((m: any) => (
+            <div key={m.id}>
+              <div className="px-4 py-2 bg-muted/40 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {m.title}
+              </div>
+              <ul>
+                {ordered
+                  .filter((l) => l.moduleId === m.id)
+                  .map((l) => (
+                    <li key={l.id}>
+                      <Link
+                        to="/courses/$slug/lessons/$lessonId"
+                        params={{ slug, lessonId: l.id }}
+                        className={
+                          "flex items-start gap-2 px-4 py-2.5 text-xs border-b border-border last:border-0 transition " +
+                          (l.id === lessonId
+                            ? "bg-primary/10 text-foreground"
+                            : "text-muted-foreground hover:bg-muted/40 hover:text-foreground")
+                        }
+                      >
+                        {doneSet.has(l.id) ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                        ) : (
+                          <span className="h-3.5 w-3.5 mt-0.5 shrink-0 rounded-full border border-border" />
+                        )}
+                        <span className="line-clamp-2">{l.title}</span>
+                      </Link>
+                    </li>
+                  ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       </aside>
     </div>
   );
@@ -275,29 +352,30 @@ function LessonViewer() {
 function LessonContent({
   lesson,
   onQuizPassed,
+  resumeAt,
+  onVideoPosition,
+  onVideoAlmostDone,
+  onTakeNote,
 }: {
   lesson: any;
   onQuizPassed?: () => void;
+  resumeAt?: number;
+  onVideoPosition?: (sec: number) => void;
+  onVideoAlmostDone?: () => void;
+  onTakeNote?: (sec: number) => void;
 }) {
   const type = (lesson.content_type ?? "text") as string;
 
   if (type === "video" && lesson.video_url) {
-    const url = lesson.video_url as string;
-    const yt = extractYouTubeId(url);
     return (
-      <div className="aspect-video w-full overflow-hidden rounded-xl border border-border bg-black">
-        {yt ? (
-          <iframe
-            src={`https://www.youtube.com/embed/${yt}`}
-            title={lesson.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full"
-          />
-        ) : (
-          <video src={url} controls className="w-full h-full" />
-        )}
-      </div>
+      <VideoPlayer
+        url={lesson.video_url as string}
+        title={lesson.title}
+        resumeAt={resumeAt ?? 0}
+        onPosition={onVideoPosition}
+        onReached90={onVideoAlmostDone}
+        onTakeNote={onTakeNote}
+      />
     );
   }
 
@@ -309,7 +387,7 @@ function LessonContent({
     );
   }
 
-  if (type === "chess" && lesson.pgn) {
+  if ((type === "chess" || type === "pgn") && lesson.pgn) {
     return (
       <div className="space-y-4">
         {lesson.body ? (
@@ -345,10 +423,4 @@ function LessonContent({
       )}
     </article>
   );
-}
-
-function extractYouTubeId(url: string): string | null {
-  const m =
-    url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([\w-]{11})/) ?? null;
-  return m ? m[1] : null;
 }
