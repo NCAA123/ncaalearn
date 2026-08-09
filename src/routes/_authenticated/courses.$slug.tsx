@@ -169,7 +169,7 @@ function CourseDetailPage() {
                     nextLessonId &&
                     navigate({
                       to: "/courses/$slug/lessons/$lessonId",
-                      params: { slug: course.slug, lessonId: nextLessonId },
+                      params: { slug: course.slug ?? slug, lessonId: nextLessonId },
                     })
                   }
                 >
