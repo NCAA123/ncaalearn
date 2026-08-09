@@ -102,7 +102,7 @@ const lessonInput = z.object({
   id: z.string().uuid().optional(),
   module_id: z.string().uuid(),
   title: z.string().min(1).max(200),
-  content_type: z.enum(["text", "video", "pdf", "pgn"]).default("text"),
+  content_type: z.enum(["text", "video", "pdf", "pgn", "chess", "quiz"]).default("text"),
   duration_minutes: z.number().int().min(0).max(600).nullable().optional(),
   video_url: z.string().url().nullable().optional().or(z.literal("").transform(() => null)),
   pdf_url: z.string().url().nullable().optional().or(z.literal("").transform(() => null)),
