@@ -1422,27 +1422,119 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_seminar_materials: {
+        Row: {
+          created_at: string
+          file_url: string
+          id: string
+          seminar_id: string
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          file_url: string
+          id?: string
+          seminar_id: string
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          file_url?: string
+          id?: string
+          seminar_id?: string
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_seminar_materials_seminar_id_fkey"
+            columns: ["seminar_id"]
+            isOneToOne: false
+            referencedRelation: "academy_seminars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       academy_seminar_registrations: {
         Row: {
+          amount_paid: number
+          attendance_minutes: number | null
+          attendance_percent: number | null
+          attended: boolean
+          cancelled_at: string | null
+          checked_in_at: string | null
+          confirmed_at: string | null
+          exam_unlocked: boolean
           id: string
+          join_time: string | null
+          leave_time: string | null
+          notes: string | null
+          offer_expires_at: string | null
+          payment_reference: string | null
+          payment_status: string
+          qr_token: string
           registered_at: string
           seminar_id: string
           status: string
+          unlock_override_by: string | null
           user_id: string
+          waitlist_position: number | null
         }
         Insert: {
+          amount_paid?: number
+          attendance_minutes?: number | null
+          attendance_percent?: number | null
+          attended?: boolean
+          cancelled_at?: string | null
+          checked_in_at?: string | null
+          confirmed_at?: string | null
+          exam_unlocked?: boolean
           id?: string
+          join_time?: string | null
+          leave_time?: string | null
+          notes?: string | null
+          offer_expires_at?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          qr_token?: string
           registered_at?: string
           seminar_id: string
           status?: string
+          unlock_override_by?: string | null
           user_id: string
+          waitlist_position?: number | null
         }
         Update: {
+          amount_paid?: number
+          attendance_minutes?: number | null
+          attendance_percent?: number | null
+          attended?: boolean
+          cancelled_at?: string | null
+          checked_in_at?: string | null
+          confirmed_at?: string | null
+          exam_unlocked?: boolean
           id?: string
+          join_time?: string | null
+          leave_time?: string | null
+          notes?: string | null
+          offer_expires_at?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          qr_token?: string
           registered_at?: string
           seminar_id?: string
           status?: string
+          unlock_override_by?: string | null
           user_id?: string
+          waitlist_position?: number | null
         }
         Relationships: [
           {
@@ -1456,52 +1548,124 @@ export type Database = {
       }
       academy_seminars: {
         Row: {
+          address: string | null
+          banner_url: string | null
           capacity: number | null
+          co_instructor_ids: string[]
+          cpd_category: string | null
+          cpd_points: number
           created_at: string
+          currency: string
           description: string | null
+          eligible_roles: string[]
           ends_at: string
+          exam_id: string | null
+          fee_amount: number
           id: string
           instructor_id: string | null
           is_published: boolean
+          lead_instructor_id: string | null
           level: string | null
           location: string | null
+          maps_url: string | null
+          meeting_id: string | null
+          meeting_password: string | null
           meeting_url: string | null
+          min_attendance_percent: number
           mode: string
+          platform: string | null
+          prerequisite_course_ids: string[]
+          prerequisites_text: string | null
+          registration_deadline: string | null
+          seminar_type: string
+          sponsored_by: string | null
           starts_at: string
+          state: string | null
+          timezone: string
           title: string
           updated_at: string
+          venue_name: string | null
+          waitlist_capacity: number | null
         }
         Insert: {
+          address?: string | null
+          banner_url?: string | null
           capacity?: number | null
+          co_instructor_ids?: string[]
+          cpd_category?: string | null
+          cpd_points?: number
           created_at?: string
+          currency?: string
           description?: string | null
+          eligible_roles?: string[]
           ends_at: string
+          exam_id?: string | null
+          fee_amount?: number
           id?: string
           instructor_id?: string | null
           is_published?: boolean
+          lead_instructor_id?: string | null
           level?: string | null
           location?: string | null
+          maps_url?: string | null
+          meeting_id?: string | null
+          meeting_password?: string | null
           meeting_url?: string | null
+          min_attendance_percent?: number
           mode?: string
+          platform?: string | null
+          prerequisite_course_ids?: string[]
+          prerequisites_text?: string | null
+          registration_deadline?: string | null
+          seminar_type?: string
+          sponsored_by?: string | null
           starts_at: string
+          state?: string | null
+          timezone?: string
           title: string
           updated_at?: string
+          venue_name?: string | null
+          waitlist_capacity?: number | null
         }
         Update: {
+          address?: string | null
+          banner_url?: string | null
           capacity?: number | null
+          co_instructor_ids?: string[]
+          cpd_category?: string | null
+          cpd_points?: number
           created_at?: string
+          currency?: string
           description?: string | null
+          eligible_roles?: string[]
           ends_at?: string
+          exam_id?: string | null
+          fee_amount?: number
           id?: string
           instructor_id?: string | null
           is_published?: boolean
+          lead_instructor_id?: string | null
           level?: string | null
           location?: string | null
+          maps_url?: string | null
+          meeting_id?: string | null
+          meeting_password?: string | null
           meeting_url?: string | null
+          min_attendance_percent?: number
           mode?: string
+          platform?: string | null
+          prerequisite_course_ids?: string[]
+          prerequisites_text?: string | null
+          registration_deadline?: string | null
+          seminar_type?: string
+          sponsored_by?: string | null
           starts_at?: string
+          state?: string | null
+          timezone?: string
           title?: string
           updated_at?: string
+          venue_name?: string | null
+          waitlist_capacity?: number | null
         }
         Relationships: []
       }

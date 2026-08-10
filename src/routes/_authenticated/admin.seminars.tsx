@@ -88,8 +88,8 @@ function AdminSeminars() {
                   checked={s.is_published}
                   onCheckedChange={(v) => pubMut.mutate({ id: s.id, is_published: !!v })}
                 />
-                <Link to="/seminars/$id" params={{ id: s.id }} className="text-xs text-primary hover:underline">
-                  View
+                <Link to="/admin/seminars/$id" params={{ id: s.id }} className="text-xs text-primary hover:underline">
+                  Manage
                 </Link>
                 <Button
                   variant="ghost"
