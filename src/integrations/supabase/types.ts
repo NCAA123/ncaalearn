@@ -469,28 +469,34 @@ export type Database = {
           answer: Json | null
           attempt_id: string
           created_at: string
+          flagged: boolean
           id: string
           is_correct: boolean | null
           points_awarded: number | null
           question_id: string
+          time_spent_seconds: number
         }
         Insert: {
           answer?: Json | null
           attempt_id: string
           created_at?: string
+          flagged?: boolean
           id?: string
           is_correct?: boolean | null
           points_awarded?: number | null
           question_id: string
+          time_spent_seconds?: number
         }
         Update: {
           answer?: Json | null
           attempt_id?: string
           created_at?: string
+          flagged?: boolean
           id?: string
           is_correct?: boolean | null
           points_awarded?: number | null
           question_id?: string
+          time_spent_seconds?: number
         }
         Relationships: [
           {
@@ -610,43 +616,79 @@ export type Database = {
         Row: {
           available_from: string | null
           available_until: string | null
+          cooldown_hours: number
           created_at: string
           description: string | null
           duration_minutes: number
           id: string
+          instructions: string | null
           is_published: boolean
           level: string
+          max_attempts: number
           pass_score: number
+          prerequisite_exam_id: string | null
+          require_attendance: boolean
+          seminar_id: string | null
+          shuffle_questions: boolean
           title: string
           updated_at: string
         }
         Insert: {
           available_from?: string | null
           available_until?: string | null
+          cooldown_hours?: number
           created_at?: string
           description?: string | null
           duration_minutes?: number
           id?: string
+          instructions?: string | null
           is_published?: boolean
           level?: string
+          max_attempts?: number
           pass_score?: number
+          prerequisite_exam_id?: string | null
+          require_attendance?: boolean
+          seminar_id?: string | null
+          shuffle_questions?: boolean
           title: string
           updated_at?: string
         }
         Update: {
           available_from?: string | null
           available_until?: string | null
+          cooldown_hours?: number
           created_at?: string
           description?: string | null
           duration_minutes?: number
           id?: string
+          instructions?: string | null
           is_published?: boolean
           level?: string
+          max_attempts?: number
           pass_score?: number
+          prerequisite_exam_id?: string | null
+          require_attendance?: boolean
+          seminar_id?: string | null
+          shuffle_questions?: boolean
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "academy_exams_prerequisite_exam_id_fkey"
+            columns: ["prerequisite_exam_id"]
+            isOneToOne: false
+            referencedRelation: "academy_exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_exams_seminar_id_fkey"
+            columns: ["seminar_id"]
+            isOneToOne: false
+            referencedRelation: "academy_seminars"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       academy_lesson_notes: {
         Row: {
@@ -1180,6 +1222,30 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_question_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          parent: string | null
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          parent?: string | null
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          parent?: string | null
+          sort_order?: number
+        }
+        Relationships: []
+      }
       academy_question_options: {
         Row: {
           content: string
@@ -1221,45 +1287,114 @@ export type Database = {
       academy_questions: {
         Row: {
           approved: boolean
+          board_instructions: string | null
           category: string | null
           correct_answer: Json | null
           created_at: string
           created_by: string | null
           difficulty: string | null
           exam_id: string | null
+          explanation: string | null
+          fen: string | null
+          fide_reference: string | null
+          flag_count: number
           id: string
+          image_url: string | null
+          min_words: number | null
           options: Json | null
+          pgn: string | null
           points: number
           question_text: string
           question_type: string
+          reference_material: string | null
+          rejection_reason: string | null
+          review_comments: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scenario_text: string | null
+          shuffle_options: boolean
+          status: string
+          sub_category: string | null
+          tags: string[]
+          times_answered: number
+          times_correct: number
+          times_used: number
+          total_time_seconds: number
+          updated_at: string
         }
         Insert: {
           approved?: boolean
+          board_instructions?: string | null
           category?: string | null
           correct_answer?: Json | null
           created_at?: string
           created_by?: string | null
           difficulty?: string | null
           exam_id?: string | null
+          explanation?: string | null
+          fen?: string | null
+          fide_reference?: string | null
+          flag_count?: number
           id?: string
+          image_url?: string | null
+          min_words?: number | null
           options?: Json | null
+          pgn?: string | null
           points?: number
           question_text: string
           question_type?: string
+          reference_material?: string | null
+          rejection_reason?: string | null
+          review_comments?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scenario_text?: string | null
+          shuffle_options?: boolean
+          status?: string
+          sub_category?: string | null
+          tags?: string[]
+          times_answered?: number
+          times_correct?: number
+          times_used?: number
+          total_time_seconds?: number
+          updated_at?: string
         }
         Update: {
           approved?: boolean
+          board_instructions?: string | null
           category?: string | null
           correct_answer?: Json | null
           created_at?: string
           created_by?: string | null
           difficulty?: string | null
           exam_id?: string | null
+          explanation?: string | null
+          fen?: string | null
+          fide_reference?: string | null
+          flag_count?: number
           id?: string
+          image_url?: string | null
+          min_words?: number | null
           options?: Json | null
+          pgn?: string | null
           points?: number
           question_text?: string
           question_type?: string
+          reference_material?: string | null
+          rejection_reason?: string | null
+          review_comments?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scenario_text?: string | null
+          shuffle_options?: boolean
+          status?: string
+          sub_category?: string | null
+          tags?: string[]
+          times_answered?: number
+          times_correct?: number
+          times_used?: number
+          total_time_seconds?: number
+          updated_at?: string
         }
         Relationships: [
           {
