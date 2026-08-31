@@ -1105,6 +1105,41 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_practice_attempts: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          is_correct: boolean
+          question_id: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_correct: boolean
+          question_id: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          question_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_practice_attempts_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "academy_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       academy_profiles: {
         Row: {
           arbiter_title: string | null

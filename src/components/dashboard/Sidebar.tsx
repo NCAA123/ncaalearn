@@ -16,6 +16,7 @@ export function Sidebar() {
     { to: "/my-learning", label: "My Learning", icon: PlayCircle },
     { to: "/seminars", label: "Seminars", icon: GraduationCap },
     { to: "/exams", label: "Examinations", icon: FileQuestion },
+    { to: "/practice", label: "Practice", icon: ListChecks },
     { to: "/certificates", label: "Certificates", icon: Award },
     { to: "/badges", label: "Badges", icon: Trophy },
     { to: "/simulations", label: "Simulations", icon: Boxes },

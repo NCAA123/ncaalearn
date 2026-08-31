@@ -24,6 +24,7 @@ import { Route as AuthenticatedResourcesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedRegistryRouteImport } from './routes/_authenticated/registry'
 import { Route as AuthenticatedPromotionsRouteImport } from './routes/_authenticated/promotions'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedPracticeRouteImport } from './routes/_authenticated/practice'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedMyLearningRouteImport } from './routes/_authenticated/my-learning'
 import { Route as AuthenticatedLicenseRouteImport } from './routes/_authenticated/license'
@@ -137,6 +138,11 @@ const AuthenticatedPromotionsRoute = AuthenticatedPromotionsRouteImport.update({
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPracticeRoute = AuthenticatedPracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedNotificationsRoute =
@@ -375,6 +381,7 @@ export interface FileRoutesByFullPath {
   '/license': typeof AuthenticatedLicenseRoute
   '/my-learning': typeof AuthenticatedMyLearningRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/practice': typeof AuthenticatedPracticeRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/promotions': typeof AuthenticatedPromotionsRoute
   '/registry': typeof AuthenticatedRegistryRoute
@@ -430,6 +437,7 @@ export interface FileRoutesByTo {
   '/license': typeof AuthenticatedLicenseRoute
   '/my-learning': typeof AuthenticatedMyLearningRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/practice': typeof AuthenticatedPracticeRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/promotions': typeof AuthenticatedPromotionsRoute
   '/registry': typeof AuthenticatedRegistryRoute
@@ -487,6 +495,7 @@ export interface FileRoutesById {
   '/_authenticated/license': typeof AuthenticatedLicenseRoute
   '/_authenticated/my-learning': typeof AuthenticatedMyLearningRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/practice': typeof AuthenticatedPracticeRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/promotions': typeof AuthenticatedPromotionsRoute
   '/_authenticated/registry': typeof AuthenticatedRegistryRoute
@@ -544,6 +553,7 @@ export interface FileRouteTypes {
     | '/license'
     | '/my-learning'
     | '/notifications'
+    | '/practice'
     | '/profile'
     | '/promotions'
     | '/registry'
@@ -599,6 +609,7 @@ export interface FileRouteTypes {
     | '/license'
     | '/my-learning'
     | '/notifications'
+    | '/practice'
     | '/profile'
     | '/promotions'
     | '/registry'
@@ -655,6 +666,7 @@ export interface FileRouteTypes {
     | '/_authenticated/license'
     | '/_authenticated/my-learning'
     | '/_authenticated/notifications'
+    | '/_authenticated/practice'
     | '/_authenticated/profile'
     | '/_authenticated/promotions'
     | '/_authenticated/registry'
@@ -813,6 +825,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/practice': {
+      id: '/_authenticated/practice'
+      path: '/practice'
+      fullPath: '/practice'
+      preLoaderRoute: typeof AuthenticatedPracticeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/notifications': {
@@ -1224,6 +1243,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedLicenseRoute: typeof AuthenticatedLicenseRoute
   AuthenticatedMyLearningRoute: typeof AuthenticatedMyLearningRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedPracticeRoute: typeof AuthenticatedPracticeRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedPromotionsRoute: typeof AuthenticatedPromotionsRoute
   AuthenticatedRegistryRoute: typeof AuthenticatedRegistryRoute
@@ -1263,6 +1283,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedLicenseRoute: AuthenticatedLicenseRoute,
   AuthenticatedMyLearningRoute: AuthenticatedMyLearningRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedPracticeRoute: AuthenticatedPracticeRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedPromotionsRoute: AuthenticatedPromotionsRoute,
   AuthenticatedRegistryRoute: AuthenticatedRegistryRoute,
