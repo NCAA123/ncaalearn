@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { createCourse, deleteCourse, setCoursePublished } from "@/lib/admin.functions";
+import { createCourse, deleteCourse, setCourseMandatory, setCoursePublished } from "@/lib/admin.functions";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_authenticated/admin/courses")({
@@ -32,7 +32,7 @@ function AdminCourses() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("academy_courses")
-        .select("id,title,slug,level,is_published,created_at")
+        .select("id,title,slug,level,is_published,is_mandatory,created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -54,6 +54,12 @@ function AdminCourses() {
   const pubFn = useServerFn(setCoursePublished);
   const pubMut = useMutation({
     mutationFn: (v: { id: string; is_published: boolean }) => pubFn({ data: v }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-courses"] }),
+  });
+
+  const mandatoryFn = useServerFn(setCourseMandatory);
+  const mandatoryMut = useMutation({
+    mutationFn: (v: { id: string; is_mandatory: boolean }) => mandatoryFn({ data: v }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-courses"] }),
   });
 
@@ -108,7 +114,12 @@ function AdminCourses() {
                   <div className="text-xs text-muted-foreground">/{c.slug} · {c.level}</div>
                 </div>
                 <div className="flex items-center gap-3">
+                  {c.is_mandatory && <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400">Mandatory</Badge>}
                   <Badge variant={c.is_published ? "default" : "secondary"}>{c.is_published ? "Published" : "Draft"}</Badge>
+                  <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    Mandatory
+                    <Switch checked={c.is_mandatory} onCheckedChange={(v) => mandatoryMut.mutate({ id: c.id, is_mandatory: !!v })} />
+                  </label>
                   <Switch checked={c.is_published} onCheckedChange={(v) => pubMut.mutate({ id: c.id, is_published: !!v })} />
                   <Link to="/admin/courses/$id" params={{ id: c.id }} className="text-xs text-primary hover:underline">Edit</Link>
                   {c.slug && <Link to="/courses/$slug" params={{ slug: c.slug }} className="text-xs text-muted-foreground hover:underline">View</Link>}

@@ -40,6 +40,7 @@ export function Sidebar() {
     { to: "/admin/grading", label: "Grading Queue", icon: ClipboardCheck },
     { to: "/admin/certificates", label: "Certificates", icon: Award },
     { to: "/admin/licenses", label: "Licenses", icon: IdCard },
+    { to: "/admin/compliance", label: "Compliance", icon: ShieldCheck },
     { to: "/admin/cpd", label: "CPD Review", icon: BadgeCheck },
     { to: "/admin/promotions", label: "Promotions", icon: TrendingUp },
     { to: "/admin/simulations", label: "Simulations", icon: Boxes },

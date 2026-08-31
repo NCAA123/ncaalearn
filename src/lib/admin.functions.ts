@@ -273,6 +273,25 @@ export const setCoursePublished = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const setCourseMandatory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string; is_mandatory: boolean }) =>
+    z.object({ id: z.string().uuid(), is_mandatory: z.boolean() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    // mandatory_roles left empty -- an empty list means "all licensed
+    // arbiters" per getComplianceStatusFor's matching rule, which covers
+    // the common "annual refresher for everyone" case. Title-specific
+    // tracks (NA/FA/IA-only refreshers) aren't exposed in this UI yet.
+    const { error } = await supabaseAdmin
+      .from("academy_courses")
+      .update({ is_mandatory: data.is_mandatory } as never)
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const deleteCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))

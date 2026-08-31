@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { AnnouncementBanner } from "@/components/dashboard/AnnouncementBanner";
+import { ComplianceBanner } from "@/components/dashboard/ComplianceBanner";
 import {
   getCandidateDashboard, getArbiterDashboard, getInstructorDashboard, getAdminDashboard,
 } from "@/lib/dashboard.functions";
@@ -37,6 +38,7 @@ function DashboardPage() {
   return (
     <>
       <AnnouncementBanner />
+      {isLicensedArbiter && <ComplianceBanner />}
       {isAdmin ? <AdminDashboard /> : isStaff ? <InstructorDashboard /> : isLicensedArbiter ? <ArbiterDashboard /> : <CandidateDashboard />}
     </>
   );

@@ -825,7 +825,9 @@ export type Database = {
           expires_at: string | null
           id: string
           issued_at: string
+          last_renewed_at: string | null
           license_number: string
+          renewal_count: number
           status: string
           title: string
           user_id: string
@@ -835,7 +837,9 @@ export type Database = {
           expires_at?: string | null
           id?: string
           issued_at?: string
+          last_renewed_at?: string | null
           license_number: string
+          renewal_count?: number
           status?: string
           title: string
           user_id: string
@@ -845,9 +849,35 @@ export type Database = {
           expires_at?: string | null
           id?: string
           issued_at?: string
+          last_renewed_at?: string | null
           license_number?: string
+          renewal_count?: number
           status?: string
           title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      academy_compliance_overrides: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          reason?: string | null
           user_id?: string
         }
         Relationships: []

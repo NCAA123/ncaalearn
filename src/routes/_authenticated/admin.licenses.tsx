@@ -2,12 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, type FormEvent } from "react";
-import { Ban } from "lucide-react";
+import { Ban, RefreshCw } from "lucide-react";
 import { PageHeader, EmptyState } from "@/components/ui/page-header";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { issueLicense, listAllLicenses, revokeLicense } from "@/lib/license.functions";
+import { issueLicense, listAllLicenses, renewLicense, revokeLicense } from "@/lib/license.functions";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_authenticated/admin/licenses")({
@@ -50,6 +50,16 @@ function AdminLicenses() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-licenses"] });
       toast.success("License revoked");
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const renewFn = useServerFn(renewLicense);
+  const renew = useMutation({
+    mutationFn: (id: string) => renewFn({ data: { id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-licenses"] });
+      toast.success("License renewed");
     },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -123,13 +133,25 @@ function AdminLicenses() {
                   </div>
                 </div>
                 {isAdmin && l.status !== "revoked" && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => { if (confirm("Revoke this license?")) revoke.mutate(l.id); }}
-                  >
-                    <Ban className="h-4 w-4 text-destructive" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title="Renew (+1 year)"
+                      onClick={() => renew.mutate(l.id)}
+                      disabled={renew.isPending}
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title="Revoke"
+                      onClick={() => { if (confirm("Revoke this license?")) revoke.mutate(l.id); }}
+                    >
+                      <Ban className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
                 )}
               </div>
             ))

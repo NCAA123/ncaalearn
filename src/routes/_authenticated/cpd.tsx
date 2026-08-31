@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { addCpdRecord, listMyCpd } from "@/lib/license.functions";
+import { ComplianceBanner } from "@/components/dashboard/ComplianceBanner";
 
 export const Route = createFileRoute("/_authenticated/cpd")({
   head: () => ({ meta: [{ title: "CPD Tracker — NCAA Academy" }] }),
@@ -72,6 +73,7 @@ function CpdPage() {
 
   return (
     <div>
+      <ComplianceBanner />
       <PageHeader
         title="CPD tracker"
         description="Log continuing professional development activities to maintain your license."

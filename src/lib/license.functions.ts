@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { invalidateDashboard, invalidateAdminDashboard } from "./dashboard.server";
+import { getComplianceStatusFor } from "./compliance.functions";
 
 async function isStaff(userId: string) {
   const { data } = await supabaseAdmin
@@ -87,6 +88,54 @@ export const issueLicense = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const renewLicense = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (d: { id: string; extend_years?: number }) =>
+      z.object({ id: z.string().uuid(), extend_years: z.number().int().min(1).max(5).optional() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    if (!(await isAdmin(context.userId))) throw new Error("Admin required");
+    const { data: license, error: fetchError } = await supabaseAdmin
+      .from("academy_licenses")
+      .select("id,user_id,expires_at,renewal_count")
+      .eq("id", data.id)
+      .single();
+    if (fetchError) throw new Error(fetchError.message);
+
+    const compliance = await getComplianceStatusFor(license.user_id);
+    if (compliance.applicable && compliance.renewalBlocked) {
+      throw new Error(
+        "This arbiter's mandatory refresher training is overdue -- renewal is blocked until it's completed or an admin grants a compliance override.",
+      );
+    }
+
+    const years = data.extend_years ?? 1;
+    const base = license.expires_at && new Date(license.expires_at) > new Date() ? new Date(license.expires_at) : new Date();
+    base.setFullYear(base.getFullYear() + years);
+
+    const { error } = await supabaseAdmin
+      .from("academy_licenses")
+      .update({
+        expires_at: base.toISOString(),
+        status: "active",
+        renewal_count: (license.renewal_count ?? 0) + 1,
+        last_renewed_at: new Date().toISOString(),
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    await supabaseAdmin.from("academy_notifications").insert({
+      user_id: license.user_id,
+      title: "License renewed",
+      body: `Your license has been renewed through ${base.toDateString()}.`,
+      link: "/license",
+    });
+    invalidateDashboard(license.user_id);
+    invalidateAdminDashboard();
+    return { ok: true, expiresAt: base.toISOString() };
+  });
+
 export const revokeLicense = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
@@ -138,6 +187,12 @@ export const addCpdRecord = createServerFn({ method: "POST" })
         .parse(d),
   )
   .handler(async ({ data, context }) => {
+    const compliance = await getComplianceStatusFor(context.userId);
+    if (compliance.applicable && compliance.cpdLocked) {
+      throw new Error(
+        "Your mandatory refresher training is overdue -- complete it before logging new CPD points, or ask an admin for a compliance override.",
+      );
+    }
     const period = data.activity_date.slice(0, 4);
     const { error } = await context.supabase.from("academy_cpd_records").insert({
       user_id: context.userId,
