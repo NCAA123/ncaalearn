@@ -4,6 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { maybeIssueCertificate } from "./cert.functions";
+import { invalidateDashboard, invalidateAdminDashboard } from "./dashboard.server";
 
 // ── Helpers ──────────────────────────────────────────────────────────
 async function assertAdmin(userId: string) {
@@ -1178,6 +1179,8 @@ export const submitAttempt = createServerFn({ method: "POST" })
       } as never)
       .eq("id", data.attemptId);
     if (error) throw new Error(error.message);
+    invalidateDashboard(context.userId);
+    invalidateAdminDashboard();
     if (passed && !needsManual) {
       const ex = exam as { pass_score: number } | null;
       const { data: examFull } = await supabaseAdmin

@@ -46,7 +46,11 @@ function CpdPage() {
     evidence_url: "",
   });
   const add = useMutation({
-    mutationFn: () => addFn({ data: form }),
+    mutationFn: () => {
+      const url = form.evidence_url.trim();
+      const normalized = url && !/^https?:\/\//i.test(url) ? `https://${url}` : url;
+      return addFn({ data: { ...form, evidence_url: normalized } });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-cpd"] });
       setOpen(false);
@@ -141,11 +145,12 @@ function CpdPage() {
           <div className="space-y-2">
             <label className="text-sm font-medium">Evidence URL (optional)</label>
             <Input
-              type="url"
+              type="text"
               value={form.evidence_url}
               onChange={(e) => setForm({ ...form, evidence_url: e.target.value })}
               placeholder="https://…"
             />
+            <p className="text-xs text-muted-foreground">https:// is added automatically if you leave it off.</p>
           </div>
           <div className="md:col-span-2 flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { invalidateDashboard, invalidateAdminDashboard } from "./dashboard.server";
 
 async function assertStaff(userId: string) {
   const { data } = await supabaseAdmin
@@ -161,6 +162,8 @@ export const finalizeGrading = createServerFn({ method: "POST" })
       .from("academy_exam_attempts")
       .update({ status: "graded", score: scorePct, passed } as never)
       .eq("id", data.attemptId);
+    invalidateDashboard(a.user_id);
+    invalidateAdminDashboard();
     if (passed) {
       await maybeIssueCertificate(a.user_id, a.exam_id, ex.title);
     }
@@ -185,4 +188,6 @@ export async function maybeIssueCertificate(userId: string, examId: string, exam
     verification_hash: hash,
     metadata: { exam_id: examId, auto: true } as never,
   } as never);
+  invalidateDashboard(userId);
+  invalidateAdminDashboard();
 }

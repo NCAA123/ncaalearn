@@ -144,12 +144,12 @@ export const getAdminReports = createServerFn({ method: "GET" })
       supabaseAdmin.from("academy_enrollments").select("*", { count: "exact", head: true }),
       supabaseAdmin.from("academy_enrollments").select("*", { count: "exact", head: true }).gte("created_at", sinceIso),
       supabaseAdmin.from("academy_exam_attempts").select("*", { count: "exact", head: true }),
-      supabaseAdmin.from("academy_exam_attempts").select("*", { count: "exact", head: true }).eq("status", "passed"),
+      supabaseAdmin.from("academy_exam_attempts").select("*", { count: "exact", head: true }).eq("passed", true),
       supabaseAdmin.from("academy_certificates").select("*", { count: "exact", head: true }),
       supabaseAdmin.from("academy_certificates").select("*", { count: "exact", head: true }).gte("issued_at", sinceIso),
       supabaseAdmin.from("academy_licenses").select("*", { count: "exact", head: true }).eq("status", "active"),
       supabaseAdmin.from("academy_cpd_records").select("*", { count: "exact", head: true }).eq("status", "pending"),
-      supabaseAdmin.from("academy_exam_attempts").select("*", { count: "exact", head: true }).eq("status", "submitted"),
+      supabaseAdmin.from("academy_exam_attempts").select("*", { count: "exact", head: true }).eq("status", "needs_grading"),
     ]);
 
     // Course enrollments breakdown

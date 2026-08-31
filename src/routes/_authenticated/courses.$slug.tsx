@@ -9,6 +9,8 @@ import { Progress } from "@/components/ui/progress";
 import { BookOpen, Clock, CheckCircle2, PlayCircle, FileText, Film, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { CourseDiscussion } from "@/components/course/CourseDiscussion";
+import { useServerFn } from "@tanstack/react-start";
+import { touchCandidateDashboard } from "@/lib/dashboard.functions";
 
 export const Route = createFileRoute("/_authenticated/courses/$slug")({
   head: () => ({ meta: [{ title: "Course — NCAA Academy" }] }),
@@ -91,6 +93,8 @@ function CourseDetailPage() {
   const completedCount = completedSet.size;
   const pct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
+  const touchDashboard = useServerFn(touchCandidateDashboard);
+
   const enrollMut = useMutation({
     mutationFn: async () => {
       if (!user || !course) throw new Error("Not ready");
@@ -103,6 +107,7 @@ function CourseDetailPage() {
       toast.success("Enrolled — happy learning!");
       qc.invalidateQueries({ queryKey: ["enrollment"] });
       qc.invalidateQueries({ queryKey: ["my-enrollments"] });
+      touchDashboard().catch(() => {});
     },
     onError: (e: any) => toast.error(e.message ?? "Could not enroll"),
   });

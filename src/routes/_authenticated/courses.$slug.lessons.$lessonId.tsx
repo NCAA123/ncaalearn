@@ -9,9 +9,12 @@ import { EmptyState } from "@/components/ui/page-header";
 import { ArrowLeft, ArrowRight, CheckCircle2, ListTree } from "lucide-react";
 import { toast } from "sonner";
 import { ChessViewer } from "@/components/learning/ChessViewer";
-import { LessonQuiz, type QuizSpec } from "@/components/learning/LessonQuiz";
+import { LessonQuiz } from "@/components/learning/LessonQuiz";
 import { VideoPlayer } from "@/components/learning/VideoPlayer";
 import { LessonNotes } from "@/components/learning/LessonNotes";
+import { useServerFn } from "@tanstack/react-start";
+import { touchCandidateDashboard } from "@/lib/dashboard.functions";
+import { getLessonQuiz } from "@/lib/quiz.functions";
 
 export const Route = createFileRoute("/_authenticated/courses/$slug/lessons/$lessonId")({
   head: () => ({ meta: [{ title: "Lesson — NCAA Academy" }] }),
@@ -24,6 +27,7 @@ function LessonViewer() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [noteTimestamp, setNoteTimestamp] = useState<number | null>(null);
+  const touchDashboard = useServerFn(touchCandidateDashboard);
 
   const { data: course } = useQuery({
     queryKey: ["course", slug],
@@ -76,9 +80,12 @@ function LessonViewer() {
   const { data: lesson, isLoading: lessonLoading } = useQuery({
     queryKey: ["lesson", lessonId],
     queryFn: async () => {
+      // Deliberately excludes `quiz` — that column carries the correct-answer
+      // key and is only ever fetched server-side, stripped, via
+      // getLessonQuiz() below (see src/lib/quiz.functions.ts).
       const { data } = await supabase
         .from("academy_lessons")
-        .select("*")
+        .select("id,title,content_type,duration_minutes,video_url,pdf_url,pgn,body")
         .eq("id", lessonId)
         .maybeSingle();
       return data;
@@ -155,6 +162,7 @@ function LessonViewer() {
       qc.invalidateQueries({ queryKey: ["lesson-progress"] });
       qc.invalidateQueries({ queryKey: ["enrollment"] });
       qc.invalidateQueries({ queryKey: ["my-enrollments"] });
+      touchDashboard().catch(() => {});
     },
     onError: (e: any) => toast.error(e.message ?? "Could not save progress"),
   });
@@ -400,18 +408,8 @@ function LessonContent({
     );
   }
 
-  if (type === "quiz" && lesson.quiz) {
-    const spec = lesson.quiz as QuizSpec;
-    return (
-      <div className="space-y-4">
-        {lesson.body ? (
-          <article className="prose prose-sm max-w-none text-foreground">
-            <div className="whitespace-pre-wrap leading-relaxed">{lesson.body}</div>
-          </article>
-        ) : null}
-        <LessonQuiz quiz={spec} onPassed={() => onQuizPassed?.()} />
-      </div>
-    );
+  if (type === "quiz") {
+    return <QuizLesson lessonId={lesson.id} body={lesson.body} onQuizPassed={onQuizPassed} />;
   }
 
   return (
@@ -422,5 +420,39 @@ function LessonContent({
         <p className="text-muted-foreground italic">No content has been added to this lesson yet.</p>
       )}
     </article>
+  );
+}
+
+function QuizLesson({
+  lessonId,
+  body,
+  onQuizPassed,
+}: {
+  lessonId: string;
+  body?: string | null;
+  onQuizPassed?: () => void;
+}) {
+  const getQuizFn = useServerFn(getLessonQuiz);
+  const { data: spec, isLoading } = useQuery({
+    queryKey: ["lesson-quiz", lessonId],
+    queryFn: () => getQuizFn({ data: { lessonId } }),
+  });
+
+  if (isLoading) {
+    return <p className="text-sm text-muted-foreground">Loading quiz…</p>;
+  }
+  if (!spec) {
+    return <p className="text-muted-foreground italic">No quiz has been added to this lesson yet.</p>;
+  }
+
+  return (
+    <div className="space-y-4">
+      {body ? (
+        <article className="prose prose-sm max-w-none text-foreground">
+          <div className="whitespace-pre-wrap leading-relaxed">{body}</div>
+        </article>
+      ) : null}
+      <LessonQuiz lessonId={lessonId} quiz={spec} onPassed={() => onQuizPassed?.()} />
+    </div>
   );
 }

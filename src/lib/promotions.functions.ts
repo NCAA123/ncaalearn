@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { invalidateDashboard, invalidateAdminDashboard } from "./dashboard.server";
 
 const TITLE_ORDER = ["NA", "FA", "IA"] as const;
 type Title = (typeof TITLE_ORDER)[number];
@@ -117,6 +118,7 @@ export const submitPromotion = createServerFn({ method: "POST" })
       status: "submitted",
     } as never);
     if (error) throw new Error(error.message);
+    invalidateAdminDashboard();
     return { ok: true };
   });
 
@@ -188,7 +190,9 @@ export const reviewPromotion = createServerFn({ method: "POST" })
             : (data.decision_notes ?? "Your promotion application was not approved."),
         link: "/promotions",
       } as never);
+      invalidateDashboard(rec.user_id);
     }
+    invalidateAdminDashboard();
     return { ok: true };
   });
 

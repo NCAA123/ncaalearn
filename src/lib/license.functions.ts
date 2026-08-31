@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { invalidateDashboard, invalidateAdminDashboard } from "./dashboard.server";
 
 async function isStaff(userId: string) {
   const { data } = await supabaseAdmin
@@ -81,6 +82,8 @@ export const issueLicense = createServerFn({ method: "POST" })
       body: `Your ${data.title} license (${num}) is now active.`,
       link: "/license",
     } as never);
+    invalidateDashboard(data.user_id);
+    invalidateAdminDashboard();
     return { ok: true };
   });
 
@@ -89,11 +92,15 @@ export const revokeLicense = createServerFn({ method: "POST" })
   .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     if (!(await isAdmin(context.userId))) throw new Error("Admin required");
-    const { error } = await supabaseAdmin
+    const { data: row, error } = await supabaseAdmin
       .from("academy_licenses")
       .update({ status: "revoked" } as never)
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .select("user_id")
+      .single();
     if (error) throw new Error(error.message);
+    if (row) invalidateDashboard((row as { user_id: string }).user_id);
+    invalidateAdminDashboard();
     return { ok: true };
   });
 
@@ -143,6 +150,7 @@ export const addCpdRecord = createServerFn({ method: "POST" })
       status: "pending",
     } as never);
     if (error) throw new Error(error.message);
+    invalidateAdminDashboard();
     return { ok: true };
   });
 
@@ -199,7 +207,9 @@ export const reviewCpd = createServerFn({ method: "POST" })
         body: (rec.description ?? "").slice(0, 200),
         link: "/cpd",
       } as never);
+      invalidateDashboard(rec.user_id);
     }
+    invalidateAdminDashboard();
     return { ok: true };
   });
 

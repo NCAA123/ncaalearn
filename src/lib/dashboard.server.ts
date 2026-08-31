@@ -19,6 +19,22 @@ async function cached<T>(key: string, fn: () => Promise<T>): Promise<T> {
   return value;
 }
 
+// Called by every write path that changes what a dashboard shows (progress,
+// enrollment, exam grading, cert/license issuance, CPD/promotion review) so
+// the cache never serves numbers that are already stale — see callers in
+// exam.functions.ts, cert.functions.ts, license.functions.ts,
+// promotions.functions.ts, admin.functions.ts, and dashboard.functions.ts
+// (touchCandidateDashboard, called from client-side writes).
+export function invalidateDashboard(userId: string) {
+  cache.delete(`candidate:${userId}`);
+  cache.delete(`arbiter:${userId}`);
+  cache.delete(`instructor:${userId}`);
+}
+
+export function invalidateAdminDashboard() {
+  cache.delete("admin:overview");
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SB = SupabaseClient<any, any, any>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -379,7 +395,7 @@ export async function buildAdminDashboard(supabase: SB, userId: string) {
         supabase.from("academy_certificates").select("id", { count: "exact", head: true }),
         supabase.from("academy_exam_attempts").select("id", { count: "exact", head: true }).eq("status", "needs_grading"),
         supabase.from("academy_cpd_records").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("academy_promotion_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("academy_promotion_applications").select("id", { count: "exact", head: true }).eq("status", "submitted"),
       ]);
 
     const [{ data: week }, { data: cpdRows }, { data: recent }, { data: expiring }] = await Promise.all([

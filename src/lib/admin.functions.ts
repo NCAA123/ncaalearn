@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { invalidateDashboard, invalidateAdminDashboard } from "./dashboard.server";
 
 const ROLES = [
   "candidate",
@@ -380,11 +381,15 @@ export const revokeCertificate = createServerFn({ method: "POST" })
   .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin
+    const { data: row, error } = await supabaseAdmin
       .from("academy_certificates")
       .delete()
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .select("user_id")
+      .single();
     if (error) throw new Error(error.message);
+    if (row) invalidateDashboard((row as { user_id: string }).user_id);
+    invalidateAdminDashboard();
     return { ok: true };
   });
 
@@ -411,5 +416,7 @@ export const issueCertificate = createServerFn({ method: "POST" })
       verification_hash: hash,
     } as never);
     if (error) throw new Error(error.message);
+    invalidateDashboard(data.user_id);
+    invalidateAdminDashboard();
     return { ok: true };
   });

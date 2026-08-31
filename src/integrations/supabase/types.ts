@@ -1804,6 +1804,51 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_settings: {
+        Row: {
+          default_timezone: string
+          exam_default_cooldown_hours: number
+          exam_default_duration_minutes: number
+          exam_default_max_attempts: number
+          exam_default_pass_score: number
+          id: boolean
+          maintenance_message: string
+          maintenance_mode: boolean
+          platform_name: string
+          support_email: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          default_timezone?: string
+          exam_default_cooldown_hours?: number
+          exam_default_duration_minutes?: number
+          exam_default_max_attempts?: number
+          exam_default_pass_score?: number
+          id?: boolean
+          maintenance_message?: string
+          maintenance_mode?: boolean
+          platform_name?: string
+          support_email?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          default_timezone?: string
+          exam_default_cooldown_hours?: number
+          exam_default_duration_minutes?: number
+          exam_default_max_attempts?: number
+          exam_default_pass_score?: number
+          id?: boolean
+          maintenance_message?: string
+          maintenance_mode?: boolean
+          platform_name?: string
+          support_email?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       academy_simulation_attempts: {
         Row: {
           answers: Json
