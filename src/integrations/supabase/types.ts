@@ -5997,6 +5997,7 @@ export type Database = {
           last_name: string | null
           license_id: string | null
           license_number: string | null
+          license_title: string | null
           state: string | null
           status: string | null
           title: string | null

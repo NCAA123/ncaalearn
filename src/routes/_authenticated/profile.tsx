@@ -9,7 +9,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+
+const ZONES = ["North", "South", "East", "West", "Central", "FCT", "North Central", "North East", "North West", "South East", "South South", "South West"] as const;
+
+const TITLE_LABEL: Record<string, string> = {
+  Candidate: "Candidate",
+  National: "National Arbiter (NA)",
+  FIDE: "FIDE Arbiter (FA)",
+  International: "International Arbiter (IA)",
+};
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile — NCAA Academy" }] }),
@@ -63,8 +73,7 @@ function ProfilePage() {
         first_name: form.first_name,
         last_name: form.last_name,
         phone: form.phone,
-        arbiter_level: form.arbiter_title || null,
-        zone: form.zone,
+        zone: form.zone || null,
         state: form.state,
         fide_id: form.fide_id,
         bio: form.bio,
@@ -127,17 +136,24 @@ function ProfilePage() {
               <Field id="fide_id" label="FIDE ID" value={form.fide_id} onChange={(v) => setForm({ ...form, fide_id: v })} />
               <div className="space-y-2">
                 <Label>Arbiter title</Label>
-                <Select value={form.arbiter_title || "Candidate"} onValueChange={(v) => setForm({ ...form, arbiter_title: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <div>
+                  <Badge variant="secondary">{TITLE_LABEL[form.arbiter_title] ?? "Candidate"}</Badge>
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Apply for the next title from the <a href="/promotions" className="text-primary hover:underline">Promotions</a> page.
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="zone">Zone</Label>
+                <Select value={form.zone} onValueChange={(v) => setForm({ ...form, zone: v })}>
+                  <SelectTrigger id="zone"><SelectValue placeholder="Select zone" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Candidate">Candidate</SelectItem>
-                    <SelectItem value="National">National Arbiter (NA)</SelectItem>
-                    <SelectItem value="FIDE">FIDE Arbiter (FA)</SelectItem>
-                    <SelectItem value="International">International Arbiter (IA)</SelectItem>
+                    {ZONES.map((z) => (
+                      <SelectItem key={z} value={z}>{z}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <Field id="zone" label="Zone" value={form.zone} onChange={(v) => setForm({ ...form, zone: v })} />
               <Field id="state" label="State" value={form.state} onChange={(v) => setForm({ ...form, state: v })} />
             </div>
 

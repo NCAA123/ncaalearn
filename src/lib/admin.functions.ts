@@ -15,6 +15,17 @@ const ROLES = [
 ] as const;
 const RoleEnum = z.enum(ROLES);
 
+// These four are mirrors of profiles.arbiter_level, not independent grants --
+// route title changes through profiles so the DB trigger (see migration
+// 20260831160000) fans them out to academy_user_roles and academy_profiles
+// instead of letting this table drift out of sync with the real title again.
+const TITLE_ROLE_TO_LEVEL: Record<string, string> = {
+  candidate: "Candidate",
+  national_arbiter: "National",
+  fide_arbiter: "FIDE",
+  international_arbiter: "International",
+};
+
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("academy_user_roles")
@@ -94,6 +105,15 @@ export const setUserRole = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
+    if (data.role in TITLE_ROLE_TO_LEVEL) {
+      const newLevel = data.enabled ? TITLE_ROLE_TO_LEVEL[data.role] : "Candidate";
+      const { error } = await supabaseAdmin
+        .from("profiles" as never)
+        .update({ arbiter_level: newLevel } as never)
+        .eq("id", data.userId);
+      if (error) throw new Error(error.message);
+      return { ok: true };
+    }
     if (data.enabled) {
       const { error } = await supabaseAdmin
         .from("academy_user_roles")
