@@ -1,4 +1,4 @@
-# NCAA Academy — Complete Platform Specification
+a# NCAA Academy — Complete Platform Specification
 ## academy.ncaaweb.com.ng
 ### Version 1.0 | Full Build Reference Document
 
