@@ -59,12 +59,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const loadProfileAndRoles = async (uid: string) => {
-    // Source of truth for identity is the existing NCAA `arbiters` table
-    // (shared with the main dashboard). Academy only overlays its own roles.
-    const [{ data: a }, { data: r }] = await Promise.all([
+    // Source of truth for identity is `profiles` (profiles.id === auth.users.id,
+    // same row the main NCAA dashboard reads/writes). `arbiters` looks like the
+    // shared table but isn't: it's a ~150-row legacy registry with its own
+    // independent id, essentially never linked to a real login (verified against
+    // the live data — 0 of its rows match any auth.users.id by id, only 1 via its
+    // optional profiles_id column). Querying it here always returned nothing,
+    // silently blanking every member's real title/rank in this app.
+    const [{ data: p }, { data: r }] = await Promise.all([
       supabase
-        .from("arbiters" as any)
-        .select("id,email,first_name,last_name,title,fide_id,zone,state,phone,bio,avatar_url,role")
+        .from("profiles" as any)
+        .select("id,email,first_name,last_name,arbiter_level,fide_id,zone,state,phone,bio,avatar_url,role")
         .eq("id", uid)
         .maybeSingle(),
       supabase.from("academy_user_roles").select("role").eq("user_id", uid),
@@ -80,37 +85,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ),
       );
 
-    const arbiter = a as
-      | (Record<string, string | null> & { title?: string | null; role?: string | null })
+    const mainProfile = p as
+      | (Record<string, string | null> & { arbiter_level?: string | null; role?: string | null })
       | null;
 
     setProfile(
-      arbiter
+      mainProfile
         ? {
-            id: arbiter.id as string,
-            email: arbiter.email ?? null,
-            first_name: arbiter.first_name ?? null,
-            last_name: arbiter.last_name ?? null,
-            arbiter_title: (arbiter.title as string | null) ?? null,
-            zone: arbiter.zone ?? null,
-            state: arbiter.state ?? null,
-            phone: arbiter.phone ?? null,
-            bio: arbiter.bio ?? null,
-            avatar_url: arbiter.avatar_url ?? null,
-            fide_id: arbiter.fide_id ?? null,
+            id: mainProfile.id as string,
+            email: mainProfile.email ?? null,
+            first_name: mainProfile.first_name ?? null,
+            last_name: mainProfile.last_name ?? null,
+            arbiter_title: (mainProfile.arbiter_level as string | null) ?? null,
+            zone: mainProfile.zone ?? null,
+            state: mainProfile.state ?? null,
+            phone: mainProfile.phone ?? null,
+            bio: mainProfile.bio ?? null,
+            avatar_url: mainProfile.avatar_url ?? null,
+            fide_id: mainProfile.fide_id ?? null,
           }
         : null,
     );
 
     // Combine academy-specific roles with implicit roles derived from the
-    // arbiter's main-dashboard title / role so existing users don't start fresh.
+    // shared profile's arbiter level / main-dashboard role so existing users
+    // don't start fresh.
     const academyRoles = ((r ?? []) as { role: AcademyRole }[]).map((row) => row.role);
     const derived: AcademyRole[] = [];
-    const title = (arbiter?.title ?? "").toUpperCase();
-    if (title === "NA") derived.push("national_arbiter");
-    else if (title === "FA") derived.push("fide_arbiter");
-    else if (title === "IA") derived.push("international_arbiter");
-    const mainRole = (arbiter?.role ?? "").toLowerCase();
+    const level = mainProfile?.arbiter_level ?? "";
+    if (level === "National") derived.push("national_arbiter");
+    else if (level === "FIDE") derived.push("fide_arbiter");
+    else if (level === "International") derived.push("international_arbiter");
+    const mainRole = (mainProfile?.role ?? "").toLowerCase();
     if (mainRole === "admin" || mainRole === "superadmin") derived.push("academy_admin");
     if (mainRole === "superadmin") derived.push("super_admin");
 

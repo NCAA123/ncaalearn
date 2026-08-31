@@ -210,7 +210,7 @@ export async function buildArbiterDashboard(supabase: SB, userId: string) {
       { data: requirement },
       { data: attempts },
       { data: certs },
-      { data: arbiter },
+      { data: profileRow },
       { data: updates },
     ] = await Promise.all([
       supabase
@@ -229,7 +229,9 @@ export async function buildArbiterDashboard(supabase: SB, userId: string) {
         .limit(1),
       supabase.from("academy_exam_attempts").select("id,passed,status").eq("user_id", userId),
       supabase.from("academy_certificates").select("id").eq("user_id", userId),
-      supabase.from("arbiters").select("title").eq("id", userId).maybeSingle(),
+      // `profiles` (not `arbiters` — see auth-context.tsx) is the shared,
+      // auth-linked identity table the main dashboard also reads/writes.
+      supabase.from("profiles").select("arbiter_level").eq("id", userId).maybeSingle(),
       supabase
         .from("academy_resources")
         .select("id,title,created_at")
@@ -251,8 +253,9 @@ export async function buildArbiterDashboard(supabase: SB, userId: string) {
     const passedExams = (attempts ?? []).filter((a: Row) => a.passed).length;
     const pendingExams = (attempts ?? []).filter((a: Row) => a.status === "in_progress" || a.status === "needs_grading").length;
 
-    const rawTitle = String((arbiter as Row | null)?.title ?? "").toUpperCase();
-    const current = (TITLE_ORDER as readonly string[]).includes(rawTitle) ? rawTitle : null;
+    const LEVEL_TO_CODE: Record<string, string> = { National: "NA", FIDE: "FA", International: "IA" };
+    const rawTitle = LEVEL_TO_CODE[(profileRow as Row | null)?.arbiter_level as string] ?? null;
+    const current = rawTitle && (TITLE_ORDER as readonly string[]).includes(rawTitle) ? rawTitle : null;
     const nextTitle = current ? NEXT[current] : "NA";
 
     const criteria: { label: string; ok: boolean; detail: string }[] = (() => {
@@ -389,7 +392,9 @@ export async function buildAdminDashboard(supabase: SB, userId: string) {
 
     const [users, licensesActive, examsToday, certs, pendingGrading, pendingCpd, pendingPromo] =
       await Promise.all([
-        supabase.from("arbiters").select("id", { count: "exact", head: true }),
+        // Registered accounts, not the legacy arbiters registry (158 static
+        // rows mostly unlinked to any login) — see auth-context.tsx.
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("academy_licenses").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("academy_exam_attempts").select("id", { count: "exact", head: true }).gte("started_at", dayAgo),
         supabase.from("academy_certificates").select("id", { count: "exact", head: true }),

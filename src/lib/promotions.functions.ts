@@ -9,6 +9,12 @@ type Title = (typeof TITLE_ORDER)[number];
 
 const NEXT: Record<Title, Title | null> = { NA: "FA", FA: "IA", IA: null };
 
+// `profiles.arbiter_level` (shared, auth-linked) uses full-word values;
+// this app's own short codes (NA/FA/IA) are kept internally since the
+// promotion-readiness logic below is keyed on them.
+const LEVEL_TO_CODE: Record<string, Title> = { National: "NA", FIDE: "FA", International: "IA" };
+const CODE_TO_LEVEL: Record<Title, string> = { NA: "National", FA: "FIDE", IA: "International" };
+
 type ReadinessCriterion = { label: string; ok: boolean; detail?: string };
 
 async function isAdmin(supabase: SupabaseClient, userId: string) {
@@ -22,16 +28,14 @@ export const getMyPromotionStatus = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
 
-    // Pull current title from shared arbiters table
-    const { data: arbiter } = await supabase
-      .from("arbiters" as never)
-      .select("title")
+    // Pull current level from the shared `profiles` row (not `arbiters` —
+    // that table's id never matches a real login; see auth-context.tsx).
+    const { data: mainProfile } = await supabase
+      .from("profiles" as never)
+      .select("arbiter_level")
       .eq("id", userId)
       .maybeSingle();
-    const currentRaw = (((arbiter as { title?: string } | null)?.title ?? "") as string).toUpperCase();
-    const current = (TITLE_ORDER as readonly string[]).includes(currentRaw)
-      ? (currentRaw as Title)
-      : null;
+    const current = LEVEL_TO_CODE[(mainProfile as { arbiter_level?: string } | null)?.arbiter_level ?? ""] ?? null;
     const nextTitle = current ? NEXT[current] : "NA";
 
     // Gather signals
@@ -104,12 +108,13 @@ export const submitPromotion = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: arbiter } = await supabase
-      .from("arbiters" as never)
-      .select("title")
+    const { data: mainProfile } = await supabase
+      .from("profiles" as never)
+      .select("arbiter_level")
       .eq("id", userId)
       .maybeSingle();
-    const fromTitle = ((arbiter as { title?: string } | null)?.title ?? "").toUpperCase() || "NONE";
+    const fromTitle =
+      LEVEL_TO_CODE[(mainProfile as { arbiter_level?: string } | null)?.arbiter_level ?? ""] ?? "NONE";
     const { error } = await supabase.from("academy_promotion_applications" as never).insert({
       user_id: userId,
       from_title: fromTitle,
@@ -174,11 +179,17 @@ export const reviewPromotion = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     const rec = row as { user_id: string; to_title: string } | null;
     if (rec && data.status === "approved") {
-      // promote the arbiter title on the shared arbiters table
-      await supabaseAdmin
-        .from("arbiters" as never)
-        .update({ title: rec.to_title } as never)
-        .eq("id", rec.user_id);
+      // Promote on the shared `profiles` row (profiles.id === auth user id)
+      // so the change is visible in the main dashboard too — this used to
+      // target `arbiters`, whose id never matches a real login, so approved
+      // promotions never actually took effect anywhere.
+      const level = CODE_TO_LEVEL[rec.to_title as Title];
+      if (level) {
+        await supabaseAdmin
+          .from("profiles" as never)
+          .update({ arbiter_level: level } as never)
+          .eq("id", rec.user_id);
+      }
     }
     if (rec) {
       await supabaseAdmin.from("academy_notifications").insert({

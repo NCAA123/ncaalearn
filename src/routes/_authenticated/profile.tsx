@@ -52,15 +52,18 @@ function ProfilePage() {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
-    // Write through to the shared NCAA `arbiters` profile (same record
-    // edited from the main dashboard) so data stays in sync.
+    // Write through to the shared `profiles` row (profiles.id === auth
+    // user id — the same record the main NCAA dashboard edits) so data
+    // stays in sync. This used to target `arbiters`, a legacy table whose
+    // id never matches a real login, so every save here silently updated
+    // zero rows.
     const { error } = await supabase
-      .from("arbiters" as any)
+      .from("profiles" as any)
       .update({
         first_name: form.first_name,
         last_name: form.last_name,
         phone: form.phone,
-        title: form.arbiter_title || null,
+        arbiter_level: form.arbiter_title || null,
         zone: form.zone,
         state: form.state,
         fide_id: form.fide_id,
@@ -81,7 +84,7 @@ function ProfilePage() {
     if (upErr) return toast.error(upErr.message);
     const { data } = supabase.storage.from("avatars").getPublicUrl(path);
     const url = `${data.publicUrl}?t=${Date.now()}`;
-    const { error } = await supabase.from("arbiters" as any).update({ avatar_url: url }).eq("id", user.id);
+    const { error } = await supabase.from("profiles" as any).update({ avatar_url: url }).eq("id", user.id);
     if (error) return toast.error(error.message);
     setForm((f) => ({ ...f, avatar_url: url }));
     toast.success("Avatar updated");
@@ -124,13 +127,13 @@ function ProfilePage() {
               <Field id="fide_id" label="FIDE ID" value={form.fide_id} onChange={(v) => setForm({ ...form, fide_id: v })} />
               <div className="space-y-2">
                 <Label>Arbiter title</Label>
-                <Select value={form.arbiter_title || "none"} onValueChange={(v) => setForm({ ...form, arbiter_title: v === "none" ? "" : v })}>
+                <Select value={form.arbiter_title || "Candidate"} onValueChange={(v) => setForm({ ...form, arbiter_title: v })}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">None (candidate)</SelectItem>
-                    <SelectItem value="NA">National Arbiter (NA)</SelectItem>
-                    <SelectItem value="FA">FIDE Arbiter (FA)</SelectItem>
-                    <SelectItem value="IA">International Arbiter (IA)</SelectItem>
+                    <SelectItem value="Candidate">Candidate</SelectItem>
+                    <SelectItem value="National">National Arbiter (NA)</SelectItem>
+                    <SelectItem value="FIDE">FIDE Arbiter (FA)</SelectItem>
+                    <SelectItem value="International">International Arbiter (IA)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
