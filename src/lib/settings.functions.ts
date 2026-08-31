@@ -19,7 +19,7 @@ export const getSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
-      .from("academy_settings" as never)
+      .from("academy_settings")
       .select("*")
       .eq("id", true)
       .single();
@@ -58,8 +58,8 @@ export const updateSettings = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (!(await isAdmin(context.userId))) throw new Error("Admin required");
     const { error } = await supabaseAdmin
-      .from("academy_settings" as never)
-      .update({ ...data, updated_by: context.userId } as never)
+      .from("academy_settings")
+      .update({ ...data, updated_by: context.userId })
       .eq("id", true);
     if (error) throw new Error(error.message);
     return { ok: true };

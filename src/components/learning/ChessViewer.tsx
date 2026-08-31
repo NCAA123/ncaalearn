@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { Button } from "@/components/ui/button";
+import { Chess3DBoard } from "@/components/learning/Chess3DBoard";
 import {
+  Box,
   ChevronLeft,
   ChevronRight,
   FlipVertical2,
@@ -11,6 +13,7 @@ import {
   RotateCcw,
   SkipBack,
   SkipForward,
+  Square,
 } from "lucide-react";
 
 // Lightweight PGN viewer: steps through the mainline move-by-move.
@@ -56,6 +59,7 @@ export function ChessViewer({
   const [ply, setPly] = useState(0);
   const [orientation, setOrientation] = useState<"white" | "black">(initialOrientation);
   const [showCoords, setShowCoords] = useState(true);
+  const [view3D, setView3D] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1200);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -110,18 +114,31 @@ export function ChessViewer({
   return (
     <div className="grid md:grid-cols-[minmax(0,1fr)_220px] gap-4">
       <div className="rounded-xl border border-border bg-card p-3">
-        <div className="aspect-square w-full max-w-[520px] mx-auto">
-          <Chessboard
-            options={{
-              position,
-              boardOrientation: orientation,
-              allowDragging: false,
-              showNotation: showCoords,
-              squareStyles,
-            } as never}
-          />
-        </div>
+        {view3D ? (
+          <Chess3DBoard fen={position} orientation={orientation} lastMove={lastMove} />
+        ) : (
+          <div className="aspect-square w-full max-w-[520px] mx-auto">
+            <Chessboard
+              options={{
+                position,
+                boardOrientation: orientation,
+                allowDragging: false,
+                showNotation: showCoords,
+                squareStyles,
+              } as never}
+            />
+          </div>
+        )}
         <div className="mt-3 flex items-center justify-center gap-1.5">
+          <Button
+            size="icon"
+            variant={view3D ? "default" : "outline"}
+            onClick={() => setView3D((v) => !v)}
+            title={view3D ? "Switch to 2D board" : "Switch to 3D board"}
+          >
+            {view3D ? <Square className="h-4 w-4" /> : <Box className="h-4 w-4" />}
+          </Button>
+          <div className="w-px h-5 bg-border mx-0.5" />
           <Button size="icon" variant="outline" onClick={() => setPly(0)} disabled={ply === 0}>
             <SkipBack className="h-4 w-4" />
           </Button>
