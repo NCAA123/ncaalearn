@@ -27,6 +27,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPracticeRouteImport } from './routes/_authenticated/practice'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedMyLearningRouteImport } from './routes/_authenticated/my-learning'
+import { Route as AuthenticatedMentorshipRouteImport } from './routes/_authenticated/mentorship'
 import { Route as AuthenticatedLicenseRouteImport } from './routes/_authenticated/license'
 import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -50,6 +51,7 @@ import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin.questions'
 import { Route as AuthenticatedAdminPromotionsRouteImport } from './routes/_authenticated/admin.promotions'
 import { Route as AuthenticatedAdminPermissionsRouteImport } from './routes/_authenticated/admin.permissions'
+import { Route as AuthenticatedAdminMentorshipRouteImport } from './routes/_authenticated/admin.mentorship'
 import { Route as AuthenticatedAdminLicensesRouteImport } from './routes/_authenticated/admin.licenses'
 import { Route as AuthenticatedAdminExamsRouteImport } from './routes/_authenticated/admin.exams'
 import { Route as AuthenticatedAdminCpdRouteImport } from './routes/_authenticated/admin.cpd'
@@ -155,6 +157,11 @@ const AuthenticatedNotificationsRoute =
 const AuthenticatedMyLearningRoute = AuthenticatedMyLearningRouteImport.update({
   id: '/my-learning',
   path: '/my-learning',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMentorshipRoute = AuthenticatedMentorshipRouteImport.update({
+  id: '/mentorship',
+  path: '/mentorship',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedLicenseRoute = AuthenticatedLicenseRouteImport.update({
@@ -285,6 +292,12 @@ const AuthenticatedAdminPermissionsRoute =
     path: '/admin/permissions',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAdminMentorshipRoute =
+  AuthenticatedAdminMentorshipRouteImport.update({
+    id: '/admin/mentorship',
+    path: '/admin/mentorship',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminLicensesRoute =
   AuthenticatedAdminLicensesRouteImport.update({
     id: '/admin/licenses',
@@ -386,6 +399,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exams': typeof AuthenticatedExamsRouteWithChildren
   '/license': typeof AuthenticatedLicenseRoute
+  '/mentorship': typeof AuthenticatedMentorshipRoute
   '/my-learning': typeof AuthenticatedMyLearningRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/practice': typeof AuthenticatedPracticeRoute
@@ -405,6 +419,7 @@ export interface FileRoutesByFullPath {
   '/admin/cpd': typeof AuthenticatedAdminCpdRoute
   '/admin/exams': typeof AuthenticatedAdminExamsRoute
   '/admin/licenses': typeof AuthenticatedAdminLicensesRoute
+  '/admin/mentorship': typeof AuthenticatedAdminMentorshipRoute
   '/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/admin/promotions': typeof AuthenticatedAdminPromotionsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
@@ -443,6 +458,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exams': typeof AuthenticatedExamsRouteWithChildren
   '/license': typeof AuthenticatedLicenseRoute
+  '/mentorship': typeof AuthenticatedMentorshipRoute
   '/my-learning': typeof AuthenticatedMyLearningRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/practice': typeof AuthenticatedPracticeRoute
@@ -462,6 +478,7 @@ export interface FileRoutesByTo {
   '/admin/cpd': typeof AuthenticatedAdminCpdRoute
   '/admin/exams': typeof AuthenticatedAdminExamsRoute
   '/admin/licenses': typeof AuthenticatedAdminLicensesRoute
+  '/admin/mentorship': typeof AuthenticatedAdminMentorshipRoute
   '/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/admin/promotions': typeof AuthenticatedAdminPromotionsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
@@ -502,6 +519,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exams': typeof AuthenticatedExamsRouteWithChildren
   '/_authenticated/license': typeof AuthenticatedLicenseRoute
+  '/_authenticated/mentorship': typeof AuthenticatedMentorshipRoute
   '/_authenticated/my-learning': typeof AuthenticatedMyLearningRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/practice': typeof AuthenticatedPracticeRoute
@@ -521,6 +539,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/cpd': typeof AuthenticatedAdminCpdRoute
   '/_authenticated/admin/exams': typeof AuthenticatedAdminExamsRoute
   '/_authenticated/admin/licenses': typeof AuthenticatedAdminLicensesRoute
+  '/_authenticated/admin/mentorship': typeof AuthenticatedAdminMentorshipRoute
   '/_authenticated/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/_authenticated/admin/promotions': typeof AuthenticatedAdminPromotionsRoute
   '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
@@ -561,6 +580,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exams'
     | '/license'
+    | '/mentorship'
     | '/my-learning'
     | '/notifications'
     | '/practice'
@@ -580,6 +600,7 @@ export interface FileRouteTypes {
     | '/admin/cpd'
     | '/admin/exams'
     | '/admin/licenses'
+    | '/admin/mentorship'
     | '/admin/permissions'
     | '/admin/promotions'
     | '/admin/questions'
@@ -618,6 +639,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exams'
     | '/license'
+    | '/mentorship'
     | '/my-learning'
     | '/notifications'
     | '/practice'
@@ -637,6 +659,7 @@ export interface FileRouteTypes {
     | '/admin/cpd'
     | '/admin/exams'
     | '/admin/licenses'
+    | '/admin/mentorship'
     | '/admin/permissions'
     | '/admin/promotions'
     | '/admin/questions'
@@ -676,6 +699,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/exams'
     | '/_authenticated/license'
+    | '/_authenticated/mentorship'
     | '/_authenticated/my-learning'
     | '/_authenticated/notifications'
     | '/_authenticated/practice'
@@ -695,6 +719,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/cpd'
     | '/_authenticated/admin/exams'
     | '/_authenticated/admin/licenses'
+    | '/_authenticated/admin/mentorship'
     | '/_authenticated/admin/permissions'
     | '/_authenticated/admin/promotions'
     | '/_authenticated/admin/questions'
@@ -861,6 +886,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMyLearningRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/mentorship': {
+      id: '/_authenticated/mentorship'
+      path: '/mentorship'
+      fullPath: '/mentorship'
+      preLoaderRoute: typeof AuthenticatedMentorshipRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/license': {
       id: '/_authenticated/license'
       path: '/license'
@@ -1020,6 +1052,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/permissions'
       fullPath: '/admin/permissions'
       preLoaderRoute: typeof AuthenticatedAdminPermissionsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/mentorship': {
+      id: '/_authenticated/admin/mentorship'
+      path: '/admin/mentorship'
+      fullPath: '/admin/mentorship'
+      preLoaderRoute: typeof AuthenticatedAdminMentorshipRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/licenses': {
@@ -1261,6 +1300,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExamsRoute: typeof AuthenticatedExamsRouteWithChildren
   AuthenticatedLicenseRoute: typeof AuthenticatedLicenseRoute
+  AuthenticatedMentorshipRoute: typeof AuthenticatedMentorshipRoute
   AuthenticatedMyLearningRoute: typeof AuthenticatedMyLearningRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedPracticeRoute: typeof AuthenticatedPracticeRoute
@@ -1279,6 +1319,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminCpdRoute: typeof AuthenticatedAdminCpdRoute
   AuthenticatedAdminExamsRoute: typeof AuthenticatedAdminExamsRoute
   AuthenticatedAdminLicensesRoute: typeof AuthenticatedAdminLicensesRoute
+  AuthenticatedAdminMentorshipRoute: typeof AuthenticatedAdminMentorshipRoute
   AuthenticatedAdminPermissionsRoute: typeof AuthenticatedAdminPermissionsRoute
   AuthenticatedAdminPromotionsRoute: typeof AuthenticatedAdminPromotionsRoute
   AuthenticatedAdminQuestionsRoute: typeof AuthenticatedAdminQuestionsRoute
@@ -1302,6 +1343,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExamsRoute: AuthenticatedExamsRouteWithChildren,
   AuthenticatedLicenseRoute: AuthenticatedLicenseRoute,
+  AuthenticatedMentorshipRoute: AuthenticatedMentorshipRoute,
   AuthenticatedMyLearningRoute: AuthenticatedMyLearningRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedPracticeRoute: AuthenticatedPracticeRoute,
@@ -1320,6 +1362,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminCpdRoute: AuthenticatedAdminCpdRoute,
   AuthenticatedAdminExamsRoute: AuthenticatedAdminExamsRoute,
   AuthenticatedAdminLicensesRoute: AuthenticatedAdminLicensesRoute,
+  AuthenticatedAdminMentorshipRoute: AuthenticatedAdminMentorshipRoute,
   AuthenticatedAdminPermissionsRoute: AuthenticatedAdminPermissionsRoute,
   AuthenticatedAdminPromotionsRoute: AuthenticatedAdminPromotionsRoute,
   AuthenticatedAdminQuestionsRoute: AuthenticatedAdminQuestionsRoute,

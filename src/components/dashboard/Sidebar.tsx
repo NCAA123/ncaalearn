@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ShieldCheck, Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp, Trophy, BookMarked, Search, Boxes } from "lucide-react";
+import { ShieldCheck, Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp, Trophy, BookMarked, Search, Boxes, Handshake } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +20,7 @@ export function Sidebar() {
     { to: "/certificates", label: "Certificates", icon: Award },
     { to: "/badges", label: "Badges", icon: Trophy },
     { to: "/simulations", label: "Simulations", icon: Boxes },
+    { to: "/mentorship", label: "Mentorship", icon: Handshake },
     { to: "/registry", label: "Arbiter Registry", icon: BookMarked },
     { to: "/resources", label: "Resource Library", icon: FolderOpen },
   ];
@@ -44,6 +45,7 @@ export function Sidebar() {
     { to: "/admin/cpd", label: "CPD Review", icon: BadgeCheck },
     { to: "/admin/promotions", label: "Promotions", icon: TrendingUp },
     { to: "/admin/simulations", label: "Simulations", icon: Boxes },
+    { to: "/admin/mentorship", label: "Mentorship", icon: Handshake },
     { to: "/admin/resources", label: "Resources", icon: FolderOpen },
     { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
     { to: "/admin/reports", label: "Reports", icon: TrendingUp },
