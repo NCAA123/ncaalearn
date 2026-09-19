@@ -1,7 +1,6 @@
 import { createStart, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
-import { attachSupabaseAuth } from "./integrations/supabase/auth-attacher";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
@@ -18,7 +17,11 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
   }
 });
 
+// No functionMiddleware needed for auth anymore: the session lives in a
+// cookie (see integrations/supabase/{client,server}.ts), which the browser
+// attaches automatically on same-origin server-fn calls. This used to
+// require attachSupabaseAuth to manually pull the token out of localStorage
+// and attach it as a Bearer header.
 export const startInstance = createStart(() => ({
   requestMiddleware: [errorMiddleware],
-  functionMiddleware: [attachSupabaseAuth],
 }));
