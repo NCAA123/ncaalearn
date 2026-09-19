@@ -15,8 +15,9 @@ import {
 import { toast } from "sonner";
 import { buildIcs, downloadIcs } from "@/lib/ics";
 import {
-  registerForSeminar, cancelRegistration, acceptWaitlistOffer, markRegistrationPaid,
+  registerForSeminar, cancelRegistration, acceptWaitlistOffer,
 } from "@/lib/seminars.functions";
+import { initiateSeminarPayment } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/seminars/$id")({
   head: () => ({ meta: [{ title: "Seminar — NCAA Academy" }] }),
@@ -87,7 +88,7 @@ function SeminarDetailPage() {
   const registerFn = useServerFn(registerForSeminar);
   const cancelFn = useServerFn(cancelRegistration);
   const acceptFn = useServerFn(acceptWaitlistOffer);
-  const payFn = useServerFn(markRegistrationPaid);
+  const payFn = useServerFn(initiateSeminarPayment);
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["seminar-reg", user?.id, id] });
@@ -127,16 +128,11 @@ function SeminarDetailPage() {
   });
 
   const payMut = useMutation({
-    mutationFn: () =>
-      payFn({
-        data: {
-          registrationId: registration!.id,
-          reference: `SEM-${Date.now().toString(36).toUpperCase()}`,
-          amount: Number(seminar?.fee_amount ?? 0),
-        },
-      }),
-    onSuccess: () => { toast.success("Payment recorded — registration confirmed"); invalidate(); },
-    onError: (e: any) => toast.error(e.message ?? "Payment failed"),
+    mutationFn: () => payFn({ data: { registrationId: registration!.id } }),
+    onSuccess: (r: { authorizationUrl: string }) => {
+      window.location.href = r.authorizationUrl;
+    },
+    onError: (e: any) => toast.error(e.message ?? "Could not start payment"),
   });
 
   if (isLoading) return <div className="text-muted-foreground">Loading…</div>;

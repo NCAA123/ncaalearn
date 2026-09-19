@@ -294,19 +294,24 @@ export const acceptWaitlistOffer = createServerFn({ method: "POST" })
     return { ok: true, paymentRequired: fee > 0, amount: fee };
   });
 
+// Staff-only manual reconciliation (e.g. an offline bank transfer) -- not a
+// self-service path. Real self-service payment goes through
+// payments.functions.ts' initiateSeminarPayment, which routes through
+// nigarbapp's Paystack pipeline instead of letting the client just declare
+// itself paid for any amount it likes.
 export const markRegistrationPaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z.object({ registrationId: z.string().uuid(), reference: z.string().max(120), amount: z.number().min(0) }).parse(d),
   )
   .handler(async ({ data, context }) => {
+    await assertStaff(context.userId);
     const { data: reg } = await supabaseAdmin
       .from("academy_seminar_registrations")
       .select("id,user_id")
       .eq("id", data.registrationId)
       .maybeSingle();
     if (!reg) throw new Error("Registration not found");
-    if ((reg as any).user_id !== context.userId) await assertStaff(context.userId);
     const { error } = await supabaseAdmin
       .from("academy_seminar_registrations")
       .update({

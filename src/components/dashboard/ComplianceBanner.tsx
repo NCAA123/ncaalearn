@@ -1,8 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ShieldAlert } from "lucide-react";
+import { AlertTriangle, ShieldAlert, CreditCard } from "lucide-react";
+import { toast } from "sonner";
 import { getMyComplianceStatus } from "@/lib/compliance.functions";
+import { initiateComplianceFinePayment } from "@/lib/payments.functions";
+import { Button } from "@/components/ui/button";
 
 const LEVEL_STYLE: Record<string, string> = {
   upcoming: "border-border bg-muted/40 text-muted-foreground",
@@ -14,6 +17,15 @@ const LEVEL_STYLE: Record<string, string> = {
 export function ComplianceBanner() {
   const fn = useServerFn(getMyComplianceStatus);
   const { data } = useQuery({ queryKey: ["my-compliance"], queryFn: () => fn() });
+
+  const payFn = useServerFn(initiateComplianceFinePayment);
+  const payMut = useMutation({
+    mutationFn: () => payFn(),
+    onSuccess: (r: { authorizationUrl: string }) => {
+      window.location.href = r.authorizationUrl;
+    },
+    onError: (e: any) => toast.error(e.message ?? "Could not start payment"),
+  });
 
   if (!data?.applicable || data.bannerLevel === "none") return null;
 
@@ -45,6 +57,12 @@ export function ComplianceBanner() {
               </span>
             ))}
           </p>
+        )}
+        {data.bannerLevel === "overdue" && !data.overrideActive && (
+          <Button size="sm" className="mt-3" onClick={() => payMut.mutate()} disabled={payMut.isPending}>
+            <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+            Pay fine & unlock
+          </Button>
         )}
       </div>
     </div>
