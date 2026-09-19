@@ -1,4 +1,4 @@
-# Pixel Perfect Replication
+# Pixel Perfect Replication.
 
 Implement exactly the screenshot and nothing else
 
