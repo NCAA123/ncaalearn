@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHeader } from "@/components/ui/page-header";
 import { InteractiveBoard } from "@/components/learning/InteractiveBoard";
+import { ChessClock } from "@/components/learning/ChessClock";
+import { useChessClock } from "@/hooks/useChessClock";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/dev/board")({
   head: () => ({ meta: [{ title: "Board QA — NCAA Academy" }] }),
@@ -14,28 +17,53 @@ export const Route = createFileRoute("/_authenticated/dev/board")({
 // without needing real practice/exam/lesson content in the database.
 function DevBoardPage() {
   const [log, setLog] = useState<string[]>([]);
+  const clock = useChessClock({ baseSeconds: 15, incrementSeconds: 2 });
 
   return (
-    <div>
-      <PageHeader
-        title="Board QA"
-        description="Internal test page for the HD chess board simulator -- not linked from navigation."
-      />
-      <div className="grid lg:grid-cols-[1fr_320px] gap-6 max-w-4xl">
-        <InteractiveBoard
-          onMove={(move, fen) => setLog((l) => [`${move.from}→${move.to}${move.promotion ? `=${move.promotion}` : ""}  (${fen})`, ...l].slice(0, 20))}
+    <div className="space-y-8">
+      <div>
+        <PageHeader
+          title="Board QA"
+          description="Internal test page for the HD chess board simulator -- not linked from navigation."
         />
-        <div className="rounded-xl border border-border bg-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-2">Move log</h3>
-          {log.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Click or drag a piece to move it. Legal targets show a green dot; illegal drops/clicks are ignored.</p>
-          ) : (
-            <ol className="text-xs font-mono space-y-1 text-muted-foreground">
-              {log.map((l, i) => (
-                <li key={i}>{l}</li>
-              ))}
-            </ol>
-          )}
+        <div className="grid lg:grid-cols-[1fr_320px] gap-6 max-w-4xl">
+          <InteractiveBoard
+            onMove={(move, fen) => {
+              setLog((l) => [`${move.from}→${move.to}${move.promotion ? `=${move.promotion}` : ""}  (${fen})`, ...l].slice(0, 20));
+              clock.completeMove();
+            }}
+          />
+          <div className="rounded-xl border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-2">Move log</h3>
+            {log.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Click or drag a piece to move it. Legal targets show a green dot; illegal drops/clicks are ignored.</p>
+            ) : (
+              <ol className="text-xs font-mono space-y-1 text-muted-foreground">
+                {log.map((l, i) => (
+                  <li key={i}>{l}</li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-md">
+        <h2 className="text-lg font-semibold text-foreground mb-1">Clock QA</h2>
+        <p className="text-xs text-muted-foreground mb-3">
+          15s base + 2s increment, wired to the board above -- every move above calls completeMove() on this clock too.
+        </p>
+        <ChessClock state={clock.state} />
+        <div className="mt-3 flex gap-2">
+          <Button size="sm" variant="outline" onClick={clock.start} disabled={clock.state.running || !!clock.state.flagged}>
+            Start
+          </Button>
+          <Button size="sm" variant="outline" onClick={clock.pause} disabled={!clock.state.running}>
+            Pause
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => clock.reset()}>
+            Reset
+          </Button>
         </div>
       </div>
     </div>
