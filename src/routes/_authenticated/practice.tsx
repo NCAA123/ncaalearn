@@ -76,6 +76,9 @@ function PracticePage() {
       setFeedback(null);
       setResults([]);
     },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Failed to start practice session.");
+    },
   });
 
   const submit = useMutation({
