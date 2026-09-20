@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { TournamentHall3D } from "@/components/simulation/TournamentHall3D";
 import { BoardExerciseRunner } from "@/components/learning/BoardExerciseRunner";
+import { IncidentPanel } from "@/components/simulation/IncidentPanel";
 import {
   completeAttempt,
   getScenarioForPlay,
@@ -157,6 +158,13 @@ function PlaySimulationPage() {
             <Button onClick={() => complete.mutate()} disabled={complete.isPending}>
               {complete.isPending ? "Scoring…" : "Finish simulation"}
             </Button>
+          </div>
+        ) : activeStep?.context?.incident ? (
+          <div className="space-y-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Station {steps.findIndex((s) => s.id === activeStep.id) + 1} of {steps.length}
+            </p>
+            <IncidentPanel key={activeStep.id} incident={activeStep.context.incident} stepId={activeStep.id} onDone={() => nextStation()} />
           </div>
         ) : activeStep?.context?.board_exercise ? (
           <div className="space-y-4">

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { BoardExercise } from "@/lib/board-exercises";
+import type { Incident } from "@/lib/incidents";
 
 async function assertAdmin(userId: string) {
   const { data } = await supabaseAdmin
@@ -16,7 +17,7 @@ async function assertAdmin(userId: string) {
 }
 
 type Choice = { id: string; label: string; is_correct: boolean; points: number; feedback?: string };
-type StepContext = { fen?: string; incidentType?: string; board_exercise?: BoardExercise } | null;
+type StepContext = { fen?: string; incidentType?: string; board_exercise?: BoardExercise; incident?: Incident } | null;
 type StepRow = {
   id: string;
   scenario_id: string;

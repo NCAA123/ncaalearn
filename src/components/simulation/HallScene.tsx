@@ -47,7 +47,7 @@ function FigurePair({ material }: { material: THREE.MeshStandardMaterial }) {
   );
 }
 
-export type TableTopContext = { fen?: string; incidentType?: string } | null;
+export type TableTopContext = { fen?: string; incidentType?: string; incident?: { category: string } } | null;
 
 export function TableInstance({
   index,
@@ -63,19 +63,25 @@ export function TableInstance({
   const kit = useClonedScene(TABLE_KIT_GLB);
   const x = tableX(index, total);
   const hasBoard = !!context?.fen;
+  const hasIncident = !!context?.incident;
 
   const figureMat = useMemo(
     () => new THREE.MeshStandardMaterial({ color: state === "done" ? "#5c7a5c" : "#8a8377", roughness: 0.6 }),
     [state],
   );
+  // Incident stations get a red/orange ring instead of the usual
+  // yellow/grey so the hall visually flags "something's happening here"
+  // distinctly from a normal quiz station -- still green once answered.
   const ringMat = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: state === "active" ? "#f5c451" : state === "done" ? "#4caf6a" : "#3a3530",
-        emissive: state === "active" ? "#f5c451" : state === "done" ? "#4caf6a" : "#000000",
+        color:
+          state === "done" ? "#4caf6a" : hasIncident ? (state === "active" ? "#e5484d" : "#7a2e2e") : state === "active" ? "#f5c451" : "#3a3530",
+        emissive:
+          state === "done" ? "#4caf6a" : hasIncident ? (state === "active" ? "#e5484d" : "#000000") : state === "active" ? "#f5c451" : "#000000",
         emissiveIntensity: state === "active" ? 0.6 : 0.3,
       }),
-    [state],
+    [state, hasIncident],
   );
 
   return (

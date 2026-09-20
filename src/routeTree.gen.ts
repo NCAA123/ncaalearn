@@ -39,6 +39,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 import { Route as AuthenticatedSimulationsScenarioIdRouteImport } from './routes/_authenticated/simulations.$scenarioId'
 import { Route as AuthenticatedSeminarsIdRouteImport } from './routes/_authenticated/seminars.$id'
+import { Route as AuthenticatedDevIncidentRouteImport } from './routes/_authenticated/dev.incident'
 import { Route as AuthenticatedDevHallRouteImport } from './routes/_authenticated/dev.hall'
 import { Route as AuthenticatedDevBoardRouteImport } from './routes/_authenticated/dev.board'
 import { Route as AuthenticatedCertificatesIdRouteImport } from './routes/_authenticated/certificates.$id'
@@ -225,6 +226,12 @@ const AuthenticatedSeminarsIdRoute = AuthenticatedSeminarsIdRouteImport.update({
   path: '/seminars/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDevIncidentRoute =
+  AuthenticatedDevIncidentRouteImport.update({
+    id: '/dev/incident',
+    path: '/dev/incident',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDevHallRoute = AuthenticatedDevHallRouteImport.update({
   id: '/dev/hall',
   path: '/dev/hall',
@@ -442,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/certificates/$id': typeof AuthenticatedCertificatesIdRoute
   '/dev/board': typeof AuthenticatedDevBoardRoute
   '/dev/hall': typeof AuthenticatedDevHallRoute
+  '/dev/incident': typeof AuthenticatedDevIncidentRoute
   '/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/simulations/$scenarioId': typeof AuthenticatedSimulationsScenarioIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
@@ -503,6 +511,7 @@ export interface FileRoutesByTo {
   '/certificates/$id': typeof AuthenticatedCertificatesIdRoute
   '/dev/board': typeof AuthenticatedDevBoardRoute
   '/dev/hall': typeof AuthenticatedDevHallRoute
+  '/dev/incident': typeof AuthenticatedDevIncidentRoute
   '/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/simulations/$scenarioId': typeof AuthenticatedSimulationsScenarioIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
@@ -566,6 +575,7 @@ export interface FileRoutesById {
   '/_authenticated/certificates/$id': typeof AuthenticatedCertificatesIdRoute
   '/_authenticated/dev/board': typeof AuthenticatedDevBoardRoute
   '/_authenticated/dev/hall': typeof AuthenticatedDevHallRoute
+  '/_authenticated/dev/incident': typeof AuthenticatedDevIncidentRoute
   '/_authenticated/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/_authenticated/simulations/$scenarioId': typeof AuthenticatedSimulationsScenarioIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
@@ -629,6 +639,7 @@ export interface FileRouteTypes {
     | '/certificates/$id'
     | '/dev/board'
     | '/dev/hall'
+    | '/dev/incident'
     | '/seminars/$id'
     | '/simulations/$scenarioId'
     | '/api/public/bootstrap-admin'
@@ -690,6 +701,7 @@ export interface FileRouteTypes {
     | '/certificates/$id'
     | '/dev/board'
     | '/dev/hall'
+    | '/dev/incident'
     | '/seminars/$id'
     | '/simulations/$scenarioId'
     | '/api/public/bootstrap-admin'
@@ -752,6 +764,7 @@ export interface FileRouteTypes {
     | '/_authenticated/certificates/$id'
     | '/_authenticated/dev/board'
     | '/_authenticated/dev/hall'
+    | '/_authenticated/dev/incident'
     | '/_authenticated/seminars/$id'
     | '/_authenticated/simulations/$scenarioId'
     | '/api/public/bootstrap-admin'
@@ -994,6 +1007,13 @@ declare module '@tanstack/react-router' {
       path: '/seminars/$id'
       fullPath: '/seminars/$id'
       preLoaderRoute: typeof AuthenticatedSeminarsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dev/incident': {
+      id: '/_authenticated/dev/incident'
+      path: '/dev/incident'
+      fullPath: '/dev/incident'
+      preLoaderRoute: typeof AuthenticatedDevIncidentRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dev/hall': {
@@ -1286,6 +1306,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCertificatesIdRoute: typeof AuthenticatedCertificatesIdRoute
   AuthenticatedDevBoardRoute: typeof AuthenticatedDevBoardRoute
   AuthenticatedDevHallRoute: typeof AuthenticatedDevHallRoute
+  AuthenticatedDevIncidentRoute: typeof AuthenticatedDevIncidentRoute
   AuthenticatedSeminarsIdRoute: typeof AuthenticatedSeminarsIdRoute
   AuthenticatedSimulationsScenarioIdRoute: typeof AuthenticatedSimulationsScenarioIdRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -1339,6 +1360,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCertificatesIdRoute: AuthenticatedCertificatesIdRoute,
   AuthenticatedDevBoardRoute: AuthenticatedDevBoardRoute,
   AuthenticatedDevHallRoute: AuthenticatedDevHallRoute,
+  AuthenticatedDevIncidentRoute: AuthenticatedDevIncidentRoute,
   AuthenticatedSeminarsIdRoute: AuthenticatedSeminarsIdRoute,
   AuthenticatedSimulationsScenarioIdRoute:
     AuthenticatedSimulationsScenarioIdRoute,

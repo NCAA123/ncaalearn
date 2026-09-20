@@ -12,7 +12,7 @@ const DPR_BY_TIER = { low: 1, medium: 1, high: [1, 2] as [number, number] };
 export type HallStep = {
   id: string;
   prompt: string;
-  context: { fen?: string; incidentType?: string } | null;
+  context: { fen?: string; incidentType?: string; incident?: { category: string } } | null;
 };
 
 function CameraRig({ targetX }: { targetX: number }) {
