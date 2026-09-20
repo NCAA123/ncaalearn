@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InteractiveBoard } from "@/components/learning/InteractiveBoard";
@@ -33,6 +34,7 @@ export function IncidentPanel({ incident, stepId, onDone }: { incident: Incident
       return submitFn({ data: { stepId, optionId: selected, startedAt: startedAt.current } });
     },
     onSuccess: () => setSubmitted(true),
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to submit incident response."),
   });
 
   return (
