@@ -16,8 +16,6 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifyHashRouteImport } from './routes/verify.$hash'
-import { Route as AuthenticatedSimulationsRouteImport } from './routes/_authenticated/simulations'
-import { Route as AuthenticatedSeminarsRouteImport } from './routes/_authenticated/seminars'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedResourcesRouteImport } from './routes/_authenticated/resources'
@@ -29,18 +27,18 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedMyLearningRouteImport } from './routes/_authenticated/my-learning'
 import { Route as AuthenticatedMentorshipRouteImport } from './routes/_authenticated/mentorship'
 import { Route as AuthenticatedLicenseRouteImport } from './routes/_authenticated/license'
-import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCpdRouteImport } from './routes/_authenticated/cpd'
-import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
 import { Route as AuthenticatedBadgesRouteImport } from './routes/_authenticated/badges'
+import { Route as AuthenticatedSimulationsIndexRouteImport } from './routes/_authenticated/simulations.index'
+import { Route as AuthenticatedSeminarsIndexRouteImport } from './routes/_authenticated/seminars.index'
+import { Route as AuthenticatedExamsIndexRouteImport } from './routes/_authenticated/exams.index'
+import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
 import { Route as AuthenticatedCertificatesIndexRouteImport } from './routes/_authenticated/certificates.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 import { Route as AuthenticatedSimulationsScenarioIdRouteImport } from './routes/_authenticated/simulations.$scenarioId'
 import { Route as AuthenticatedSeminarsIdRouteImport } from './routes/_authenticated/seminars.$id'
-import { Route as AuthenticatedExamsExamIdRouteImport } from './routes/_authenticated/exams.$examId'
-import { Route as AuthenticatedCoursesSlugRouteImport } from './routes/_authenticated/courses.$slug'
 import { Route as AuthenticatedCertificatesIdRouteImport } from './routes/_authenticated/certificates.$id'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSimulationsRouteImport } from './routes/_authenticated/admin.simulations'
@@ -59,6 +57,8 @@ import { Route as AuthenticatedAdminCoursesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminComplianceRouteImport } from './routes/_authenticated/admin.compliance'
 import { Route as AuthenticatedAdminCertificatesRouteImport } from './routes/_authenticated/admin.certificates'
 import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin.announcements'
+import { Route as AuthenticatedExamsExamIdIndexRouteImport } from './routes/_authenticated/exams.$examId.index'
+import { Route as AuthenticatedCoursesSlugIndexRouteImport } from './routes/_authenticated/courses.$slug.index'
 import { Route as AuthenticatedAdminGradingIndexRouteImport } from './routes/_authenticated/admin.grading.index'
 import { Route as AuthenticatedExamsExamIdAttemptRouteImport } from './routes/_authenticated/exams.$examId.attempt'
 import { Route as AuthenticatedAdminSimulationsIdRouteImport } from './routes/_authenticated/admin.simulations.$id'
@@ -101,17 +101,6 @@ const VerifyHashRoute = VerifyHashRouteImport.update({
   id: '/verify/$hash',
   path: '/verify/$hash',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedSimulationsRoute =
-  AuthenticatedSimulationsRouteImport.update({
-    id: '/simulations',
-    path: '/simulations',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedSeminarsRoute = AuthenticatedSeminarsRouteImport.update({
-  id: '/seminars',
-  path: '/seminars',
-  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
   id: '/security',
@@ -169,11 +158,6 @@ const AuthenticatedLicenseRoute = AuthenticatedLicenseRouteImport.update({
   path: '/license',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedExamsRoute = AuthenticatedExamsRouteImport.update({
-  id: '/exams',
-  path: '/exams',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -184,16 +168,34 @@ const AuthenticatedCpdRoute = AuthenticatedCpdRouteImport.update({
   path: '/cpd',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
-  id: '/courses',
-  path: '/courses',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedBadgesRoute = AuthenticatedBadgesRouteImport.update({
   id: '/badges',
   path: '/badges',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSimulationsIndexRoute =
+  AuthenticatedSimulationsIndexRouteImport.update({
+    id: '/simulations/',
+    path: '/simulations/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSeminarsIndexRoute =
+  AuthenticatedSeminarsIndexRouteImport.update({
+    id: '/seminars/',
+    path: '/seminars/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedExamsIndexRoute = AuthenticatedExamsIndexRouteImport.update({
+  id: '/exams/',
+  path: '/exams/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedCoursesIndexRoute =
+  AuthenticatedCoursesIndexRouteImport.update({
+    id: '/courses/',
+    path: '/courses/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCertificatesIndexRoute =
   AuthenticatedCertificatesIndexRouteImport.update({
     id: '/certificates/',
@@ -212,27 +214,15 @@ const ApiPublicBootstrapAdminRoute = ApiPublicBootstrapAdminRouteImport.update({
 } as any)
 const AuthenticatedSimulationsScenarioIdRoute =
   AuthenticatedSimulationsScenarioIdRouteImport.update({
-    id: '/$scenarioId',
-    path: '/$scenarioId',
-    getParentRoute: () => AuthenticatedSimulationsRoute,
+    id: '/simulations/$scenarioId',
+    path: '/simulations/$scenarioId',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedSeminarsIdRoute = AuthenticatedSeminarsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AuthenticatedSeminarsRoute,
+  id: '/seminars/$id',
+  path: '/seminars/$id',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedExamsExamIdRoute =
-  AuthenticatedExamsExamIdRouteImport.update({
-    id: '/$examId',
-    path: '/$examId',
-    getParentRoute: () => AuthenticatedExamsRoute,
-  } as any)
-const AuthenticatedCoursesSlugRoute =
-  AuthenticatedCoursesSlugRouteImport.update({
-    id: '/$slug',
-    path: '/$slug',
-    getParentRoute: () => AuthenticatedCoursesRoute,
-  } as any)
 const AuthenticatedCertificatesIdRoute =
   AuthenticatedCertificatesIdRouteImport.update({
     id: '/certificates/$id',
@@ -338,6 +328,18 @@ const AuthenticatedAdminAnnouncementsRoute =
     path: '/admin/announcements',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedExamsExamIdIndexRoute =
+  AuthenticatedExamsExamIdIndexRouteImport.update({
+    id: '/exams/$examId/',
+    path: '/exams/$examId/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCoursesSlugIndexRoute =
+  AuthenticatedCoursesSlugIndexRouteImport.update({
+    id: '/courses/$slug/',
+    path: '/courses/$slug/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminGradingIndexRoute =
   AuthenticatedAdminGradingIndexRouteImport.update({
     id: '/admin/grading/',
@@ -346,9 +348,9 @@ const AuthenticatedAdminGradingIndexRoute =
   } as any)
 const AuthenticatedExamsExamIdAttemptRoute =
   AuthenticatedExamsExamIdAttemptRouteImport.update({
-    id: '/attempt',
-    path: '/attempt',
-    getParentRoute: () => AuthenticatedExamsExamIdRoute,
+    id: '/exams/$examId/attempt',
+    path: '/exams/$examId/attempt',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAdminSimulationsIdRoute =
   AuthenticatedAdminSimulationsIdRouteImport.update({
@@ -376,15 +378,15 @@ const AuthenticatedAdminCoursesIdRoute =
   } as any)
 const AuthenticatedExamsExamIdResultAttemptIdRoute =
   AuthenticatedExamsExamIdResultAttemptIdRouteImport.update({
-    id: '/result/$attemptId',
-    path: '/result/$attemptId',
-    getParentRoute: () => AuthenticatedExamsExamIdRoute,
+    id: '/exams/$examId/result/$attemptId',
+    path: '/exams/$examId/result/$attemptId',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedCoursesSlugLessonsLessonIdRoute =
   AuthenticatedCoursesSlugLessonsLessonIdRouteImport.update({
-    id: '/lessons/$lessonId',
-    path: '/lessons/$lessonId',
-    getParentRoute: () => AuthenticatedCoursesSlugRoute,
+    id: '/courses/$slug/lessons/$lessonId',
+    path: '/courses/$slug/lessons/$lessonId',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -394,10 +396,8 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/badges': typeof AuthenticatedBadgesRoute
-  '/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/cpd': typeof AuthenticatedCpdRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/exams': typeof AuthenticatedExamsRouteWithChildren
   '/license': typeof AuthenticatedLicenseRoute
   '/mentorship': typeof AuthenticatedMentorshipRoute
   '/my-learning': typeof AuthenticatedMyLearningRoute
@@ -409,8 +409,6 @@ export interface FileRoutesByFullPath {
   '/resources': typeof AuthenticatedResourcesRoute
   '/search': typeof AuthenticatedSearchRoute
   '/security': typeof AuthenticatedSecurityRoute
-  '/seminars': typeof AuthenticatedSeminarsRouteWithChildren
-  '/simulations': typeof AuthenticatedSimulationsRouteWithChildren
   '/verify/$hash': typeof VerifyHashRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
@@ -430,19 +428,23 @@ export interface FileRoutesByFullPath {
   '/admin/simulations': typeof AuthenticatedAdminSimulationsRouteWithChildren
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/certificates/$id': typeof AuthenticatedCertificatesIdRoute
-  '/courses/$slug': typeof AuthenticatedCoursesSlugRouteWithChildren
-  '/exams/$examId': typeof AuthenticatedExamsExamIdRouteWithChildren
   '/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/simulations/$scenarioId': typeof AuthenticatedSimulationsScenarioIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/certificates/': typeof AuthenticatedCertificatesIndexRoute
+  '/courses/': typeof AuthenticatedCoursesIndexRoute
+  '/exams/': typeof AuthenticatedExamsIndexRoute
+  '/seminars/': typeof AuthenticatedSeminarsIndexRoute
+  '/simulations/': typeof AuthenticatedSimulationsIndexRoute
   '/admin/courses/$id': typeof AuthenticatedAdminCoursesIdRoute
   '/admin/grading/$attemptId': typeof AuthenticatedAdminGradingAttemptIdRoute
   '/admin/seminars/$id': typeof AuthenticatedAdminSeminarsIdRoute
   '/admin/simulations/$id': typeof AuthenticatedAdminSimulationsIdRoute
   '/exams/$examId/attempt': typeof AuthenticatedExamsExamIdAttemptRoute
   '/admin/grading/': typeof AuthenticatedAdminGradingIndexRoute
+  '/courses/$slug/': typeof AuthenticatedCoursesSlugIndexRoute
+  '/exams/$examId/': typeof AuthenticatedExamsExamIdIndexRoute
   '/courses/$slug/lessons/$lessonId': typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
   '/exams/$examId/result/$attemptId': typeof AuthenticatedExamsExamIdResultAttemptIdRoute
 }
@@ -453,10 +455,8 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/badges': typeof AuthenticatedBadgesRoute
-  '/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/cpd': typeof AuthenticatedCpdRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/exams': typeof AuthenticatedExamsRouteWithChildren
   '/license': typeof AuthenticatedLicenseRoute
   '/mentorship': typeof AuthenticatedMentorshipRoute
   '/my-learning': typeof AuthenticatedMyLearningRoute
@@ -468,8 +468,6 @@ export interface FileRoutesByTo {
   '/resources': typeof AuthenticatedResourcesRoute
   '/search': typeof AuthenticatedSearchRoute
   '/security': typeof AuthenticatedSecurityRoute
-  '/seminars': typeof AuthenticatedSeminarsRouteWithChildren
-  '/simulations': typeof AuthenticatedSimulationsRouteWithChildren
   '/verify/$hash': typeof VerifyHashRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
@@ -489,19 +487,23 @@ export interface FileRoutesByTo {
   '/admin/simulations': typeof AuthenticatedAdminSimulationsRouteWithChildren
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/certificates/$id': typeof AuthenticatedCertificatesIdRoute
-  '/courses/$slug': typeof AuthenticatedCoursesSlugRouteWithChildren
-  '/exams/$examId': typeof AuthenticatedExamsExamIdRouteWithChildren
   '/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/simulations/$scenarioId': typeof AuthenticatedSimulationsScenarioIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/certificates': typeof AuthenticatedCertificatesIndexRoute
+  '/courses': typeof AuthenticatedCoursesIndexRoute
+  '/exams': typeof AuthenticatedExamsIndexRoute
+  '/seminars': typeof AuthenticatedSeminarsIndexRoute
+  '/simulations': typeof AuthenticatedSimulationsIndexRoute
   '/admin/courses/$id': typeof AuthenticatedAdminCoursesIdRoute
   '/admin/grading/$attemptId': typeof AuthenticatedAdminGradingAttemptIdRoute
   '/admin/seminars/$id': typeof AuthenticatedAdminSeminarsIdRoute
   '/admin/simulations/$id': typeof AuthenticatedAdminSimulationsIdRoute
   '/exams/$examId/attempt': typeof AuthenticatedExamsExamIdAttemptRoute
   '/admin/grading': typeof AuthenticatedAdminGradingIndexRoute
+  '/courses/$slug': typeof AuthenticatedCoursesSlugIndexRoute
+  '/exams/$examId': typeof AuthenticatedExamsExamIdIndexRoute
   '/courses/$slug/lessons/$lessonId': typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
   '/exams/$examId/result/$attemptId': typeof AuthenticatedExamsExamIdResultAttemptIdRoute
 }
@@ -514,10 +516,8 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_authenticated/badges': typeof AuthenticatedBadgesRoute
-  '/_authenticated/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/_authenticated/cpd': typeof AuthenticatedCpdRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/exams': typeof AuthenticatedExamsRouteWithChildren
   '/_authenticated/license': typeof AuthenticatedLicenseRoute
   '/_authenticated/mentorship': typeof AuthenticatedMentorshipRoute
   '/_authenticated/my-learning': typeof AuthenticatedMyLearningRoute
@@ -529,8 +529,6 @@ export interface FileRoutesById {
   '/_authenticated/resources': typeof AuthenticatedResourcesRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
-  '/_authenticated/seminars': typeof AuthenticatedSeminarsRouteWithChildren
-  '/_authenticated/simulations': typeof AuthenticatedSimulationsRouteWithChildren
   '/verify/$hash': typeof VerifyHashRoute
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
@@ -550,19 +548,23 @@ export interface FileRoutesById {
   '/_authenticated/admin/simulations': typeof AuthenticatedAdminSimulationsRouteWithChildren
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/certificates/$id': typeof AuthenticatedCertificatesIdRoute
-  '/_authenticated/courses/$slug': typeof AuthenticatedCoursesSlugRouteWithChildren
-  '/_authenticated/exams/$examId': typeof AuthenticatedExamsExamIdRouteWithChildren
   '/_authenticated/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/_authenticated/simulations/$scenarioId': typeof AuthenticatedSimulationsScenarioIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/certificates/': typeof AuthenticatedCertificatesIndexRoute
+  '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
+  '/_authenticated/exams/': typeof AuthenticatedExamsIndexRoute
+  '/_authenticated/seminars/': typeof AuthenticatedSeminarsIndexRoute
+  '/_authenticated/simulations/': typeof AuthenticatedSimulationsIndexRoute
   '/_authenticated/admin/courses/$id': typeof AuthenticatedAdminCoursesIdRoute
   '/_authenticated/admin/grading/$attemptId': typeof AuthenticatedAdminGradingAttemptIdRoute
   '/_authenticated/admin/seminars/$id': typeof AuthenticatedAdminSeminarsIdRoute
   '/_authenticated/admin/simulations/$id': typeof AuthenticatedAdminSimulationsIdRoute
   '/_authenticated/exams/$examId/attempt': typeof AuthenticatedExamsExamIdAttemptRoute
   '/_authenticated/admin/grading/': typeof AuthenticatedAdminGradingIndexRoute
+  '/_authenticated/courses/$slug/': typeof AuthenticatedCoursesSlugIndexRoute
+  '/_authenticated/exams/$examId/': typeof AuthenticatedExamsExamIdIndexRoute
   '/_authenticated/courses/$slug/lessons/$lessonId': typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
   '/_authenticated/exams/$examId/result/$attemptId': typeof AuthenticatedExamsExamIdResultAttemptIdRoute
 }
@@ -575,10 +577,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/badges'
-    | '/courses'
     | '/cpd'
     | '/dashboard'
-    | '/exams'
     | '/license'
     | '/mentorship'
     | '/my-learning'
@@ -590,8 +590,6 @@ export interface FileRouteTypes {
     | '/resources'
     | '/search'
     | '/security'
-    | '/seminars'
-    | '/simulations'
     | '/verify/$hash'
     | '/admin/announcements'
     | '/admin/certificates'
@@ -611,19 +609,23 @@ export interface FileRouteTypes {
     | '/admin/simulations'
     | '/admin/users'
     | '/certificates/$id'
-    | '/courses/$slug'
-    | '/exams/$examId'
     | '/seminars/$id'
     | '/simulations/$scenarioId'
     | '/api/public/bootstrap-admin'
     | '/admin/'
     | '/certificates/'
+    | '/courses/'
+    | '/exams/'
+    | '/seminars/'
+    | '/simulations/'
     | '/admin/courses/$id'
     | '/admin/grading/$attemptId'
     | '/admin/seminars/$id'
     | '/admin/simulations/$id'
     | '/exams/$examId/attempt'
     | '/admin/grading/'
+    | '/courses/$slug/'
+    | '/exams/$examId/'
     | '/courses/$slug/lessons/$lessonId'
     | '/exams/$examId/result/$attemptId'
   fileRoutesByTo: FileRoutesByTo
@@ -634,10 +636,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/badges'
-    | '/courses'
     | '/cpd'
     | '/dashboard'
-    | '/exams'
     | '/license'
     | '/mentorship'
     | '/my-learning'
@@ -649,8 +649,6 @@ export interface FileRouteTypes {
     | '/resources'
     | '/search'
     | '/security'
-    | '/seminars'
-    | '/simulations'
     | '/verify/$hash'
     | '/admin/announcements'
     | '/admin/certificates'
@@ -670,19 +668,23 @@ export interface FileRouteTypes {
     | '/admin/simulations'
     | '/admin/users'
     | '/certificates/$id'
-    | '/courses/$slug'
-    | '/exams/$examId'
     | '/seminars/$id'
     | '/simulations/$scenarioId'
     | '/api/public/bootstrap-admin'
     | '/admin'
     | '/certificates'
+    | '/courses'
+    | '/exams'
+    | '/seminars'
+    | '/simulations'
     | '/admin/courses/$id'
     | '/admin/grading/$attemptId'
     | '/admin/seminars/$id'
     | '/admin/simulations/$id'
     | '/exams/$examId/attempt'
     | '/admin/grading'
+    | '/courses/$slug'
+    | '/exams/$examId'
     | '/courses/$slug/lessons/$lessonId'
     | '/exams/$examId/result/$attemptId'
   id:
@@ -694,10 +696,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_authenticated/badges'
-    | '/_authenticated/courses'
     | '/_authenticated/cpd'
     | '/_authenticated/dashboard'
-    | '/_authenticated/exams'
     | '/_authenticated/license'
     | '/_authenticated/mentorship'
     | '/_authenticated/my-learning'
@@ -709,8 +709,6 @@ export interface FileRouteTypes {
     | '/_authenticated/resources'
     | '/_authenticated/search'
     | '/_authenticated/security'
-    | '/_authenticated/seminars'
-    | '/_authenticated/simulations'
     | '/verify/$hash'
     | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/certificates'
@@ -730,19 +728,23 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/simulations'
     | '/_authenticated/admin/users'
     | '/_authenticated/certificates/$id'
-    | '/_authenticated/courses/$slug'
-    | '/_authenticated/exams/$examId'
     | '/_authenticated/seminars/$id'
     | '/_authenticated/simulations/$scenarioId'
     | '/api/public/bootstrap-admin'
     | '/_authenticated/admin/'
     | '/_authenticated/certificates/'
+    | '/_authenticated/courses/'
+    | '/_authenticated/exams/'
+    | '/_authenticated/seminars/'
+    | '/_authenticated/simulations/'
     | '/_authenticated/admin/courses/$id'
     | '/_authenticated/admin/grading/$attemptId'
     | '/_authenticated/admin/seminars/$id'
     | '/_authenticated/admin/simulations/$id'
     | '/_authenticated/exams/$examId/attempt'
     | '/_authenticated/admin/grading/'
+    | '/_authenticated/courses/$slug/'
+    | '/_authenticated/exams/$examId/'
     | '/_authenticated/courses/$slug/lessons/$lessonId'
     | '/_authenticated/exams/$examId/result/$attemptId'
   fileRoutesById: FileRoutesById
@@ -808,20 +810,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/verify/$hash'
       preLoaderRoute: typeof VerifyHashRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/simulations': {
-      id: '/_authenticated/simulations'
-      path: '/simulations'
-      fullPath: '/simulations'
-      preLoaderRoute: typeof AuthenticatedSimulationsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/seminars': {
-      id: '/_authenticated/seminars'
-      path: '/seminars'
-      fullPath: '/seminars'
-      preLoaderRoute: typeof AuthenticatedSeminarsRouteImport
-      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/security': {
       id: '/_authenticated/security'
@@ -900,13 +888,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLicenseRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/exams': {
-      id: '/_authenticated/exams'
-      path: '/exams'
-      fullPath: '/exams'
-      preLoaderRoute: typeof AuthenticatedExamsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -921,18 +902,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCpdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/courses': {
-      id: '/_authenticated/courses'
-      path: '/courses'
-      fullPath: '/courses'
-      preLoaderRoute: typeof AuthenticatedCoursesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/badges': {
       id: '/_authenticated/badges'
       path: '/badges'
       fullPath: '/badges'
       preLoaderRoute: typeof AuthenticatedBadgesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/simulations/': {
+      id: '/_authenticated/simulations/'
+      path: '/simulations'
+      fullPath: '/simulations/'
+      preLoaderRoute: typeof AuthenticatedSimulationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/seminars/': {
+      id: '/_authenticated/seminars/'
+      path: '/seminars'
+      fullPath: '/seminars/'
+      preLoaderRoute: typeof AuthenticatedSeminarsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/exams/': {
+      id: '/_authenticated/exams/'
+      path: '/exams'
+      fullPath: '/exams/'
+      preLoaderRoute: typeof AuthenticatedExamsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/courses/': {
+      id: '/_authenticated/courses/'
+      path: '/courses'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof AuthenticatedCoursesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/certificates/': {
@@ -958,31 +960,17 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/simulations/$scenarioId': {
       id: '/_authenticated/simulations/$scenarioId'
-      path: '/$scenarioId'
+      path: '/simulations/$scenarioId'
       fullPath: '/simulations/$scenarioId'
       preLoaderRoute: typeof AuthenticatedSimulationsScenarioIdRouteImport
-      parentRoute: typeof AuthenticatedSimulationsRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/seminars/$id': {
       id: '/_authenticated/seminars/$id'
-      path: '/$id'
+      path: '/seminars/$id'
       fullPath: '/seminars/$id'
       preLoaderRoute: typeof AuthenticatedSeminarsIdRouteImport
-      parentRoute: typeof AuthenticatedSeminarsRoute
-    }
-    '/_authenticated/exams/$examId': {
-      id: '/_authenticated/exams/$examId'
-      path: '/$examId'
-      fullPath: '/exams/$examId'
-      preLoaderRoute: typeof AuthenticatedExamsExamIdRouteImport
-      parentRoute: typeof AuthenticatedExamsRoute
-    }
-    '/_authenticated/courses/$slug': {
-      id: '/_authenticated/courses/$slug'
-      path: '/$slug'
-      fullPath: '/courses/$slug'
-      preLoaderRoute: typeof AuthenticatedCoursesSlugRouteImport
-      parentRoute: typeof AuthenticatedCoursesRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/certificates/$id': {
       id: '/_authenticated/certificates/$id'
@@ -1110,6 +1098,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAnnouncementsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/exams/$examId/': {
+      id: '/_authenticated/exams/$examId/'
+      path: '/exams/$examId'
+      fullPath: '/exams/$examId/'
+      preLoaderRoute: typeof AuthenticatedExamsExamIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/courses/$slug/': {
+      id: '/_authenticated/courses/$slug/'
+      path: '/courses/$slug'
+      fullPath: '/courses/$slug/'
+      preLoaderRoute: typeof AuthenticatedCoursesSlugIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin/grading/': {
       id: '/_authenticated/admin/grading/'
       path: '/admin/grading'
@@ -1119,10 +1121,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/exams/$examId/attempt': {
       id: '/_authenticated/exams/$examId/attempt'
-      path: '/attempt'
+      path: '/exams/$examId/attempt'
       fullPath: '/exams/$examId/attempt'
       preLoaderRoute: typeof AuthenticatedExamsExamIdAttemptRouteImport
-      parentRoute: typeof AuthenticatedExamsExamIdRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/simulations/$id': {
       id: '/_authenticated/admin/simulations/$id'
@@ -1154,102 +1156,20 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/exams/$examId/result/$attemptId': {
       id: '/_authenticated/exams/$examId/result/$attemptId'
-      path: '/result/$attemptId'
+      path: '/exams/$examId/result/$attemptId'
       fullPath: '/exams/$examId/result/$attemptId'
       preLoaderRoute: typeof AuthenticatedExamsExamIdResultAttemptIdRouteImport
-      parentRoute: typeof AuthenticatedExamsExamIdRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/courses/$slug/lessons/$lessonId': {
       id: '/_authenticated/courses/$slug/lessons/$lessonId'
-      path: '/lessons/$lessonId'
+      path: '/courses/$slug/lessons/$lessonId'
       fullPath: '/courses/$slug/lessons/$lessonId'
       preLoaderRoute: typeof AuthenticatedCoursesSlugLessonsLessonIdRouteImport
-      parentRoute: typeof AuthenticatedCoursesSlugRoute
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
-
-interface AuthenticatedCoursesSlugRouteChildren {
-  AuthenticatedCoursesSlugLessonsLessonIdRoute: typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
-}
-
-const AuthenticatedCoursesSlugRouteChildren: AuthenticatedCoursesSlugRouteChildren =
-  {
-    AuthenticatedCoursesSlugLessonsLessonIdRoute:
-      AuthenticatedCoursesSlugLessonsLessonIdRoute,
-  }
-
-const AuthenticatedCoursesSlugRouteWithChildren =
-  AuthenticatedCoursesSlugRoute._addFileChildren(
-    AuthenticatedCoursesSlugRouteChildren,
-  )
-
-interface AuthenticatedCoursesRouteChildren {
-  AuthenticatedCoursesSlugRoute: typeof AuthenticatedCoursesSlugRouteWithChildren
-}
-
-const AuthenticatedCoursesRouteChildren: AuthenticatedCoursesRouteChildren = {
-  AuthenticatedCoursesSlugRoute: AuthenticatedCoursesSlugRouteWithChildren,
-}
-
-const AuthenticatedCoursesRouteWithChildren =
-  AuthenticatedCoursesRoute._addFileChildren(AuthenticatedCoursesRouteChildren)
-
-interface AuthenticatedExamsExamIdRouteChildren {
-  AuthenticatedExamsExamIdAttemptRoute: typeof AuthenticatedExamsExamIdAttemptRoute
-  AuthenticatedExamsExamIdResultAttemptIdRoute: typeof AuthenticatedExamsExamIdResultAttemptIdRoute
-}
-
-const AuthenticatedExamsExamIdRouteChildren: AuthenticatedExamsExamIdRouteChildren =
-  {
-    AuthenticatedExamsExamIdAttemptRoute: AuthenticatedExamsExamIdAttemptRoute,
-    AuthenticatedExamsExamIdResultAttemptIdRoute:
-      AuthenticatedExamsExamIdResultAttemptIdRoute,
-  }
-
-const AuthenticatedExamsExamIdRouteWithChildren =
-  AuthenticatedExamsExamIdRoute._addFileChildren(
-    AuthenticatedExamsExamIdRouteChildren,
-  )
-
-interface AuthenticatedExamsRouteChildren {
-  AuthenticatedExamsExamIdRoute: typeof AuthenticatedExamsExamIdRouteWithChildren
-}
-
-const AuthenticatedExamsRouteChildren: AuthenticatedExamsRouteChildren = {
-  AuthenticatedExamsExamIdRoute: AuthenticatedExamsExamIdRouteWithChildren,
-}
-
-const AuthenticatedExamsRouteWithChildren =
-  AuthenticatedExamsRoute._addFileChildren(AuthenticatedExamsRouteChildren)
-
-interface AuthenticatedSeminarsRouteChildren {
-  AuthenticatedSeminarsIdRoute: typeof AuthenticatedSeminarsIdRoute
-}
-
-const AuthenticatedSeminarsRouteChildren: AuthenticatedSeminarsRouteChildren = {
-  AuthenticatedSeminarsIdRoute: AuthenticatedSeminarsIdRoute,
-}
-
-const AuthenticatedSeminarsRouteWithChildren =
-  AuthenticatedSeminarsRoute._addFileChildren(
-    AuthenticatedSeminarsRouteChildren,
-  )
-
-interface AuthenticatedSimulationsRouteChildren {
-  AuthenticatedSimulationsScenarioIdRoute: typeof AuthenticatedSimulationsScenarioIdRoute
-}
-
-const AuthenticatedSimulationsRouteChildren: AuthenticatedSimulationsRouteChildren =
-  {
-    AuthenticatedSimulationsScenarioIdRoute:
-      AuthenticatedSimulationsScenarioIdRoute,
-  }
-
-const AuthenticatedSimulationsRouteWithChildren =
-  AuthenticatedSimulationsRoute._addFileChildren(
-    AuthenticatedSimulationsRouteChildren,
-  )
 
 interface AuthenticatedAdminCoursesRouteChildren {
   AuthenticatedAdminCoursesIdRoute: typeof AuthenticatedAdminCoursesIdRoute
@@ -1295,10 +1215,8 @@ const AuthenticatedAdminSimulationsRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedBadgesRoute: typeof AuthenticatedBadgesRoute
-  AuthenticatedCoursesRoute: typeof AuthenticatedCoursesRouteWithChildren
   AuthenticatedCpdRoute: typeof AuthenticatedCpdRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedExamsRoute: typeof AuthenticatedExamsRouteWithChildren
   AuthenticatedLicenseRoute: typeof AuthenticatedLicenseRoute
   AuthenticatedMentorshipRoute: typeof AuthenticatedMentorshipRoute
   AuthenticatedMyLearningRoute: typeof AuthenticatedMyLearningRoute
@@ -1310,8 +1228,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedResourcesRoute: typeof AuthenticatedResourcesRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
-  AuthenticatedSeminarsRoute: typeof AuthenticatedSeminarsRouteWithChildren
-  AuthenticatedSimulationsRoute: typeof AuthenticatedSimulationsRouteWithChildren
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
   AuthenticatedAdminCertificatesRoute: typeof AuthenticatedAdminCertificatesRoute
   AuthenticatedAdminComplianceRoute: typeof AuthenticatedAdminComplianceRoute
@@ -1330,18 +1246,27 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminSimulationsRoute: typeof AuthenticatedAdminSimulationsRouteWithChildren
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedCertificatesIdRoute: typeof AuthenticatedCertificatesIdRoute
+  AuthenticatedSeminarsIdRoute: typeof AuthenticatedSeminarsIdRoute
+  AuthenticatedSimulationsScenarioIdRoute: typeof AuthenticatedSimulationsScenarioIdRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedCertificatesIndexRoute: typeof AuthenticatedCertificatesIndexRoute
+  AuthenticatedCoursesIndexRoute: typeof AuthenticatedCoursesIndexRoute
+  AuthenticatedExamsIndexRoute: typeof AuthenticatedExamsIndexRoute
+  AuthenticatedSeminarsIndexRoute: typeof AuthenticatedSeminarsIndexRoute
+  AuthenticatedSimulationsIndexRoute: typeof AuthenticatedSimulationsIndexRoute
   AuthenticatedAdminGradingAttemptIdRoute: typeof AuthenticatedAdminGradingAttemptIdRoute
+  AuthenticatedExamsExamIdAttemptRoute: typeof AuthenticatedExamsExamIdAttemptRoute
   AuthenticatedAdminGradingIndexRoute: typeof AuthenticatedAdminGradingIndexRoute
+  AuthenticatedCoursesSlugIndexRoute: typeof AuthenticatedCoursesSlugIndexRoute
+  AuthenticatedExamsExamIdIndexRoute: typeof AuthenticatedExamsExamIdIndexRoute
+  AuthenticatedCoursesSlugLessonsLessonIdRoute: typeof AuthenticatedCoursesSlugLessonsLessonIdRoute
+  AuthenticatedExamsExamIdResultAttemptIdRoute: typeof AuthenticatedExamsExamIdResultAttemptIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedBadgesRoute: AuthenticatedBadgesRoute,
-  AuthenticatedCoursesRoute: AuthenticatedCoursesRouteWithChildren,
   AuthenticatedCpdRoute: AuthenticatedCpdRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedExamsRoute: AuthenticatedExamsRouteWithChildren,
   AuthenticatedLicenseRoute: AuthenticatedLicenseRoute,
   AuthenticatedMentorshipRoute: AuthenticatedMentorshipRoute,
   AuthenticatedMyLearningRoute: AuthenticatedMyLearningRoute,
@@ -1353,8 +1278,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedResourcesRoute: AuthenticatedResourcesRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
-  AuthenticatedSeminarsRoute: AuthenticatedSeminarsRouteWithChildren,
-  AuthenticatedSimulationsRoute: AuthenticatedSimulationsRouteWithChildren,
   AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
   AuthenticatedAdminCertificatesRoute: AuthenticatedAdminCertificatesRoute,
   AuthenticatedAdminComplianceRoute: AuthenticatedAdminComplianceRoute,
@@ -1374,11 +1297,25 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedAdminSimulationsRouteWithChildren,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedCertificatesIdRoute: AuthenticatedCertificatesIdRoute,
+  AuthenticatedSeminarsIdRoute: AuthenticatedSeminarsIdRoute,
+  AuthenticatedSimulationsScenarioIdRoute:
+    AuthenticatedSimulationsScenarioIdRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedCertificatesIndexRoute: AuthenticatedCertificatesIndexRoute,
+  AuthenticatedCoursesIndexRoute: AuthenticatedCoursesIndexRoute,
+  AuthenticatedExamsIndexRoute: AuthenticatedExamsIndexRoute,
+  AuthenticatedSeminarsIndexRoute: AuthenticatedSeminarsIndexRoute,
+  AuthenticatedSimulationsIndexRoute: AuthenticatedSimulationsIndexRoute,
   AuthenticatedAdminGradingAttemptIdRoute:
     AuthenticatedAdminGradingAttemptIdRoute,
+  AuthenticatedExamsExamIdAttemptRoute: AuthenticatedExamsExamIdAttemptRoute,
   AuthenticatedAdminGradingIndexRoute: AuthenticatedAdminGradingIndexRoute,
+  AuthenticatedCoursesSlugIndexRoute: AuthenticatedCoursesSlugIndexRoute,
+  AuthenticatedExamsExamIdIndexRoute: AuthenticatedExamsExamIdIndexRoute,
+  AuthenticatedCoursesSlugLessonsLessonIdRoute:
+    AuthenticatedCoursesSlugLessonsLessonIdRoute,
+  AuthenticatedExamsExamIdResultAttemptIdRoute:
+    AuthenticatedExamsExamIdResultAttemptIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

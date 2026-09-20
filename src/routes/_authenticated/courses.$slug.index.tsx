@@ -12,7 +12,7 @@ import { CourseDiscussion } from "@/components/course/CourseDiscussion";
 import { useServerFn } from "@tanstack/react-start";
 import { touchCandidateDashboard } from "@/lib/dashboard.functions";
 
-export const Route = createFileRoute("/_authenticated/courses/$slug")({
+export const Route = createFileRoute("/_authenticated/courses/$slug/")({
   head: () => ({ meta: [{ title: "Course — NCAA Academy" }] }),
   component: CourseDetailPage,
 });

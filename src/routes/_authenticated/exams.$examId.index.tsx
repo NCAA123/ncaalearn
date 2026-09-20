@@ -18,7 +18,7 @@ import { PageHeader, EmptyState } from "@/components/ui/page-header";
 import { toast } from "sonner";
 import { getExamPreflight, startAttempt } from "@/lib/exam.functions";
 
-export const Route = createFileRoute("/_authenticated/exams/$examId")({
+export const Route = createFileRoute("/_authenticated/exams/$examId/")({
   head: () => ({
     meta: [
       { title: "Certification exam — NCAA Academy" },

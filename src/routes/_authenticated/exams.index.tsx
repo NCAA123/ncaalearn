@@ -6,7 +6,7 @@ import { PageHeader, EmptyState } from "@/components/ui/page-header";
 import { Badge } from "@/components/ui/badge";
 import { listPublishedExams } from "@/lib/exam.functions";
 
-export const Route = createFileRoute("/_authenticated/exams")({
+export const Route = createFileRoute("/_authenticated/exams/")({
   head: () => ({ meta: [{ title: "Examinations — NCAA Academy" }] }),
   component: ExamsList,
 });

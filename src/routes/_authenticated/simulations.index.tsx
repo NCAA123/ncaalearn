@@ -6,7 +6,7 @@ import { PageHeader, EmptyState } from "@/components/ui/page-header";
 import { Badge } from "@/components/ui/badge";
 import { listPublishedScenarios } from "@/lib/simulation.functions";
 
-export const Route = createFileRoute("/_authenticated/simulations")({
+export const Route = createFileRoute("/_authenticated/simulations/")({
   head: () => ({ meta: [{ title: "Simulations — NCAA Academy" }] }),
   component: SimulationsPage,
 });

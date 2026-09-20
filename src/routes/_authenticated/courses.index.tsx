@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Clock, Search, CheckCircle2, Award, Users, Bookmark } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/courses")({
+export const Route = createFileRoute("/_authenticated/courses/")({
   head: () => ({ meta: [{ title: "Courses — NCAA Academy" }] }),
   component: CoursesPage,
 });

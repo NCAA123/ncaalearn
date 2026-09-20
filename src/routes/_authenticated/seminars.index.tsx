@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { NewSeminarDialog } from "@/components/seminars/NewSeminarDialog";
 import { Calendar, MapPin, Search, Video, Users, Plus, CheckCircle2 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/seminars")({
+export const Route = createFileRoute("/_authenticated/seminars/")({
   head: () => ({ meta: [{ title: "Seminars — NCAA Academy" }] }),
   component: SeminarsPage,
 });
