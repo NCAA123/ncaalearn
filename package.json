@@ -10,7 +10,11 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "hall:build:shell": "bash tools/blender/run-blender.sh tools/blender/hall_generate.py public/models/hall/hall.glb && bun run hall:optimize -- hall",
+    "hall:build:tables": "bash tools/blender/run-blender.sh tools/blender/table_kit_generate.py public/models/hall/table-kit.glb && bun run hall:optimize -- table-kit",
+    "hall:build": "bun run hall:build:shell && bun run hall:build:tables",
+    "hall:optimize": "bash tools/blender/optimize.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -40,6 +44,7 @@
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.0.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.106.2",
