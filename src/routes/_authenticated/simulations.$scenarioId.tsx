@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { TournamentHall3D } from "@/components/simulation/TournamentHall3D";
+import { BoardExerciseRunner } from "@/components/learning/BoardExerciseRunner";
 import {
   completeAttempt,
   getScenarioForPlay,
@@ -127,6 +128,19 @@ function PlaySimulationPage() {
             <Button onClick={() => complete.mutate()} disabled={complete.isPending}>
               {complete.isPending ? "Scoring…" : "Finish simulation"}
             </Button>
+          </div>
+        ) : activeStep?.context?.board_exercise ? (
+          <div className="space-y-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Station {steps.findIndex((s) => s.id === activeStep.id) + 1} of {steps.length}
+            </p>
+            <BoardExerciseRunner
+              key={activeStep.id}
+              exercise={activeStep.context.board_exercise}
+              stepId={activeStep.id}
+              mode="practice"
+              onDone={() => nextStation()}
+            />
           </div>
         ) : activeStep ? (
           <div className="space-y-4">
