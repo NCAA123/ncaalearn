@@ -30,14 +30,27 @@ function PlaySimulationPage() {
   const submitFn = useServerFn(submitStepAnswer);
   const completeFn = useServerFn(completeAttempt);
 
-  const { data: scenarioData, isLoading: loadingScenario } = useQuery({
+  const {
+    data: scenarioData,
+    isLoading: loadingScenario,
+    isError: scenarioErrored,
+    error: scenarioError,
+  } = useQuery({
     queryKey: ["simulation-play", scenarioId],
     queryFn: () => getScenarioFn({ data: { scenarioId } }),
+    retry: false,
   });
 
-  const { data: attemptData, isLoading: loadingAttempt } = useQuery({
+  const {
+    data: attemptData,
+    isLoading: loadingAttempt,
+    isError: attemptErrored,
+    error: attemptError,
+  } = useQuery({
     queryKey: ["simulation-attempt", scenarioId],
     queryFn: () => startFn({ data: { scenarioId } }),
+    enabled: !scenarioErrored,
+    retry: false,
   });
 
   const [answeredIds, setAnsweredIds] = useState<string[]>([]);
@@ -76,6 +89,22 @@ function PlaySimulationPage() {
     if (activeStep) setAnsweredIds((ids) => [...ids, activeStep.id]);
     setSelectedChoice(null);
     setResult(null);
+  }
+
+  if (scenarioErrored || attemptErrored) {
+    return (
+      <div>
+        <Link to="/simulations" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4">
+          <ArrowLeft className="h-4 w-4" /> Back to simulations
+        </Link>
+        <PageHeader title="Simulation unavailable" />
+        <p className="text-sm text-muted-foreground max-w-md">
+          {(scenarioError || attemptError) instanceof Error
+            ? (scenarioError || attemptError)?.message
+            : "This simulation couldn't be loaded -- it may not be published yet, or you may not have access to it."}
+        </p>
+      </div>
+    );
   }
 
   if (loadingScenario || loadingAttempt || !scenarioData) {
