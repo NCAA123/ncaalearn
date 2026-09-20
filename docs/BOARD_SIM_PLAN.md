@@ -16,13 +16,12 @@
 |---|---|
 | `node` | v26.7.0 ✓ |
 | `bun` | 1.4.0 ✓ |
-| `blender` | **not installed** — not on PATH |
-| `toktx` (KTX-Software) | **not installed** — not on PATH |
+| `blender` | **installed** — Blender 5.1.2 at `/Applications/Blender.app/Contents/MacOS/Blender` (not on PATH; invoked by full path in scripts) |
+| KTX-Software | **installed** — `ktx` v5.0.0-rc2 on PATH at `/usr/local/bin/ktx`. Note: this version replaced the old standalone `toktx` binary with a unified `ktx` CLI — texture compression now uses `ktx create`/`ktx encode` instead of `toktx` |
 | Playwright | not installed as a project dep; `npx playwright` pulled 1.63.0 fine ad hoc |
+| `vitest` | **added** (dev dependency) for Phase 3's ChessClock unit tests — this repo had no test runner before |
 
-**Blender install (macOS, free):** `brew install --cask blender`, or download the `.dmg` directly from blender.org/download (no account/payment needed). Once installed, `blender -b -P script.py` works from this repo.
-
-**toktx install (macOS, free):** `brew install ktx` (part of KTX-Software formulae) or download the KTX-Software installer from github.com/KhronosGroup/KTX-Software/releases. Until this is installed, texture compression falls back to WebP, per the prompt's own fallback clause — WebP is well-supported and only modestly larger than KTX2/Basis.
+Both Blender and KTX-Software were user-installed mid-project (2026-09-20) — the procedural-geometry fallback path chosen in Phase 1 remains in place for the pieces/board already built (no regression risk, same exported props), but real modeled/textured GLB assets are now unblocked for future visual upgrades and for Part A (the Tournament Hall simulator).
 
 ## Decision point before Phase 1 modeling work
 
