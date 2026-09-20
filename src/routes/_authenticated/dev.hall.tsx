@@ -9,7 +9,13 @@ export const Route = createFileRoute("/_authenticated/dev/hall")({
   component: DevHallPage,
 });
 
-const TABLE_COUNT = 8;
+// Kept small enough that all tables actually sit inside the modeled hall
+// shell's 30m length (tableX()'s fixed 5.5m spacing has no awareness of the
+// room's real footprint -- 8 tables previously spanned 38.5m, well outside
+// the walls, which was invisible in guided-tour mode (camera always frames
+// just the active table up close) but broke Free walk mode outright: its
+// wall-collision clamp doesn't match where the out-of-bounds tables sat.
+const TABLE_COUNT = 5;
 
 const STEPS: HallStep[] = Array.from({ length: TABLE_COUNT }, (_, i) => ({
   id: `table-${i}`,

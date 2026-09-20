@@ -58,8 +58,15 @@ export function HallWalkControls({ startX }: { startX: number }) {
   const pressed = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    camera.position.set(startX, EYE_HEIGHT, 6);
-    camera.lookAt(startX, EYE_HEIGHT, 0);
+    // Clamp the spawn point too, not just movement deltas -- startX comes
+    // from the same tableX() spacing the guided tour uses, which spaces
+    // tables evenly with no awareness of the hall shell's fixed 30x20m
+    // footprint. For a table count wide enough to exceed that footprint
+    // (the /dev/hall QA page's demo layout did, at 8 tables), an
+    // unclamped spawn placed the camera outside the walls entirely.
+    const [cx, cz] = resolveCollisions(startX, 6);
+    camera.position.set(cx, EYE_HEIGHT, cz);
+    camera.lookAt(cx, EYE_HEIGHT, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
