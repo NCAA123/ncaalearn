@@ -151,3 +151,113 @@ export const PIECE_HEIGHT: Record<PieceSymbol, number> = {
   q: 0.98,
   k: 1.0,
 };
+
+// ── Move-diff animation ────────────────────────────────────────────────
+// ChessSet only ever receives a `fen` (a full board snapshot) plus an
+// optional `lastMove` hint -- never a move list -- because it's shared by
+// the lesson viewer (which can jump many plies at once via step controls),
+// exam questions, practice, and the hall. To animate a single-ply move
+// (piece travels, captured piece fades) without ever animating a multi-ply
+// jump as if it were one move, we diff two board snapshots ourselves and
+// only produce a flight plan when the diff looks like exactly one legal
+// move's worth of change -- otherwise callers should snap instantly.
+
+export type Color = "w" | "b";
+export type BoardMap = Map<string, { type: PieceSymbol; color: Color }>;
+
+export function fenToBoardMap(board: { square: string; type: PieceSymbol; color: Color }[]): BoardMap {
+  const map: BoardMap = new Map();
+  for (const sq of board) map.set(sq.square, { type: sq.type, color: sq.color });
+  return map;
+}
+
+export type PieceFlight = {
+  key: string;
+  type: PieceSymbol;
+  color: Color;
+  from: string;
+  to: string;
+};
+
+export type PieceFade = {
+  key: string;
+  type: PieceSymbol;
+  color: Color;
+  square: string;
+};
+
+export type MoveDiff = { flights: PieceFlight[]; fades: PieceFade[] };
+
+const MAX_DIFF_SQUARES = 4;
+
+// Categorizes the change between two board snapshots into: pieces that
+// travel from one square to another (flights — normal moves, castling's
+// rook, promotion's pawn-becomes-queen), and pieces that just disappear in
+// place (fades — a captured piece, or a captured-en-passant pawn). Returns
+// an empty diff (meaning: caller should snap instantly) when the change is
+// too large to be a single move (e.g. the viewer jumped several plies) or
+// when pairing is ambiguous.
+export function diffBoards(prev: BoardMap, next: BoardMap, lastMove?: { from: string; to: string } | null): MoveDiff {
+  const vacatedEmpty: string[] = [];
+  const occupiedNew: string[] = [];
+  const changed: string[] = [];
+
+  for (const [sq, piece] of prev) {
+    const n = next.get(sq);
+    if (!n) vacatedEmpty.push(sq);
+    else if (n.type !== piece.type || n.color !== piece.color) changed.push(sq);
+  }
+  for (const sq of next.keys()) {
+    if (!prev.has(sq)) occupiedNew.push(sq);
+  }
+
+  const totalChanged = vacatedEmpty.length + occupiedNew.length + changed.length;
+  if (totalChanged === 0 || totalChanged > MAX_DIFF_SQUARES) return { flights: [], fades: [] };
+
+  const flights: PieceFlight[] = [];
+  const fades: PieceFade[] = [];
+  const remainingOrigins = new Set(vacatedEmpty);
+
+  // Squares whose occupant changed are capture destinations: the old
+  // occupant fades in place, the new occupant flies in from a vacated
+  // origin of matching type/color (falling back to the lastMove hint).
+  for (const sq of changed) {
+    const captured = prev.get(sq)!;
+    fades.push({ key: `fade-${sq}`, type: captured.type, color: captured.color, square: sq });
+
+    const attacker = next.get(sq)!;
+    let origin = lastMove?.to === sq && remainingOrigins.has(lastMove.from) ? lastMove.from : undefined;
+    if (!origin) {
+      origin = [...remainingOrigins].find((o) => {
+        const p = prev.get(o)!;
+        return p.type === attacker.type && p.color === attacker.color;
+      });
+    }
+    if (!origin) return { flights: [], fades: [] }; // ambiguous — snap instead
+    remainingOrigins.delete(origin);
+    flights.push({ key: `fly-${origin}-${sq}`, type: attacker.type, color: attacker.color, from: origin, to: sq });
+  }
+
+  // Remaining vacated origins pair with newly-occupied destinations —
+  // normal moves, promotion (type may differ, same color), or castling's
+  // second piece (the rook).
+  const remainingDestinations = new Set(occupiedNew);
+  for (const origin of remainingOrigins) {
+    const piece = prev.get(origin)!;
+    let dest = lastMove?.from === origin && remainingDestinations.has(lastMove.to) ? lastMove.to : undefined;
+    if (!dest) {
+      dest = [...remainingDestinations].find((d) => next.get(d)!.color === piece.color);
+    }
+    if (!dest) {
+      // No destination anywhere (e.g. the captured pawn in an en passant
+      // capture) — it just vanishes in place.
+      fades.push({ key: `fade-${origin}`, type: piece.type, color: piece.color, square: origin });
+      continue;
+    }
+    remainingDestinations.delete(dest);
+    const landed = next.get(dest)!;
+    flights.push({ key: `fly-${origin}-${dest}`, type: landed.type, color: landed.color, from: origin, to: dest });
+  }
+
+  return { flights, fades };
+}
