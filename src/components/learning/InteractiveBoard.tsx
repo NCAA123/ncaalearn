@@ -3,6 +3,7 @@ import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { Box, RotateCcw, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { accessibleSquareRenderer } from "@/components/learning/accessible-square";
 import { Chess3DBoard, type ChessMove } from "@/components/learning/Chess3DBoard";
 
 // A self-contained, playable board: the candidate can click or drag pieces
@@ -127,6 +128,7 @@ export function InteractiveBoard({
               boardOrientation: orientation,
               allowDragging: !disabled,
               squareStyles,
+              squareRenderer: accessibleSquareRenderer,
               onSquareClick: handleSquareClick,
               onPieceDrop: ({ sourceSquare, targetSquare }) =>
                 targetSquare ? applyMove(sourceSquare, targetSquare) : false,

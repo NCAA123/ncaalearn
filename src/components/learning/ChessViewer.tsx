@@ -3,6 +3,7 @@ import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { Button } from "@/components/ui/button";
 import { Chess3DBoard } from "@/components/learning/Chess3DBoard";
+import { accessibleSquareRenderer } from "@/components/learning/accessible-square";
 import {
   Box,
   ChevronLeft,
@@ -125,6 +126,7 @@ export function ChessViewer({
                 allowDragging: false,
                 showNotation: showCoords,
                 squareStyles,
+                squareRenderer: accessibleSquareRenderer,
               } as never}
             />
           </div>
