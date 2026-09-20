@@ -4,6 +4,9 @@ import * as THREE from "three";
 import { HallShell, TableInstance } from "@/components/simulation/HallScene";
 import { HallWalkControls } from "@/components/simulation/HallWalkControls";
 import { tableX } from "@/lib/hall-layout";
+import { useHallQualityTier } from "@/hooks/useHallQualityTier";
+
+const DPR_BY_TIER = { low: 1, medium: 1, high: [1, 2] as [number, number] };
 
 export type HallStep = {
   id: string;
@@ -52,6 +55,8 @@ export function TournamentHall3D({
   );
   const targetX = tableX(activeIndex, steps.length || 1);
   const answered = useMemo(() => new Set(answeredStepIds), [answeredStepIds]);
+  const qualityTier = useHallQualityTier();
+  const shadowsEnabled = qualityTier !== "low";
 
   // R3F's canvas-size ResizeObserver can miss the container's very first
   // layout pass when the container is sized via CSS aspect-ratio on a wide
@@ -64,10 +69,10 @@ export function TournamentHall3D({
 
   return (
     <div className="w-full aspect-[16/9] rounded-xl overflow-hidden border border-border bg-black">
-      <Canvas shadows camera={{ position: [targetX, 3.4, 5.2], fov: 55 }}>
+      <Canvas shadows={shadowsEnabled} dpr={DPR_BY_TIER[qualityTier]} camera={{ position: [targetX, 3.4, 5.2], fov: 55 }}>
         <color attach="background" args={["#12100e"]} />
         <ambientLight intensity={0.55} />
-        <directionalLight position={[4, 8, 3]} intensity={1} castShadow />
+        <directionalLight position={[4, 8, 3]} intensity={1} castShadow={shadowsEnabled} />
         <pointLight position={[targetX, 4, 2]} intensity={0.4} />
         <HallShell />
         {steps.map((step, i) => (
