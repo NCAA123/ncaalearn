@@ -22,3 +22,27 @@ const COLUMN_XS = [-HALF_L + 4, -HALF_L * 0.3, HALF_L * 0.3, HALF_L - 4];
 const COLUMN_YS = [-HALF_W + 3, HALF_W - 3];
 
 export const COLUMNS: [number, number][] = COLUMN_XS.flatMap((x) => COLUMN_YS.map((y): [number, number] => [x, y]));
+
+// Typed "board 14"-style addressing (brief Phase 2's hallLayout.ts ask) --
+// a lookup from a 1-based board number to its world position/orientation,
+// independent of however many steps a given scenario happens to have.
+// Board numbers are assigned left-to-right along the same single-row
+// layout tableX() already produces; a future multi-row layout would only
+// need to change this function; every caller already goes through it
+// rather than computing tableX() directly.
+export type BoardPlacement = { x: number; z: number; facing: number };
+
+export function boardPlacement(boardNumber: number, totalBoards: number): BoardPlacement {
+  const index = boardNumber - 1;
+  return { x: tableX(index, totalBoards), z: 0, facing: 0 };
+}
+
+// The arbiter desk sits against the banner wall (+Y in hall_generate.py's
+// Blender space); mirrored here for anything that needs to reference it
+// (e.g. a "return to your post" incident cue) without hardcoding the value
+// a second time.
+export const ARBITER_DESK_POSITION: [number, number] = [0, HALF_W - 1.0];
+
+// The main entrance sits centered on the front wall's door gap (-Y in
+// Blender space, i.e. the "near" wall relative to how tables are laid out).
+export const ENTRANCE_POSITION: [number, number] = [0, -HALF_W + 1.0];

@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { HallShell, TableInstance } from "@/components/simulation/HallScene";
-import { HallWalkControls } from "@/components/simulation/HallWalkControls";
+import { HallWalkControls, type WalkApi } from "@/components/simulation/HallWalkControls";
 import { ArbiterPatrol } from "@/components/simulation/CharacterRig";
 import { tableX, HALL_LENGTH } from "@/lib/hall-layout";
 import { useHallQualityTier } from "@/hooks/useHallQualityTier";
+import { Button } from "@/components/ui/button";
 
 const DPR_BY_TIER = { low: 1, medium: 1, high: [1, 2] as [number, number] };
 
@@ -44,11 +45,13 @@ export function TournamentHall3D({
   activeStepId,
   answeredStepIds,
   mode = "tour",
+  onInteractStep,
 }: {
   steps: HallStep[];
   activeStepId: string | null;
   answeredStepIds: string[];
   mode?: "tour" | "walk";
+  onInteractStep?: (stepId: string) => void;
 }) {
   const activeIndex = Math.max(
     0,
@@ -58,6 +61,12 @@ export function TournamentHall3D({
   const answered = useMemo(() => new Set(answeredStepIds), [answeredStepIds]);
   const qualityTier = useHallQualityTier();
   const shadowsEnabled = qualityTier !== "low";
+  const [walkApi, setWalkApi] = useState<WalkApi | null>(null);
+
+  const interactableTables = useMemo(
+    () => steps.map((step, i) => ({ stepId: step.id, x: tableX(i, steps.length || 1), z: 0 })),
+    [steps],
+  );
 
   // Patrol path clamped to the hall's real footprint, independent of
   // wherever tableX() happens to place the row's own ends (see NOTES.md --
@@ -96,9 +105,34 @@ export function TournamentHall3D({
             />
           ))}
           {patrolMinX < patrolMaxX && <ArbiterPatrol pathMinX={patrolMinX} pathMaxX={patrolMaxX} />}
-          {mode === "walk" ? <HallWalkControls startX={targetX} /> : <CameraRig targetX={targetX} />}
+          {mode === "walk" ? (
+            <HallWalkControls
+              startX={targetX}
+              tables={interactableTables}
+              onInteract={onInteractStep}
+              onReady={setWalkApi}
+            />
+          ) : (
+            <CameraRig targetX={targetX} />
+          )}
         </Canvas>
       </div>
+      {mode === "walk" && (
+        <div className="flex flex-wrap gap-1.5 px-2 py-2">
+          {steps.map((step, i) => (
+            <Button
+              key={step.id}
+              type="button"
+              size="sm"
+              variant="outline"
+              className="text-xs h-7"
+              onClick={() => walkApi?.walkTo(tableX(i, steps.length || 1), 0)}
+            >
+              Walk to station {i + 1}
+            </Button>
+          ))}
+        </div>
+      )}
       {patrolMinX < patrolMaxX && (
         <p className="text-[10px] text-muted-foreground/70 px-2 py-1 text-right">
           Arbiter figure: "CesiumMan" by Cesium, CC BY 4.0

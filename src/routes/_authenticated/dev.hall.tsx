@@ -3,6 +3,8 @@ import { useState } from "react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { TournamentHall3D, type HallStep } from "@/components/simulation/TournamentHall3D";
+import { IncidentPanel } from "@/components/simulation/IncidentPanel";
+import type { Incident } from "@/lib/incidents";
 
 export const Route = createFileRoute("/_authenticated/dev/hall")({
   head: () => ({ meta: [{ title: "Hall QA — NCAA Academy" }] }),
@@ -17,10 +19,25 @@ export const Route = createFileRoute("/_authenticated/dev/hall")({
 // wall-collision clamp doesn't match where the out-of-bounds tables sat.
 const TABLE_COUNT = 5;
 
+const SAMPLE_INCIDENT: Incident = {
+  category: "clock_dispute",
+  title: "Black claims White's clock wasn't started after the round began",
+  narrative:
+    "Several minutes into the round, Black raises a hand: White's clock reads the same as at the start, while Black's has been counting down. White insists they pressed it after their first move. No arbiter observed the round's opening moves at this board.",
+  whiteSeconds: 5400,
+  blackSeconds: 5187,
+  options: [
+    { id: "credit-time", label: "Credit White the elapsed time and restart both clocks fairly" },
+    { id: "no-adjustment", label: "No adjustment -- clocks run as shown, players should have checked" },
+    { id: "escalate", label: "Escalate to the chief arbiter for a time-credit ruling" },
+  ],
+  articleRefs: ["FIDE Laws of Chess Article 6.7 -- TO VERIFY"],
+};
+
 const STEPS: HallStep[] = Array.from({ length: TABLE_COUNT }, (_, i) => ({
   id: `table-${i}`,
   prompt: `Board ${i + 1}`,
-  context: i === 2 ? { fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" } : null,
+  context: i === 2 ? { fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" } : i === 4 ? { incident: { category: "clock_dispute" } } : null,
 }));
 
 // Internal QA page for the HD tournament hall simulator (docs/HALL_SIM_PLAN.md
@@ -32,6 +49,7 @@ function DevHallPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [answered, setAnswered] = useState<string[]>([]);
   const [mode, setMode] = useState<"tour" | "walk">("tour");
+  const [interactingStepId, setInteractingStepId] = useState<string | null>(null);
 
   const activeStepId = STEPS[activeIndex]?.id ?? null;
 
@@ -50,7 +68,13 @@ function DevHallPage() {
             Free walk (Phase 3)
           </Button>
         </div>
-        <TournamentHall3D steps={STEPS} activeStepId={activeStepId} answeredStepIds={answered} mode={mode} />
+        <TournamentHall3D
+          steps={STEPS}
+          activeStepId={activeStepId}
+          answeredStepIds={answered}
+          mode={mode}
+          onInteractStep={(stepId) => setInteractingStepId(stepId)}
+        />
         {mode === "tour" ? (
           <>
             <div className="flex flex-wrap gap-2">
@@ -76,9 +100,20 @@ function DevHallPage() {
           </>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Click the hall to lock the pointer, then use WASD/arrows to walk and drag the mouse to look around.
-            Collision keeps you inside the room and out of the 8 columns. Press Esc to release the pointer.
+            Click the hall to lock the pointer, use WASD/arrows to walk and drag the mouse to look around, or click
+            anywhere on the floor to auto-walk there (works without pointer lock, for accessibility). The "Walk to
+            station" buttons below the canvas are a fully keyboard-operable alternative. Board 5 (red ring) carries a
+            clock-dispute incident -- walk close enough and press E, or click the on-screen prompt, to inspect it.
           </p>
+        )}
+        {interactingStepId === "table-4" && (
+          <div className="rounded-xl border border-border bg-card p-4">
+            <IncidentPanel
+              incident={SAMPLE_INCIDENT}
+              stepId="00000000-0000-0000-0000-000000000000"
+              onDone={() => setInteractingStepId(null)}
+            />
+          </div>
         )}
       </div>
     </div>
