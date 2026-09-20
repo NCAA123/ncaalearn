@@ -1,4 +1,13 @@
-"""Procedurally generates the table+chairs kit and exports it to GLB.
+"""Generates the table+chairs kit from real modeled assets and exports GLB.
+
+Sourced (with explicit user permission) from Christophe Seux's "Classroom"
+Cycles demo scene: the standalone `teacherDesk` (a real modeled wood/metal
+desk, ~1.38 x 0.59 x 0.82m) as the tournament table, and two mirrored
+copies of the standalone `leatherChair` (a modeled office chair,
+~0.63 x 0.5 x 0.94m) facing each other across it. Deliberately does NOT
+use the scene's `schoolDesk` group -- that's a single fused desk+bench
+unit (no separable chair mesh), which doesn't fit a face-to-face
+two-player layout.
 
 Deliberately does NOT model a chess board or pieces -- Part A's own brief
 says to reuse Part B's (now complete) Three.js chess set instead of
@@ -12,76 +21,74 @@ Run with:
 import bpy
 import sys
 import os
+import mathutils
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "lib"))
-from materials import material  # noqa: E402
+CLASSROOM_BLEND = "/Users/abdulsemiuamisu/Downloads/classroom/classroom.blend"
+TEXTURES_DIR = "/Users/abdulsemiuamisu/Downloads/classroom/textures/_baseTextures"
 
-TABLE_TOP_SIZE = (1.4, 1.0, 0.05)
-TABLE_HEIGHT = 0.75
-CHAIR_SEAT_HEIGHT = 0.45
+DESK_NAME = "teacherDesk"
+CHAIR_NAME = "leatherChair"
+CHAIR_GAP = 0.55  # clearance between the desk edge and each chair
 
 
 def clear_scene():
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
-    for block in (bpy.data.meshes, bpy.data.materials):
+    for block in (bpy.data.meshes, bpy.data.materials, bpy.data.objects, bpy.data.collections):
         for item in list(block):
             if item.users == 0:
                 block.remove(item)
 
 
-def add_box(name, size, location, material_key, rotation=(0, 0, 0)):
-    bpy.ops.mesh.primitive_cube_add(size=1, location=location, rotation=rotation)
-    obj = bpy.context.active_object
-    obj.name = name
-    obj.scale = (size[0] / 2, size[1] / 2, size[2] / 2)
-    bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
-    obj.data.materials.append(material(material_key))
-    return obj
+def append_instance(name, location, rotation_z=0.0):
+    """Appends the named empty (+ its instanced collection) from the
+    classroom file and returns a REALIZED (non-instanced) copy of its mesh
+    objects so the export doesn't depend on collection-instancing support."""
+    with bpy.data.libraries.load(CLASSROOM_BLEND, link=False) as (data_from, data_to):
+        data_to.objects = [name]
+    proxy = bpy.data.objects[name]
+    bpy.context.scene.collection.objects.link(proxy)
+    proxy.location = location
+    proxy.rotation_euler = (0, 0, rotation_z)
+    bpy.context.view_layer.update()
+
+    bpy.ops.object.select_all(action="DESELECT")
+    proxy.select_set(True)
+    bpy.context.view_layer.objects.active = proxy
+    bpy.ops.object.duplicates_make_real()
+    realized = [o for o in bpy.context.selected_objects if o.type == "MESH"]
+    bpy.data.objects.remove(proxy, do_unlink=True)
+    return realized
 
 
-def build_table():
-    add_box("TableTop", TABLE_TOP_SIZE, (0, 0, TABLE_HEIGHT), "table_top")
-    leg_positions = [
-        (TABLE_TOP_SIZE[0] / 2 - 0.08, TABLE_TOP_SIZE[1] / 2 - 0.08),
-        (-(TABLE_TOP_SIZE[0] / 2 - 0.08), TABLE_TOP_SIZE[1] / 2 - 0.08),
-        (TABLE_TOP_SIZE[0] / 2 - 0.08, -(TABLE_TOP_SIZE[1] / 2 - 0.08)),
-        (-(TABLE_TOP_SIZE[0] / 2 - 0.08), -(TABLE_TOP_SIZE[1] / 2 - 0.08)),
-    ]
-    for i, (lx, ly) in enumerate(leg_positions):
-        add_box(f"TableLeg_{i}", (0.06, 0.06, TABLE_HEIGHT), (lx, ly, TABLE_HEIGHT / 2), "table_leg")
-
-
-def build_chair(name_prefix, x_offset):
-    seat_y = TABLE_TOP_SIZE[1] / 2 + 0.35
-    add_box(f"{name_prefix}_Seat", (0.42, 0.42, 0.05), (x_offset, seat_y, CHAIR_SEAT_HEIGHT), "chair_seat")
-    add_box(
-        f"{name_prefix}_Back",
-        (0.42, 0.05, 0.5),
-        (x_offset, seat_y + 0.2, CHAIR_SEAT_HEIGHT + 0.25),
-        "chair",
-    )
-    leg_positions = [
-        (x_offset - 0.17, seat_y - 0.17),
-        (x_offset + 0.17, seat_y - 0.17),
-        (x_offset - 0.17, seat_y + 0.17),
-        (x_offset + 0.17, seat_y + 0.17),
-    ]
-    for i, (lx, ly) in enumerate(leg_positions):
-        add_box(f"{name_prefix}_Leg_{i}", (0.05, 0.05, CHAIR_SEAT_HEIGHT), (lx, ly, CHAIR_SEAT_HEIGHT / 2), "chair")
+def relink_textures():
+    """The classroom file's textures use relative (`//..\\..\\textures\\...`)
+    Windows-style paths resolved against the .blend's own on-disk location --
+    meaningless once appended into this unsaved script session. Point every
+    image datablock straight at the real texture file by basename, then pack
+    so the exported GLB embeds them (no external file dependency at runtime)."""
+    for image in bpy.data.images:
+        basename = os.path.basename(image.filepath.replace("\\", "/"))
+        if not basename:
+            continue
+        real_path = os.path.join(TEXTURES_DIR, basename)
+        if os.path.isfile(real_path):
+            image.filepath = real_path
+            image.source = "FILE"
+            image.reload()
+    bpy.ops.file.pack_all()
 
 
 def main():
     clear_scene()
-    build_table()
-    # Two chairs facing each other across the table (players sit opposite).
-    build_chair("ChairA", 0)
-    # Second chair faces the opposite direction, on the other side of the table.
-    build_chair("ChairB", 0)
-    for obj in bpy.data.objects:
-        if obj.name.startswith("ChairB_"):
-            obj.location.y *= -1
-            obj.rotation_euler = (0, 0, 3.14159)
+
+    desk_objs = append_instance(DESK_NAME, (0, 0, 0))
+    # Desk's own bbox is ~1.38 x 0.59 x 0.82 -- chairs sit just outside the
+    # ~0.3m half-depth on either long side, facing inward.
+    chair_a = append_instance(CHAIR_NAME, (0, 0.3 + CHAIR_GAP, 0), rotation_z=3.14159)
+    chair_b = append_instance(CHAIR_NAME, (0, -(0.3 + CHAIR_GAP), 0), rotation_z=0.0)
+
+    relink_textures()
 
     out_path = sys.argv[-1]
     bpy.ops.object.select_all(action="SELECT")
@@ -90,6 +97,7 @@ def main():
         export_format="GLB",
         use_selection=True,
         export_apply=True,
+        export_image_format="AUTO",
     )
     print(f"TABLE_KIT_EXPORT_OK: {out_path}")
 
