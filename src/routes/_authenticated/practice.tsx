@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ChessViewer } from "@/components/learning/ChessViewer";
 import {
   getPracticeStats,
   listPracticeCategories,
@@ -157,6 +158,15 @@ function PracticePage() {
           {q.category && <Badge variant="outline">{q.category}</Badge>}
           {q.scenario_text && <p className="text-sm text-muted-foreground italic">{q.scenario_text}</p>}
           <p className="text-sm font-medium text-foreground leading-relaxed">{q.question_text}</p>
+
+          {(q.fen || q.pgn) && (
+            <div>
+              {q.board_instructions && (
+                <p className="text-xs text-muted-foreground mb-2">{q.board_instructions}</p>
+              )}
+              <ChessViewer pgn={q.pgn ?? ""} startFen={q.fen} />
+            </div>
+          )}
 
           <div className="grid gap-2">
             {choices.map((c, ci) => {

@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Chess } from "chess.js";
+import { getPieceGeometries, type PieceSymbol as StauntonPieceSymbol } from "@/lib/chess-pieces";
 
 type PieceSymbol = "p" | "n" | "b" | "r" | "q" | "k";
 type Color = "w" | "b";
@@ -89,97 +90,40 @@ function Board({ highlight }: { highlight: { from: string; to: string } | null }
   );
 }
 
-function PieceTop({
-  type,
-  y,
-  material,
-}: {
-  type: PieceSymbol;
-  y: number;
-  material: THREE.MeshStandardMaterial;
-}) {
-  switch (type) {
-    case "p":
-      return (
-        <mesh position={[0, y + 0.17, 0]} material={material} castShadow>
-          <coneGeometry args={[0.2, 0.34, 16]} />
-        </mesh>
-      );
-    case "r":
-      return (
-        <group>
-          <mesh position={[0, y + 0.16, 0]} material={material} castShadow>
-            <cylinderGeometry args={[0.26, 0.28, 0.32, 16]} />
-          </mesh>
-          <mesh position={[0, y + 0.36, 0]} material={material} castShadow>
-            <cylinderGeometry args={[0.29, 0.29, 0.08, 8]} />
-          </mesh>
-        </group>
-      );
-    case "n":
-      return (
-        <mesh position={[0, y + 0.2, 0]} rotation={[0, 0.5, 0]} material={material} castShadow>
-          <boxGeometry args={[0.24, 0.4, 0.34]} />
-        </mesh>
-      );
-    case "b":
-      return (
-        <group>
-          <mesh position={[0, y + 0.22, 0]} material={material} castShadow>
-            <coneGeometry args={[0.19, 0.44, 16]} />
-          </mesh>
-          <mesh position={[0, y + 0.48, 0]} material={material} castShadow>
-            <sphereGeometry args={[0.09, 12, 12]} />
-          </mesh>
-        </group>
-      );
-    case "q":
-      return (
-        <group>
-          <mesh position={[0, y + 0.27, 0]} material={material} castShadow>
-            <coneGeometry args={[0.22, 0.54, 16]} />
-          </mesh>
-          <mesh position={[0, y + 0.6, 0]} material={material} castShadow>
-            <sphereGeometry args={[0.13, 14, 14]} />
-          </mesh>
-        </group>
-      );
-    case "k":
-      return (
-        <group>
-          <mesh position={[0, y + 0.28, 0]} material={material} castShadow>
-            <cylinderGeometry args={[0.2, 0.24, 0.56, 16]} />
-          </mesh>
-          <mesh position={[0, y + 0.62, 0]} material={material} castShadow>
-            <boxGeometry args={[0.09, 0.18, 0.09]} />
-          </mesh>
-          <mesh position={[0, y + 0.6, 0]} material={material} castShadow>
-            <boxGeometry args={[0.2, 0.06, 0.06]} />
-          </mesh>
-        </group>
-      );
-  }
-}
+// Shared across every piece on every board on screen: one geometry per
+// piece type, one material per color. See src/lib/chess-pieces.ts for how
+// the Staunton profiles are built (LatheGeometry revolves, no external
+// models/textures needed).
+const whiteMaterial = new THREE.MeshStandardMaterial({
+  color: "#f4ecd8",
+  roughness: 0.4,
+  metalness: 0.05,
+});
+const blackMaterial = new THREE.MeshStandardMaterial({
+  color: "#2c2a28",
+  roughness: 0.4,
+  metalness: 0.05,
+});
 
 function Piece({ square, type, color }: { square: string; type: PieceSymbol; color: Color }) {
   const [x, z] = squareToXZ(square);
-  const material = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: color === "w" ? "#f4ecd8" : "#2c2a28",
-        roughness: 0.45,
-        metalness: 0.05,
-      }),
-    [color],
-  );
-  const baseHeight = 0.12;
+  const geometries = useMemo(() => getPieceGeometries(), []);
+  const geometry = geometries[type as StauntonPieceSymbol];
+  const material = color === "w" ? whiteMaterial : blackMaterial;
+  // Knight faces toward the opponent's side of the board (+z for white,
+  // -z after the set-level 180° flip for black orientation).
+  const rotationY = type === "n" ? (color === "w" ? Math.PI / 2 : -Math.PI / 2) : 0;
+
   return (
-    <group position={[x, 0.1, z]}>
-      <mesh position={[0, baseHeight / 2, 0]} material={material} castShadow>
-        <cylinderGeometry args={[0.27, 0.3, baseHeight, 16]} />
-      </mesh>
-      <PieceTop type={type} y={baseHeight} material={material} />
-    </group>
+    <mesh
+      position={[x, 0.1, z]}
+      rotation={[0, rotationY, 0]}
+      geometry={geometry}
+      material={material}
+      scale={0.72}
+      castShadow
+      receiveShadow
+    />
   );
 }
 
