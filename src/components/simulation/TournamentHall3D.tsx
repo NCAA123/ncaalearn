@@ -3,7 +3,8 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { HallShell, TableInstance } from "@/components/simulation/HallScene";
 import { HallWalkControls } from "@/components/simulation/HallWalkControls";
-import { tableX } from "@/lib/hall-layout";
+import { ArbiterPatrol } from "@/components/simulation/CharacterRig";
+import { tableX, HALL_LENGTH } from "@/lib/hall-layout";
 import { useHallQualityTier } from "@/hooks/useHallQualityTier";
 
 const DPR_BY_TIER = { low: 1, medium: 1, high: [1, 2] as [number, number] };
@@ -58,6 +59,15 @@ export function TournamentHall3D({
   const qualityTier = useHallQualityTier();
   const shadowsEnabled = qualityTier !== "low";
 
+  // Patrol path clamped to the hall's real footprint, independent of
+  // wherever tableX() happens to place the row's own ends (see NOTES.md --
+  // that spacing has no awareness of the room's fixed 30m length).
+  const patrolHalfSpan = HALL_LENGTH / 2 - 2;
+  const rawMinX = tableX(0, steps.length || 1);
+  const rawMaxX = tableX((steps.length || 1) - 1, steps.length || 1);
+  const patrolMinX = Math.max(-patrolHalfSpan, Math.min(rawMinX, rawMaxX));
+  const patrolMaxX = Math.min(patrolHalfSpan, Math.max(rawMinX, rawMaxX));
+
   // R3F's canvas-size ResizeObserver can miss the container's very first
   // layout pass when the container is sized via CSS aspect-ratio on a wide
   // box (observed: canvas stays at the browser-default 300x150 until
@@ -68,24 +78,32 @@ export function TournamentHall3D({
   }, []);
 
   return (
-    <div className="w-full aspect-[16/9] rounded-xl overflow-hidden border border-border bg-black">
-      <Canvas shadows={shadowsEnabled} dpr={DPR_BY_TIER[qualityTier]} camera={{ position: [targetX, 3.4, 5.2], fov: 55 }}>
-        <color attach="background" args={["#12100e"]} />
-        <ambientLight intensity={0.55} />
-        <directionalLight position={[4, 8, 3]} intensity={1} castShadow={shadowsEnabled} />
-        <pointLight position={[targetX, 4, 2]} intensity={0.4} />
-        <HallShell />
-        {steps.map((step, i) => (
-          <TableInstance
-            key={step.id}
-            index={i}
-            total={steps.length}
-            context={step.context}
-            state={step.id === activeStepId ? "active" : answered.has(step.id) ? "done" : "pending"}
-          />
-        ))}
-        {mode === "walk" ? <HallWalkControls startX={targetX} /> : <CameraRig targetX={targetX} />}
-      </Canvas>
+    <div>
+      <div className="w-full aspect-[16/9] rounded-xl overflow-hidden border border-border bg-black">
+        <Canvas shadows={shadowsEnabled} dpr={DPR_BY_TIER[qualityTier]} camera={{ position: [targetX, 3.4, 5.2], fov: 55 }}>
+          <color attach="background" args={["#12100e"]} />
+          <ambientLight intensity={0.55} />
+          <directionalLight position={[4, 8, 3]} intensity={1} castShadow={shadowsEnabled} />
+          <pointLight position={[targetX, 4, 2]} intensity={0.4} />
+          <HallShell />
+          {steps.map((step, i) => (
+            <TableInstance
+              key={step.id}
+              index={i}
+              total={steps.length}
+              context={step.context}
+              state={step.id === activeStepId ? "active" : answered.has(step.id) ? "done" : "pending"}
+            />
+          ))}
+          {patrolMinX < patrolMaxX && <ArbiterPatrol pathMinX={patrolMinX} pathMaxX={patrolMaxX} />}
+          {mode === "walk" ? <HallWalkControls startX={targetX} /> : <CameraRig targetX={targetX} />}
+        </Canvas>
+      </div>
+      {patrolMinX < patrolMaxX && (
+        <p className="text-[10px] text-muted-foreground/70 px-2 py-1 text-right">
+          Arbiter figure: "CesiumMan" by Cesium, CC BY 4.0
+        </p>
+      )}
     </div>
   );
 }
