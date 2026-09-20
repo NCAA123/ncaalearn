@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { HallShell, TableInstance } from "@/components/simulation/HallScene";
+import { HallWalkControls } from "@/components/simulation/HallWalkControls";
 import { tableX } from "@/lib/hall-layout";
 
 export type HallStep = {
@@ -28,19 +29,22 @@ function CameraRig({ targetX }: { targetX: number }) {
   return null;
 }
 
-// A stylised, walkable-in-spirit hall: the camera glides between numbered
-// "stations" (tables) as the candidate progresses through a scenario's
-// steps. No character model or WASD movement -- the camera itself is the
-// candidate's viewpoint, which keeps this a robust prototype rather than a
-// full 3D game (no collision/physics to get wrong).
+// "tour" (default): the camera glides between numbered "stations" (tables)
+// as the candidate progresses through a scenario's steps -- reliable for a
+// graded walkthrough since the camera always reaches every step. "walk":
+// free first-person WASD movement with collision against the hall's walls
+// and columns (Phase 3), used by /dev/hall's QA toggle -- not wired into
+// the scenario flow since a candidate wandering off mid-exam is undesirable.
 export function TournamentHall3D({
   steps,
   activeStepId,
   answeredStepIds,
+  mode = "tour",
 }: {
   steps: HallStep[];
   activeStepId: string | null;
   answeredStepIds: string[];
+  mode?: "tour" | "walk";
 }) {
   const activeIndex = Math.max(
     0,
@@ -75,7 +79,7 @@ export function TournamentHall3D({
             state={step.id === activeStepId ? "active" : answered.has(step.id) ? "done" : "pending"}
           />
         ))}
-        <CameraRig targetX={targetX} />
+        {mode === "walk" ? <HallWalkControls startX={targetX} /> : <CameraRig targetX={targetX} />}
       </Canvas>
     </div>
   );
