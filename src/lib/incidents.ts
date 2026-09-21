@@ -7,6 +7,8 @@
 // authoritative FIDE ruling: every response is recorded for chief-arbiter
 // review, never auto-graded correct/incorrect.
 
+import { scorePrioritization, type TimelineEvent } from "./incident-timeline";
+
 export type IncidentCategory =
   | "touch_move_dispute"
   | "clock_dispute"
@@ -91,11 +93,18 @@ export type SimulationResult = {
 // Pure aggregation -- no side effects, so it's trivially unit-testable and
 // reusable from any caller (a dev QA page today; a real timed session
 // later) without depending on how the records were collected.
+//
+// timelineEvents is optional: pass it when the run went through a real
+// incident-timeline.ts schedule (see /dev/timeline) to get a real
+// prioritizationScore via scorePrioritization(); omit it (the
+// walk-up/patrol/small-live-round content today has no timeline) and it
+// stays null rather than guessed.
 export function buildSimulationResult(
   scenarioId: string,
   mode: IncidentMode,
   startedAt: string,
   records: IncidentAttemptRecord[],
+  timelineEvents?: TimelineEvent[],
 ): SimulationResult {
   const responseTimes = records.map((r) => r.respondedAtMs - r.presentedAtMs);
   const averageResponseTimeMs =
@@ -103,6 +112,13 @@ export function buildSimulationResult(
 
   const noticedFlags = records.map((r) => r.noticedUnprompted).filter((v): v is boolean => v !== null);
   const observationScore = noticedFlags.length > 0 ? noticedFlags.filter(Boolean).length / noticedFlags.length : null;
+
+  const prioritizationScore = timelineEvents
+    ? scorePrioritization(
+        timelineEvents,
+        records.map((r) => ({ incidentId: r.incidentId, respondedAtMs: r.respondedAtMs })),
+      )
+    : null;
 
   return {
     scenarioId,
@@ -114,6 +130,6 @@ export function buildSimulationResult(
     ruleAccuracy: null,
     averageResponseTimeMs,
     observationScore,
-    prioritizationScore: null,
+    prioritizationScore,
   };
 }

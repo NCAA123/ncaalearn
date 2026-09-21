@@ -39,6 +39,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 import { Route as AuthenticatedSimulationsScenarioIdRouteImport } from './routes/_authenticated/simulations.$scenarioId'
 import { Route as AuthenticatedSeminarsIdRouteImport } from './routes/_authenticated/seminars.$id'
+import { Route as AuthenticatedDevTimelineRouteImport } from './routes/_authenticated/dev.timeline'
 import { Route as AuthenticatedDevIncidentRouteImport } from './routes/_authenticated/dev.incident'
 import { Route as AuthenticatedDevHallRouteImport } from './routes/_authenticated/dev.hall'
 import { Route as AuthenticatedDevBoardRouteImport } from './routes/_authenticated/dev.board'
@@ -226,6 +227,12 @@ const AuthenticatedSeminarsIdRoute = AuthenticatedSeminarsIdRouteImport.update({
   path: '/seminars/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDevTimelineRoute =
+  AuthenticatedDevTimelineRouteImport.update({
+    id: '/dev/timeline',
+    path: '/dev/timeline',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDevIncidentRoute =
   AuthenticatedDevIncidentRouteImport.update({
     id: '/dev/incident',
@@ -450,6 +457,7 @@ export interface FileRoutesByFullPath {
   '/dev/board': typeof AuthenticatedDevBoardRoute
   '/dev/hall': typeof AuthenticatedDevHallRoute
   '/dev/incident': typeof AuthenticatedDevIncidentRoute
+  '/dev/timeline': typeof AuthenticatedDevTimelineRoute
   '/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/simulations/$scenarioId': typeof AuthenticatedSimulationsScenarioIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
@@ -512,6 +520,7 @@ export interface FileRoutesByTo {
   '/dev/board': typeof AuthenticatedDevBoardRoute
   '/dev/hall': typeof AuthenticatedDevHallRoute
   '/dev/incident': typeof AuthenticatedDevIncidentRoute
+  '/dev/timeline': typeof AuthenticatedDevTimelineRoute
   '/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/simulations/$scenarioId': typeof AuthenticatedSimulationsScenarioIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
@@ -576,6 +585,7 @@ export interface FileRoutesById {
   '/_authenticated/dev/board': typeof AuthenticatedDevBoardRoute
   '/_authenticated/dev/hall': typeof AuthenticatedDevHallRoute
   '/_authenticated/dev/incident': typeof AuthenticatedDevIncidentRoute
+  '/_authenticated/dev/timeline': typeof AuthenticatedDevTimelineRoute
   '/_authenticated/seminars/$id': typeof AuthenticatedSeminarsIdRoute
   '/_authenticated/simulations/$scenarioId': typeof AuthenticatedSimulationsScenarioIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
@@ -640,6 +650,7 @@ export interface FileRouteTypes {
     | '/dev/board'
     | '/dev/hall'
     | '/dev/incident'
+    | '/dev/timeline'
     | '/seminars/$id'
     | '/simulations/$scenarioId'
     | '/api/public/bootstrap-admin'
@@ -702,6 +713,7 @@ export interface FileRouteTypes {
     | '/dev/board'
     | '/dev/hall'
     | '/dev/incident'
+    | '/dev/timeline'
     | '/seminars/$id'
     | '/simulations/$scenarioId'
     | '/api/public/bootstrap-admin'
@@ -765,6 +777,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dev/board'
     | '/_authenticated/dev/hall'
     | '/_authenticated/dev/incident'
+    | '/_authenticated/dev/timeline'
     | '/_authenticated/seminars/$id'
     | '/_authenticated/simulations/$scenarioId'
     | '/api/public/bootstrap-admin'
@@ -1007,6 +1020,13 @@ declare module '@tanstack/react-router' {
       path: '/seminars/$id'
       fullPath: '/seminars/$id'
       preLoaderRoute: typeof AuthenticatedSeminarsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dev/timeline': {
+      id: '/_authenticated/dev/timeline'
+      path: '/dev/timeline'
+      fullPath: '/dev/timeline'
+      preLoaderRoute: typeof AuthenticatedDevTimelineRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dev/incident': {
@@ -1307,6 +1327,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDevBoardRoute: typeof AuthenticatedDevBoardRoute
   AuthenticatedDevHallRoute: typeof AuthenticatedDevHallRoute
   AuthenticatedDevIncidentRoute: typeof AuthenticatedDevIncidentRoute
+  AuthenticatedDevTimelineRoute: typeof AuthenticatedDevTimelineRoute
   AuthenticatedSeminarsIdRoute: typeof AuthenticatedSeminarsIdRoute
   AuthenticatedSimulationsScenarioIdRoute: typeof AuthenticatedSimulationsScenarioIdRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -1361,6 +1382,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDevBoardRoute: AuthenticatedDevBoardRoute,
   AuthenticatedDevHallRoute: AuthenticatedDevHallRoute,
   AuthenticatedDevIncidentRoute: AuthenticatedDevIncidentRoute,
+  AuthenticatedDevTimelineRoute: AuthenticatedDevTimelineRoute,
   AuthenticatedSeminarsIdRoute: AuthenticatedSeminarsIdRoute,
   AuthenticatedSimulationsScenarioIdRoute:
     AuthenticatedSimulationsScenarioIdRoute,
