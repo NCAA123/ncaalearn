@@ -43,3 +43,77 @@ export type IncidentResult = {
   submittedOptionId: string;
   timeTakenMs: number;
 };
+
+// Phase 5's two run modes, as a flag only (both currently behave the same
+// mechanically -- assessed mode's job is purely to withhold feedback, see
+// IncidentPanel.tsx). A per-run choice, not per-incident.
+export type IncidentMode = "practice" | "assessed";
+
+// One completed incident interaction, timestamped so a session's worth of
+// these can be aggregated into a SimulationResult. Built by whatever calls
+// IncidentPanel with an onRecorded callback (see /dev/hall, /dev/incident).
+export type IncidentAttemptRecord = {
+  incidentId: string; // the step id the incident came from
+  category: IncidentCategory;
+  respondedOptionId: string;
+  presentedAtMs: number; // when the panel first opened (Date.now())
+  respondedAtMs: number; // when the response was submitted
+  // True if the candidate opened this incident's panel without having just
+  // been routed there by a forced "next station" flow -- i.e. they noticed
+  // and walked up on their own. Only meaningful once a real timeline/
+  // trigger system exists (Phase 5's "overlapping incidents" runner isn't
+  // built yet); until then this is always null, not a guessed value.
+  noticedUnprompted: boolean | null;
+};
+
+// The brief's own explicit requirement: "produces a clean, structured
+// result object that can be wired in later" -- certificates/CPD wiring is
+// out of scope for this pass, so this type is the deliverable itself, not
+// a stub. decisionAccuracy/ruleAccuracy stay null rather than a guessed
+// number: per this repo's no-invented-rulings rule, there is no verified
+// correct answer to score an incident response against yet (every
+// Incident.options list is a draft pending chief-arbiter review) -- filling
+// these in requires real verified rulings to exist first, which is
+// explicitly later work, not something to fake here.
+export type SimulationResult = {
+  scenarioId: string;
+  mode: IncidentMode;
+  startedAt: string; // ISO timestamp
+  completedAt: string; // ISO timestamp
+  incidentsHandled: IncidentAttemptRecord[];
+  decisionAccuracy: number | null;
+  ruleAccuracy: number | null;
+  averageResponseTimeMs: number | null;
+  observationScore: number | null; // fraction noticed unprompted, once meaningful
+  prioritizationScore: number | null; // requires overlapping-incident timeline, not built yet
+};
+
+// Pure aggregation -- no side effects, so it's trivially unit-testable and
+// reusable from any caller (a dev QA page today; a real timed session
+// later) without depending on how the records were collected.
+export function buildSimulationResult(
+  scenarioId: string,
+  mode: IncidentMode,
+  startedAt: string,
+  records: IncidentAttemptRecord[],
+): SimulationResult {
+  const responseTimes = records.map((r) => r.respondedAtMs - r.presentedAtMs);
+  const averageResponseTimeMs =
+    responseTimes.length > 0 ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length) : null;
+
+  const noticedFlags = records.map((r) => r.noticedUnprompted).filter((v): v is boolean => v !== null);
+  const observationScore = noticedFlags.length > 0 ? noticedFlags.filter(Boolean).length / noticedFlags.length : null;
+
+  return {
+    scenarioId,
+    mode,
+    startedAt,
+    completedAt: new Date().toISOString(),
+    incidentsHandled: records,
+    decisionAccuracy: null,
+    ruleAccuracy: null,
+    averageResponseTimeMs,
+    observationScore,
+    prioritizationScore: null,
+  };
+}

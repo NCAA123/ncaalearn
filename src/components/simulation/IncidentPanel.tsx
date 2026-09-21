@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { InteractiveBoard } from "@/components/learning/InteractiveBoard";
 import { formatClock } from "@/lib/chess-clock";
 import { submitIncidentResponse } from "@/lib/incident.functions";
-import type { Incident } from "@/lib/incidents";
+import type { Incident, IncidentAttemptRecord, IncidentMode } from "@/lib/incidents";
 
 const CATEGORY_LABEL: Record<Incident["category"], string> = {
   touch_move_dispute: "Touch-move dispute",
@@ -22,18 +22,53 @@ const CATEGORY_LABEL: Record<Incident["category"], string> = {
 // context, and response options. Every response is recorded as
 // needs-review, never graded correct/incorrect -- an incident is a
 // judgment call, not a mechanically gradable puzzle (see incidents.ts).
-export function IncidentPanel({ incident, stepId, onDone }: { incident: Incident; stepId: string; onDone: () => void }) {
+//
+// mode="practice" (default) shows the "recorded" confirmation and the
+// draft article references immediately. mode="assessed" withholds both
+// per the brief's "no hints or highlights, no feedback until the end" --
+// it still records the response (via onRecorded) but advances straight to
+// the next station without telling the candidate anything about how they
+// did.
+export function IncidentPanel({
+  incident,
+  stepId,
+  mode = "practice",
+  onDone,
+  onRecorded,
+}: {
+  incident: Incident;
+  stepId: string;
+  mode?: IncidentMode;
+  onDone: () => void;
+  onRecorded?: (record: IncidentAttemptRecord) => void;
+}) {
   const [selected, setSelected] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const startedAt = useRef(Date.now());
+  const presentedAt = useRef(Date.now());
 
   const submitFn = useServerFn(submitIncidentResponse);
   const submit = useMutation({
     mutationFn: () => {
       if (!selected) throw new Error("Select a response first");
-      return submitFn({ data: { stepId, optionId: selected, startedAt: startedAt.current } });
+      return submitFn({ data: { stepId, optionId: selected, startedAt: presentedAt.current } });
     },
-    onSuccess: () => setSubmitted(true),
+    onSuccess: () => {
+      if (selected) {
+        onRecorded?.({
+          incidentId: stepId,
+          category: incident.category,
+          respondedOptionId: selected,
+          presentedAtMs: presentedAt.current,
+          respondedAtMs: Date.now(),
+          noticedUnprompted: null,
+        });
+      }
+      if (mode === "assessed") {
+        onDone();
+      } else {
+        setSubmitted(true);
+      }
+    },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to submit incident response."),
   });
 
@@ -85,7 +120,9 @@ export function IncidentPanel({ incident, stepId, onDone }: { incident: Incident
         ))}
       </div>
 
-      {incident.articleRefs && incident.articleRefs.length > 0 && (
+      {/* Draft reference points read as a hint toward a specific ruling, so
+          assessed mode withholds them same as the post-submit feedback. */}
+      {mode === "practice" && incident.articleRefs && incident.articleRefs.length > 0 && (
         <p className="text-[11px] text-muted-foreground italic">
           Reference points for chief-arbiter review (draft, not yet verified): {incident.articleRefs.join("; ")}
         </p>
