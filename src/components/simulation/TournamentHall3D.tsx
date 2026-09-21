@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { EffectComposer, N8AO, Bloom, ToneMapping, SMAA } from "@react-three/postprocessing";
+import { ToneMappingMode } from "postprocessing";
 import * as THREE from "three";
 import { HallShell, TableInstance } from "@/components/simulation/HallScene";
 import { HallWalkControls, type WalkApi } from "@/components/simulation/HallWalkControls";
@@ -32,6 +34,23 @@ function CameraRig({ targetX }: { targetX: number }) {
   });
 
   return null;
+}
+
+// N8AO (ambient occlusion) + a light bloom pass tuned for the ceiling's
+// emissive light panels + ACES filmic tone mapping + SMAA. Skipped
+// entirely on "low" quality tier -- per the brief's own perf budget,
+// low-tier devices get no post-processing at all, not a cheaper version
+// of it.
+function HallPostFX({ tier }: { tier: "low" | "medium" | "high" }) {
+  if (tier === "low") return null;
+  return (
+    <EffectComposer multisampling={tier === "high" ? 4 : 0}>
+      <N8AO aoRadius={1.2} intensity={tier === "high" ? 1.5 : 1} quality={tier === "high" ? "high" : "medium"} />
+      <Bloom intensity={0.4} luminanceThreshold={0.85} luminanceSmoothing={0.3} mipmapBlur />
+      <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+      <SMAA />
+    </EffectComposer>
+  );
 }
 
 // "tour" (default): the camera glides between numbered "stations" (tables)
@@ -115,6 +134,7 @@ export function TournamentHall3D({
           ) : (
             <CameraRig targetX={targetX} />
           )}
+          <HallPostFX tier={qualityTier} />
         </Canvas>
       </div>
       {mode === "walk" && (
