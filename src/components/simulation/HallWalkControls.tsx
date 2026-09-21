@@ -3,6 +3,9 @@ import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { PointerLockControls, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { HALL_LENGTH, HALL_WIDTH, COLUMNS, COLUMN_RADIUS } from "@/lib/hall-layout";
+import type { TouchControlState } from "@/components/simulation/HallTouchControls";
+
+const PITCH_LIMIT = Math.PI / 2 - 0.05;
 
 const WALK_SPEED = 3.2; // m/s, roughly a brisk walk
 const AUTO_WALK_SPEED = 2.6; // slightly slower for click-to-walk, reads as deliberate
@@ -85,11 +88,13 @@ export function HallWalkControls({
   tables = [],
   onInteract,
   onReady,
+  touchState,
 }: {
   startX: number;
   tables?: InteractableTable[];
   onInteract?: (stepId: string) => void;
   onReady?: (api: WalkApi) => void;
+  touchState?: TouchControlState;
 }) {
   const { camera } = useThree();
   const pressed = useRef<Set<string>>(new Set());
@@ -138,6 +143,22 @@ export function HallWalkControls({
   }, []);
 
   useFrame((_, delta) => {
+    // Touch look: consume whatever drag delta accumulated since last frame
+    // (HallTouchControls writes into the same ref from outside the
+    // Canvas). Applied via an explicit YXZ Euler, the same decomposition
+    // PointerLockControls uses internally, so combining the two on the
+    // same camera never fights over rotation order.
+    if (touchState && (touchState.lookDeltaX !== 0 || touchState.lookDeltaY !== 0)) {
+      const euler = new THREE.Euler(0, 0, 0, "YXZ");
+      euler.setFromQuaternion(camera.quaternion, "YXZ");
+      euler.y -= touchState.lookDeltaX;
+      euler.x -= touchState.lookDeltaY;
+      euler.x = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, euler.x));
+      camera.quaternion.setFromEuler(euler);
+      touchState.lookDeltaX = 0;
+      touchState.lookDeltaY = 0;
+    }
+
     let moveRight = 0;
     let moveForward = 0;
     for (const code of pressed.current) {
@@ -147,13 +168,22 @@ export function HallWalkControls({
         moveForward += axis[1];
       }
     }
+    if (touchState?.move) {
+      moveRight += touchState.move.x;
+      moveForward += touchState.move.z;
+    }
 
     if (moveRight !== 0 || moveForward !== 0) {
       // Manual movement cancels any pending auto-walk.
       walkTarget.current = null;
-      const len = Math.hypot(moveRight, moveForward) || 1;
-      moveRight /= len;
-      moveForward /= len;
+      // Only clamp to unit length when it's exceeded (diagonal keyboard
+      // input) -- a partially-thrown analog joystick should move slower,
+      // not snap to full speed.
+      const len = Math.hypot(moveRight, moveForward);
+      if (len > 1) {
+        moveRight /= len;
+        moveForward /= len;
+      }
 
       const forward = new THREE.Vector3();
       camera.getWorldDirection(forward);

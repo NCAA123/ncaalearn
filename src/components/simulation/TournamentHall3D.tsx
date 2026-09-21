@@ -5,6 +5,7 @@ import { ToneMappingMode } from "postprocessing";
 import * as THREE from "three";
 import { HallShell, TableInstance } from "@/components/simulation/HallScene";
 import { HallWalkControls, type WalkApi } from "@/components/simulation/HallWalkControls";
+import { HallTouchControls, createTouchControlState } from "@/components/simulation/HallTouchControls";
 import { ArbiterPatrol } from "@/components/simulation/CharacterRig";
 import { tableX, HALL_LENGTH } from "@/lib/hall-layout";
 import { useHallQualityTier } from "@/hooks/useHallQualityTier";
@@ -81,6 +82,7 @@ export function TournamentHall3D({
   const qualityTier = useHallQualityTier();
   const shadowsEnabled = qualityTier !== "low";
   const [walkApi, setWalkApi] = useState<WalkApi | null>(null);
+  const touchState = useRef(createTouchControlState()).current;
 
   const interactableTables = useMemo(
     () => steps.map((step, i) => ({ stepId: step.id, x: tableX(i, steps.length || 1), z: 0 })),
@@ -107,7 +109,7 @@ export function TournamentHall3D({
 
   return (
     <div>
-      <div className="w-full aspect-[16/9] rounded-xl overflow-hidden border border-border bg-black">
+      <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border border-border bg-black">
         <Canvas shadows={shadowsEnabled} dpr={DPR_BY_TIER[qualityTier]} camera={{ position: [targetX, 3.4, 5.2], fov: 55 }}>
           <color attach="background" args={["#12100e"]} />
           <ambientLight intensity={0.55} />
@@ -130,12 +132,18 @@ export function TournamentHall3D({
               tables={interactableTables}
               onInteract={onInteractStep}
               onReady={setWalkApi}
+              touchState={touchState}
             />
           ) : (
             <CameraRig targetX={targetX} />
           )}
           <HallPostFX tier={qualityTier} />
         </Canvas>
+        {/* Mobile dual-zone controls (Phase 3's own explicit ask): left-half
+            drag is a virtual joystick, right-half drag looks around. Purely
+            additive over the DOM -- desktop WASD/pointer-lock inside the
+            Canvas is untouched, both write into the same shared ref. */}
+        {mode === "walk" && <HallTouchControls state={touchState} />}
       </div>
       {mode === "walk" && (
         <div className="flex flex-wrap gap-1.5 px-2 py-2">
