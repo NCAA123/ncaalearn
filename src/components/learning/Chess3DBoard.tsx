@@ -12,6 +12,7 @@ import {
   type PieceFlight,
   type PieceFade,
 } from "@/lib/chess-pieces";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 type PieceSymbol = "p" | "n" | "b" | "r" | "q" | "k";
 type Color = "w" | "b";
@@ -310,13 +311,6 @@ function FadingPiece({ fade, onDone }: { fade: PieceFade; onDone: () => void }) 
 // the tournament hall — can embed at any position/scale. Not wrapped in its
 // own <Canvas>: <Canvas> elements can't nest, so anything placing this
 // inside a bigger scene must already be inside one.
-function usePrefersReducedMotion() {
-  return useMemo(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return false;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  }, []);
-}
-
 export type ChessMove = { from: string; to: string; promotion?: string };
 
 export function ChessSet({

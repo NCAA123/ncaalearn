@@ -32,7 +32,17 @@ function useClonedCharacter() {
 // FigurePair) pending a dedicated seated-pose asset; modeling/sourcing a
 // full cast (players, spectators, distinct arbiter poses) is future work,
 // not this pass's scope.
-export function ArbiterPatrol({ pathMinX, pathMaxX, z = 2.5 }: { pathMinX: number; pathMaxX: number; z?: number }) {
+export function ArbiterPatrol({
+  pathMinX,
+  pathMaxX,
+  z = 2.5,
+  reducedMotion = false,
+}: {
+  pathMinX: number;
+  pathMaxX: number;
+  z?: number;
+  reducedMotion?: boolean;
+}) {
   const { scene, animations } = useClonedCharacter();
   const group = useRef<THREE.Group>(null);
   const { actions, mixer } = useAnimations(animations, group);
@@ -40,20 +50,29 @@ export function ArbiterPatrol({ pathMinX, pathMaxX, z = 2.5 }: { pathMinX: numbe
 
   useEffect(() => {
     const first = animations[0]?.name;
-    if (first && actions[first]) {
+    // Continuous back-and-forth walking is exactly the kind of motion
+    // prefers-reduced-motion asks pages to avoid -- freeze at a static
+    // standing pose (mid-path, first animation frame) instead of playing
+    // the walk cycle on a loop.
+    if (first && actions[first] && !reducedMotion) {
       actions[first].reset().play();
     }
     return () => {
       mixer.stopAllAction();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [actions]);
+  }, [actions, reducedMotion]);
 
   const span = Math.max(pathMaxX - pathMinX, 0.001);
   const cycleSeconds = 12; // one full back-and-forth walk
 
   useFrame((_, delta) => {
     if (!group.current) return;
+    if (reducedMotion) {
+      group.current.position.set(pathMinX + span / 2, 0, z);
+      group.current.rotation.y = Math.PI / 2;
+      return;
+    }
     t.current = (t.current + delta / cycleSeconds) % 1;
     // Triangle wave 0->1->0 across the path so the figure walks, turns,
     // and walks back rather than teleporting at the ends.

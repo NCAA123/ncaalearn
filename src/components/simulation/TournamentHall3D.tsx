@@ -9,6 +9,7 @@ import { HallTouchControls, createTouchControlState } from "@/components/simulat
 import { ArbiterPatrol } from "@/components/simulation/CharacterRig";
 import { tableX, HALL_LENGTH } from "@/lib/hall-layout";
 import { useHallQualityTier } from "@/hooks/useHallQualityTier";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { Button } from "@/components/ui/button";
 
 const DPR_BY_TIER = { low: 1, medium: 1, high: [1, 2] as [number, number] };
@@ -19,7 +20,7 @@ export type HallStep = {
   context: { fen?: string; incidentType?: string; incident?: { category: string } } | null;
 };
 
-function CameraRig({ targetX }: { targetX: number }) {
+function CameraRig({ targetX, reducedMotion }: { targetX: number; reducedMotion: boolean }) {
   const { camera } = useThree();
   const desired = useRef(new THREE.Vector3(targetX, 3.4, 5.2));
   const lookAt = useRef(new THREE.Vector3(targetX, 0.8, 0));
@@ -27,9 +28,17 @@ function CameraRig({ targetX }: { targetX: number }) {
   useEffect(() => {
     desired.current.set(targetX, 3.4, 5.2);
     lookAt.current.set(targetX, 0.8, 0);
-  }, [targetX]);
+    // The smooth per-frame pan below is exactly the kind of continuous
+    // camera motion prefers-reduced-motion asks pages to avoid -- snap
+    // straight to the target station instead of gliding there.
+    if (reducedMotion) {
+      camera.position.copy(desired.current);
+      camera.lookAt(lookAt.current);
+    }
+  }, [targetX, reducedMotion, camera]);
 
   useFrame(() => {
+    if (reducedMotion) return;
     camera.position.lerp(desired.current, 0.06);
     camera.lookAt(lookAt.current);
   });
@@ -81,6 +90,7 @@ export function TournamentHall3D({
   const answered = useMemo(() => new Set(answeredStepIds), [answeredStepIds]);
   const qualityTier = useHallQualityTier();
   const shadowsEnabled = qualityTier !== "low";
+  const reducedMotion = usePrefersReducedMotion();
   const [walkApi, setWalkApi] = useState<WalkApi | null>(null);
   const touchState = useRef(createTouchControlState()).current;
 
@@ -125,7 +135,9 @@ export function TournamentHall3D({
               state={step.id === activeStepId ? "active" : answered.has(step.id) ? "done" : "pending"}
             />
           ))}
-          {patrolMinX < patrolMaxX && <ArbiterPatrol pathMinX={patrolMinX} pathMaxX={patrolMaxX} />}
+          {patrolMinX < patrolMaxX && (
+            <ArbiterPatrol pathMinX={patrolMinX} pathMaxX={patrolMaxX} reducedMotion={reducedMotion} />
+          )}
           {mode === "walk" ? (
             <HallWalkControls
               startX={targetX}
@@ -135,7 +147,7 @@ export function TournamentHall3D({
               touchState={touchState}
             />
           ) : (
-            <CameraRig targetX={targetX} />
+            <CameraRig targetX={targetX} reducedMotion={reducedMotion} />
           )}
           <HallPostFX tier={qualityTier} />
         </Canvas>
