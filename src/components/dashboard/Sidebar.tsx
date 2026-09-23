@@ -50,15 +50,10 @@ export function Sidebar() {
     { to: "/admin/seminars", label: "Seminars", icon: GraduationCap, permission: ["seminars.manage", "seminars.manage.assigned"] },
     { to: "/admin/exams", label: "Exams", icon: FileQuestion, permission: ["exams.manage", "exams.create"] },
     { to: "/admin/questions", label: "Question Bank", icon: ListChecks, permission: ["questions.manage", "questions.create", "questions.edit.own"] },
-    // Grading/Certificates/CPD Review aren't gated on a permission key yet --
-    // academy_role_permissions doesn't grant exams.grade.manual,
-    // certificates.manage or cpd.manage to `instructor` today even though
-    // their routes allow isStaff. Once an admin seeds those grants (see
-    // NOTES), swap these to `permission:` like the items above.
-    { to: "/admin/grading", label: "Grading Queue", icon: ClipboardCheck },
-    { to: "/admin/certificates", label: "Certificates", icon: Award },
+    { to: "/admin/grading", label: "Grading Queue", icon: ClipboardCheck, permission: ["exams.manage", "exams.grade.manual", "assessments.manual_grade"] },
+    { to: "/admin/certificates", label: "Certificates", icon: Award, permission: ["certificates.manage"] },
     { to: "/admin/licenses", label: "Licenses", icon: IdCard },
-    { to: "/admin/cpd", label: "CPD Review", icon: BadgeCheck },
+    { to: "/admin/cpd", label: "CPD Review", icon: BadgeCheck, permission: ["cpd.manage"] },
     { to: "/admin/resources", label: "Resources", icon: FolderOpen, permission: ["resources.upload"] },
     { to: "/admin/reports", label: "Reports", icon: TrendingUp, permission: ["reports.all", "reports.view.courses", "reports.view.exams"] },
   ];
