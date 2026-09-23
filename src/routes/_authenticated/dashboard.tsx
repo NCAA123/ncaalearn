@@ -381,7 +381,7 @@ function AdminDashboard() {
 
   return (
     <>
-      <PageHeader title="System overview" description="High-level health of NCAA Academy." action={<Button asChild><Link to="/admin/announcements">New announcement</Link></Button>} />
+      <PageHeader title="System overview" description="High-level health of NCAA Academy." action={<Button asChild><a href="https://nigarbadminapp.vercel.app/admin/academy/announcements" target="_blank" rel="noreferrer">New announcement</a></Button>} />
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <StatCard label="Total users" value={data?.users ?? 0} icon={Users} />
@@ -459,10 +459,11 @@ function AdminDashboard() {
 
       <Panel title="Quick actions">
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm"><Link to="/admin/announcements">Create announcement</Link></Button>
+          <Button asChild variant="outline" size="sm"><a href="https://nigarbadminapp.vercel.app/admin/academy/announcements" target="_blank" rel="noreferrer">Create announcement</a></Button>
           <Button asChild variant="outline" size="sm"><Link to="/admin/resources">Upload resource</Link></Button>
           <Button asChild variant="outline" size="sm"><Link to="/admin/seminars">Schedule seminar</Link></Button>
           <Button asChild variant="outline" size="sm"><Link to="/admin/reports">Generate report</Link></Button>
+          <Button asChild variant="outline" size="sm"><a href="https://nigarbadminapp.vercel.app/admin/academy" target="_blank" rel="noreferrer">Open NCAA Command Center →</a></Button>
         </div>
       </Panel>
     </>

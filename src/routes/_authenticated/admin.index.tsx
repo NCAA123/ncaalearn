@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Users, BookOpen, GraduationCap, FileQuestion, Award, Megaphone, ClipboardList } from "lucide-react";
+import { Users, BookOpen, GraduationCap, FileQuestion, Award, Megaphone, ClipboardList, ExternalLink } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { getAdminStats } from "@/lib/admin.functions";
@@ -50,14 +50,35 @@ function AdminOverview() {
 
       <h2 className="mt-10 mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Manage</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <AdminLink to="/admin/users" title="Users & roles" desc="View users, assign roles, deactivate accounts." />
         <AdminLink to="/admin/courses" title="Courses" desc="Create, publish and manage course content." />
         <AdminLink to="/admin/seminars" title="Seminars" desc="Schedule and run live training events." />
         <AdminLink to="/admin/exams" title="Examinations" desc="Question bank, exam configuration and review." />
         <AdminLink to="/admin/certificates" title="Certificates" desc="Issue and revoke achievement certificates." />
-        <AdminLink to="/admin/announcements" title="Announcements" desc="Broadcast platform-wide messages." />
-        {isAdmin && <AdminLink to="/admin/settings" title="Settings" desc="System configuration." />}
+        <AdminLink to="/admin/resources" title="Resources" desc="Upload and manage the resource library." />
+        <AdminLink to="/admin/reports" title="Reports" desc="Course, exam and enrollment reporting." />
       </div>
+
+      {isAdmin && (
+        <>
+          <h2 className="mt-10 mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            NCAA-wide administration
+          </h2>
+          <a
+            href="https://nigarbadminapp.vercel.app/admin/academy"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 hover:border-primary/40 hover:shadow-[var(--shadow-card)] transition"
+          >
+            <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+            <div>
+              <div className="font-semibold text-foreground">NCAA Command Center</div>
+              <div className="mt-1 text-sm text-muted-foreground">
+                Users &amp; roles, permissions, compliance, mentorship, promotions, simulations, announcements and settings now live here.
+              </div>
+            </div>
+          </a>
+        </>
+      )}
     </div>
   );
 }

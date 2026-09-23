@@ -1,12 +1,20 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ShieldCheck, Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, Users, Settings, Megaphone, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp, Trophy, BookMarked, Search, Boxes, Handshake } from "lucide-react";
+import { Crown, LayoutDashboard, BookOpen, GraduationCap, FileQuestion, Award, IdCard, BarChart3, FolderOpen, Bell, ListChecks, User, PlayCircle, ClipboardCheck, BadgeCheck, TrendingUp, Trophy, BookMarked, Search, Boxes, Handshake, ExternalLink } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
-type Item = { to: string; label: string; icon: typeof LayoutDashboard };
+type Item = { to: string; label: string; icon: typeof LayoutDashboard; permission?: string[] };
+
+// NCAA-wide Academy administration (users & roles, permissions matrix,
+// compliance, mentorship, simulations, promotions, announcements, settings)
+// now lives in the NCAA Command Center, not here -- this app's own
+// "Administration" section is instructor-scoped teaching/grading tooling,
+// gated per-item by the instructor's actual academy_permissions grants
+// rather than a blanket staff/admin split.
+const COMMAND_CENTER_URL = "https://nigarbadminapp.vercel.app/admin/academy";
 
 export function Sidebar() {
-  const { isStaff, isAdmin, isLicensedArbiter } = useAuth();
+  const { isStaff, isAdmin, isLicensedArbiter, canAny } = useAuth();
   const { location } = useRouterState();
 
   const learner: Item[] = [
@@ -31,29 +39,34 @@ export function Sidebar() {
   // Anyone can view their progression path (candidates see how to become NA).
   learner.push({ to: "/promotions", label: "Promotions", icon: TrendingUp });
 
-  const staff: Item[] = [
+  // Each item's permission (when set) mirrors the real academy_permissions
+  // keys backing that page's server functions -- an instructor only sees
+  // what they can actually do, instead of the old blanket "any staff sees
+  // every admin route" list. Items with no `permission` fall back to the
+  // isStaff floor (matches their route's own `assertStaff` gate).
+  const allStaffItems: Item[] = [
     { to: "/admin", label: "Admin Overview", icon: BarChart3 },
-    { to: "/admin/users", label: "Users", icon: Users },
-    { to: "/admin/courses", label: "Courses", icon: BookOpen },
-    { to: "/admin/seminars", label: "Seminars", icon: GraduationCap },
-    { to: "/admin/exams", label: "Exams", icon: FileQuestion },
-    { to: "/admin/questions", label: "Question Bank", icon: ListChecks },
+    { to: "/admin/courses", label: "Courses", icon: BookOpen, permission: ["courses.manage", "courses.create", "courses.edit.own"] },
+    { to: "/admin/seminars", label: "Seminars", icon: GraduationCap, permission: ["seminars.manage", "seminars.manage.assigned"] },
+    { to: "/admin/exams", label: "Exams", icon: FileQuestion, permission: ["exams.manage", "exams.create"] },
+    { to: "/admin/questions", label: "Question Bank", icon: ListChecks, permission: ["questions.manage", "questions.create", "questions.edit.own"] },
+    // Grading/Certificates/CPD Review aren't gated on a permission key yet --
+    // academy_role_permissions doesn't grant exams.grade.manual,
+    // certificates.manage or cpd.manage to `instructor` today even though
+    // their routes allow isStaff. Once an admin seeds those grants (see
+    // NOTES), swap these to `permission:` like the items above.
     { to: "/admin/grading", label: "Grading Queue", icon: ClipboardCheck },
     { to: "/admin/certificates", label: "Certificates", icon: Award },
     { to: "/admin/licenses", label: "Licenses", icon: IdCard },
-    { to: "/admin/compliance", label: "Compliance", icon: ShieldCheck },
     { to: "/admin/cpd", label: "CPD Review", icon: BadgeCheck },
-    { to: "/admin/promotions", label: "Promotions", icon: TrendingUp },
-    { to: "/admin/simulations", label: "Simulations", icon: Boxes },
-    { to: "/admin/mentorship", label: "Mentorship", icon: Handshake },
-    { to: "/admin/resources", label: "Resources", icon: FolderOpen },
-    { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
-    { to: "/admin/reports", label: "Reports", icon: TrendingUp },
+    { to: "/admin/resources", label: "Resources", icon: FolderOpen, permission: ["resources.upload"] },
+    { to: "/admin/reports", label: "Reports", icon: TrendingUp, permission: ["reports.all", "reports.view.courses", "reports.view.exams"] },
   ];
-  if (isAdmin) {
-    staff.push({ to: "/admin/permissions", label: "Roles & Permissions", icon: ShieldCheck });
-    staff.push({ to: "/admin/settings", label: "Settings", icon: Settings });
-  }
+  // Admins always see the full instructor toolset too; a plain instructor
+  // only sees items whose permission they actually hold.
+  const staff: Item[] = isAdmin
+    ? allStaffItems
+    : allStaffItems.filter((it) => !it.permission || canAny(it.permission));
 
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
@@ -71,11 +84,28 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto p-3 space-y-6">
         {/* Admins see only the admin console; arbiter/learner menus would be confusing
             (and the user explicitly asked for them to be hidden). Non-admin staff
-            (instructors) still see both so they can teach AND moderate. */}
+            (instructors) still see both so they can teach AND moderate. NCAA-wide
+            Academy administration (users/roles, compliance, mentorship, promotions,
+            simulations, announcements, settings) is superadmin-tier and lives in
+            the NCAA Command Center, linked below for admins only. */}
         {!isAdmin && (
           <SidebarSection title="Learning" items={learner} pathname={location.pathname} />
         )}
-        {isStaff && <SidebarSection title="Administration" items={staff} pathname={location.pathname} />}
+        {isStaff && <SidebarSection title="Instructor Tools" items={staff} pathname={location.pathname} />}
+        {isAdmin && (
+          <div>
+            <div className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-wider opacity-60">NCAA-wide admin</div>
+            <a
+              href={COMMAND_CENTER_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition hover:bg-sidebar-accent text-sidebar-foreground/90"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span>NCAA Command Center</span>
+            </a>
+          </div>
+        )}
       </nav>
       <div className="p-3 border-t border-sidebar-border">
         <Link to="/profile" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm hover:bg-sidebar-accent transition">
